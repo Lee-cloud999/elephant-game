@@ -178,6 +178,10 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 .trk .tb{margin-left:auto; flex:none; font-family:var(--font-display); font-size:13px; color:#3F5BD0; display:none}
 .trk.on{border-color:#6B86E8; background:#E8EEFF}
 .trk.on .tb{display:inline}
+.swatches{display:grid; grid-template-columns:repeat(6,1fr); gap:6px}
+.swc{min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0 4px; border:2px solid transparent; border-radius:16px; background:#F5F8FF; cursor:pointer; font-family:var(--font-display); font-size:13px}
+.swc i{display:block; width:34px; height:34px; border-radius:50%; background:var(--c); box-shadow:inset 0 0 0 3px rgba(255,255,255,.55), 0 2px 0 rgba(52,64,106,.18)}
+.swc.on{border-color:#6B86E8; background:#E8EEFF}
 .buy:disabled{background:#E7E9F2; color:#9AA2BE; cursor:default}
 
 @media (prefers-reduced-motion:reduce){
@@ -395,6 +399,9 @@ body{margin:0}
       <h2 id="shopTitle">꾸미기</h2>
       <div class="chip"><svg class="ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b></div>
     </div>
+    <h3 class="sub">몸 색깔</h3>
+    <div class="swatches" id="colorList"></div>
+    <h3 class="sub">아이템</h3>
     <div id="shopList" style="display:flex;flex-direction:column;gap:8px"></div>
     <button class="ghost" id="shopClose">닫기</button>
   </div>
@@ -437,7 +444,7 @@ var tray=$('tray'), sleepLabel=$('sleepLabel');
 
 /* ---------- 저장 ---------- */
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,t:Date.now()};
+  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -446,6 +453,7 @@ function load(){
     if(typeof r.sfxVol!=='number') r.sfxVol=.7;
     if(typeof r.bgmVol!=='number') r.bgmVol=.5;
     if(typeof r.bgmTrack!=='number') r.bgmTrack=0;
+    if(typeof r.color!=='string') r.color='blue';
     return r; } }catch(e){}
   return fresh();
 }
@@ -1209,6 +1217,45 @@ async function hospital(){
   }
 }
 
+/* ---------- 몸 색깔 ---------- */
+var COLORS=[
+  {id:'blue',  name:'파랑', say:'파란색',  hex:'#B9C6EE'},
+  {id:'pink',  name:'분홍', say:'분홍색',  hex:'#F5A3C2'},
+  {id:'mint',  name:'민트', say:'민트색',  hex:'#A5E8CF'},
+  {id:'yellow',name:'노랑', say:'노란색',  hex:'#FBE08A'},
+  {id:'purple',name:'보라', say:'보라색',  hex:'#CDB4F2'},
+  {id:'gray',  name:'회색', say:'회색',    hex:'#B9BEC9'}
+];
+var POSE_IDS=['idle','sad','sleep','eat','angry','joy','surprise'];
+function poseSrc(color,p){ return 'assets/'+(color==='blue'?'':color+'/')+p+'.webp'; }
+function applyColor(){
+  POSE_IDS.forEach(function(p){
+    var el=document.querySelector('.p-'+p); if(el) el.setAttribute('href', poseSrc(S.color,p));
+  });
+}
+function renderColors(){
+  var box=$('colorList'); box.innerHTML='';
+  COLORS.forEach(function(c){
+    var b=document.createElement('button'); b.className='swc'+(S.color===c.id?' on':'');
+    b.setAttribute('aria-label',c.name+' 코끼리'); b.setAttribute('aria-pressed', S.color===c.id ? 'true' : 'false');
+    b.innerHTML='<i style="--c:'+c.hex+'"></i>'+c.name;
+    b.addEventListener('click',function(){ setColor(c); });
+    box.appendChild(b);
+  });
+}
+function setColor(c){
+  if(S.color===c.id) return;
+  S.color=c.id; renderColors();
+  var loads=POSE_IDS.map(function(p){ return new Promise(function(res){ var im=new Image(); im.onload=res; im.onerror=res; im.src=poseSrc(c.id,p); }); });
+  Promise.race([Promise.all(loads), wait(2000)]).then(function(){
+    applyColor(); commit();
+    sfx.up();
+    say(ga(nm())+' '+c.say+'으로'+' 바뀌었어요!', 3000);
+    setFlash('joy',1800);
+    hop.animate([{transform:'translateY(0)'},{transform:'translateY(-18px)'},{transform:'translateY(0)'}],{duration:500,easing:'ease-out'});
+  });
+}
+
 /* ---------- 이벤트 ---------- */
 hop.addEventListener('pointerdown',poke);
 $('feedBtn').addEventListener('click',function(){ endPet(); if(locked) return; if(sleepingGuard()) return; tray.hidden=!tray.hidden; });
@@ -1219,7 +1266,7 @@ $('petBtn').addEventListener('click',startPet);
 $('walkBtn').addEventListener('click',function(){ endPet(); walk(); });
 $('hospBtn').addEventListener('click',function(){ endPet(); hospital(); });
 $('sleepBtn').addEventListener('click',function(){ endPet(); if(S.sleeping) wake(); else startSleep(); });
-$('decorBtn').addEventListener('click',function(){ tray.hidden=true; renderShop(); $('shopWrap').hidden=false; });
+$('decorBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; renderShop(); renderColors(); $('shopWrap').hidden=false; });
 $('shopClose').addEventListener('click',function(){ $('shopWrap').hidden=true; });
 $('shopWrap').addEventListener('pointerdown',function(e){ if(e.target===$('shopWrap')) $('shopWrap').hidden=true; });
 $('nameBtn').addEventListener('click',function(){ openName(false); });
@@ -1233,6 +1280,7 @@ tickBy(Math.min((Date.now()-last)/1000,21600)*.25);
 last=Date.now();
 render();
 if(S.sleeping) zIv=setInterval(zzz,1700);
+if(S.color && S.color!=='blue') applyColor();
 if(!S.name){
   openName(true);
 }else{
