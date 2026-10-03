@@ -218,6 +218,14 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 .hth svg{width:100%; height:100%; display:block}
 .hmeta{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
 .hmeta b{font-weight:400; font-size:19px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.hbtns{display:flex; flex-direction:column; gap:5px; flex:none}
+.hb{border:0; border-radius:12px; padding:7px 10px; font-size:13px; cursor:pointer; background:#E3E9FA; color:#3B4A8F; white-space:nowrap}
+.hb.on{background:#CDEBD2; color:#1E5A32}
+.hb.go{background:#FFE08A; color:#5E4600}
+.hb:disabled{opacity:.45; cursor:default}
+.hhint{padding:2px 4px 6px; font-size:13px; color:var(--ink-soft); line-height:1.4}
+#comp{transition:opacity .6s}
+.walking #comp,.hospital #comp,.schooling #comp{opacity:0; pointer-events:none}
 .hmeta small{color:var(--ink-soft); font-size:13px; line-height:1.35}
 .hempty{padding:14px; text-align:center; color:var(--ink-soft); font-size:14px; line-height:1.5}
 .sub{margin:4px 0 0; font-family:var(--font-display); font-weight:400; font-size:18px}
@@ -382,6 +390,7 @@ body{margin:0}
           <circle cx="-16" cy="-124" r="4" fill="#FFB0A0" opacity=".7"/><circle cx="16" cy="-124" r="4" fill="#FFB0A0" opacity=".7"/>
         </g>
       </g>
+      <g id="comp"></g>
       <g id="eleWrap" style="--s:.64">
         <ellipse class="shadow" cx="0" cy="3" rx="88" ry="11"/>
         <g id="hop"><g id="ele" class="breathe" data-pose="idle">
@@ -570,8 +579,9 @@ var scene=$('scene'), fx=$('fx'), eleWrap=$('eleWrap'), hop=$('hop'), ele=$('ele
 var tray=$('tray'), sleepLabel=$('sleepLabel');
 
 /* ---------- 저장 ---------- */
+function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],born:Date.now(),schoolDay:'',t:Date.now()};
+  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -585,6 +595,25 @@ function load(){
     if(!Array.isArray(r.herd)) r.herd=[];
     if(typeof r.schoolDay!=='string') r.schoolDay='';
     if(typeof r.born!=='number') r.born=r.t||Date.now();
+    if(typeof r.id!=='string') r.id=newId();
+    if(typeof r.grad!=='number') r.grad=0;
+    r.herd.forEach(function(h,i){
+      if(typeof h.id!=='string') h.id='h'+i+(h.grad||Date.now()).toString(36);
+      if(typeof h.xp!=='number') h.xp=lvAt(MAXLV);
+      ['hunger','thirst','clean','happy'].forEach(function(k){ if(typeof h[k]!=='number') h[k]=70; });
+      if(typeof h.energy!=='number') h.energy=80;
+      if(!h.worn || typeof h.worn!=='object') h.worn={};
+      if(!h.adj || typeof h.adj!=='object') h.adj={};
+      if(typeof h.color!=='string') h.color='blue';
+      if(typeof h.sleeping!=='boolean') h.sleeping=false;
+      if(typeof h.sleepFrom!=='number') h.sleepFrom=0;
+      if(typeof h.sick!=='boolean') h.sick=false;
+      if(typeof h.sickT!=='number') h.sickT=0;
+      if(typeof h.grad!=='number') h.grad=0;
+      if(typeof h.born!=='number') h.born=h.grad||Date.now();
+      h.onScreen=!!h.onScreen;
+    });
+    var n=0; r.herd.forEach(function(h){ if(h.onScreen){ if(n>=2 || h.xp<lvAt(MAXLV)) h.onScreen=false; else n++; } });
     return r; } }catch(e){}
   return fresh();
 }
@@ -1205,21 +1234,100 @@ function thumbSvg(rec){
 function fmtDate(t){ var d=new Date(t); return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate(); }
 function daysBetween(a,b){ return Math.max(1,Math.ceil((b-a)/86400000)); }
 function curRec(){ return {name:nm(), color:S.color, worn:S.worn, adj:S.adj}; }
+var ELE_KEYS=['id','name','xp','hunger','thirst','clean','happy','energy','worn','adj','color','sleeping','sleepFrom','sick','sickT','born','grad'];
+function cp(v){ return (v&&typeof v==='object')?JSON.parse(JSON.stringify(v)):v; }
+function packEle(){ var o={}; ELE_KEYS.forEach(function(k){ o[k]=cp(S[k]); }); o.onScreen=false; return o; }
+function unpackEle(rec){ ELE_KEYS.forEach(function(k){ S[k]=cp(rec[k]); }); }
+function levelOfXp(xp){ var L=1; for(var j=2;j<=MAXLV;j++) if(xp>=lvAt(j)) L=j; return L; }
+function isMax(rec){ return levelOfXp(rec.xp)>=MAXLV; }
+function screenCount(){ return S.herd.filter(function(h){ return h.onScreen; }).length; }
 function renderHerd(){
   var box=$('herdList'); box.innerHTML='';
-  function row(rec,cls,title,sub){
+  function row(rec,cls,title,sub,btns){
     var d=document.createElement('div'); d.className='hrow'+cls;
     d.innerHTML='<div class="hth">'+thumbSvg(rec)+'</div><div class="hmeta"><b></b><small></small></div>';
     d.querySelector('b').textContent=title; d.querySelector('small').textContent=sub;
+    if(btns && btns.length){
+      var w=document.createElement('div'); w.className='hbtns';
+      btns.forEach(function(bt){ var b=document.createElement('button'); b.className='hb'+(bt.cls?' '+bt.cls:''); b.textContent=bt.text; b.disabled=!!bt.off; b.addEventListener('click',bt.fn); w.appendChild(b); });
+      d.appendChild(w);
+    }
     box.appendChild(d);
   }
   var L=level();
   row(curRec(),' now', nm()+' · 키우는 중', 'Lv.'+(L>=MAXLV?'MAX':L)+' · '+stageName(L)+' · '+daysBetween(S.born,Date.now())+'일째');
+  var cnt=screenCount();
   var hs=S.herd.slice().reverse();
-  hs.forEach(function(r,i){
-    row(r,'', r.name+' · 졸업', 'Lv.MAX · '+daysBetween(r.born||r.grad,r.grad)+'일 키움 · '+fmtDate(r.grad)+' 졸업 · '+(S.herd.length-i)+'번째');
+  if(hs.some(isMax)){
+    var h=document.createElement('div'); h.className='hhint';
+    h.textContent='만렙 코끼리는 화면에 두 마리까지 부를 수 있어요 (지금 '+cnt+'/2)';
+    box.appendChild(h);
+  }
+  hs.forEach(function(r){
+    var mx=isMax(r), btns=[];
+    if(mx) btns.push(r.onScreen
+      ? {text:'돌려보내기', cls:'on', fn:function(){ toggleScreen(r.id); }}
+      : {text:'화면에 부르기', off:cnt>=2, fn:function(){ toggleScreen(r.id); }});
+    btns.push({text:'이어 키우기', cls:'go', fn:function(){ continueWith(r.id); }});
+    var sub = mx
+      ? 'Lv.MAX · '+daysBetween(r.born||r.grad,r.grad||Date.now())+'일 키움'+(r.grad?' · '+fmtDate(r.grad)+' 졸업':'')+(r.onScreen?' · 화면에 있어요':'')
+      : 'Lv.'+levelOfXp(r.xp)+' · '+stageName(levelOfXp(r.xp))+' · 잠시 쉬는 중';
+    row(r,'', r.name+(mx?' · 졸업':''), sub, btns);
   });
   if(!hs.length){ var e=document.createElement('div'); e.className='hempty'; e.textContent='아직 졸업한 코끼리가 없어요. 만렙(Lv.'+MAXLV+')까지 키우면 여기에 기록돼요.'; box.appendChild(e); }
+}
+function toggleScreen(id){
+  var h=S.herd.filter(function(x){ return x.id===id; })[0]; if(!h) return;
+  if(h.onScreen){ h.onScreen=false; sfx.pop(); }
+  else{
+    if(!isMax(h)) return;
+    if(screenCount()>=2){ say('화면에는 만렙 코끼리를 두 마리까지만 부를 수 있어요', 3200); return; }
+    h.onScreen=true; sfx.up();
+  }
+  save(); renderComp(); renderHerd();
+  if(h.onScreen) say(ga(h.name)+' 놀러 왔어요!', 2800);
+}
+function continueWith(id){
+  var i=-1; S.herd.forEach(function(x,k){ if(x.id===id) i=k; });
+  if(i<0) return;
+  if(locked){ say('지금은 바꿀 수 없어요. 잠깐만 기다려 주세요', 2600); return; }
+  endPet(); tray.hidden=true;
+  var rec=S.herd.splice(i,1)[0];
+  var old=packEle(); if(level()>=MAXLV && !old.grad) old.grad=Date.now();
+  S.herd.push(old);
+  unpackEle(rec); S.t=Date.now(); last=Date.now();
+  if(zIv){ clearInterval(zIv); zIv=null; }
+  if(S.sleeping) zIv=setInterval(zzz,1700);
+  applyColor(); $('herdWrap').hidden=true; commit(); renderComp();
+  sfx.up(); if(!S.sleeping){ setFlash('joy',2200); say(ga(nm())+' 돌아왔어요! 또 같이 놀아요', 3400); }
+}
+/* 화면에 부른 만렙 코끼리 */
+function renderComp(){
+  var g=$('comp'); g.innerHTML='';
+  var list=S.herd.filter(function(h){ return h.onScreen && isMax(h); }).slice(0,2);
+  var xs=list.length===1?[74]:[74,326], sc=.42;
+  list.forEach(function(h,i){
+    var outer=mk('g',{transform:'translate('+xs[i]+' 306)',style:'cursor:pointer'},g);
+    mk('ellipse',{cx:0,cy:3,rx:44,ry:6,fill:'rgba(0,0,0,.14)'},outer);
+    var bob=mk('g',{},outer), sg=mk('g',{transform:'scale('+(sc*.519)+') translate(-320 -514)'},bob);
+    var im=mk('image',{href:poseSrc(h.color,'idle'),x:0,y:0,width:640,height:520},sg);
+    ACC_ORDER.forEach(function(id){
+      var it=SHOP.filter(function(x){ return x.id===id; })[0];
+      if(it && h.worn && h.worn[it.slot]===id) mk('use',{href:'#g-'+id,transform:accTf(it,adjOf(h.adj,id),0)},sg);
+    });
+    bob.animate([{transform:'translateY(0)'},{transform:'translateY(-3px)'}],{duration:rand(1500,2100),direction:'alternate',iterations:Infinity,easing:'ease-in-out'});
+    var busy=false;
+    outer.addEventListener('pointerdown',function(e){
+      e.stopPropagation();
+      if(busy) return; busy=true;
+      sfx.pop(); im.setAttribute('href',poseSrc(h.color,'joy'));
+      var ht=mk('use',{href:'#i-heart',x:-10,y:-96,width:20,height:20},outer);
+      ht.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-22px)',opacity:0}],{duration:900,fill:'forwards'});
+      bob.animate([{transform:'translateY(0)'},{transform:'translateY(-12px)'},{transform:'translateY(0)'}],{duration:450,easing:'ease-out'});
+      say(ga(h.name)+' 반가워요!', 2200);
+      setTimeout(function(){ im.setAttribute('href',poseSrc(h.color,'idle')); ht.remove(); busy=false; },1000);
+    });
+  });
 }
 function openGrad(){
   $('gradMsg').textContent=ga(nm())+' Lv.'+MAXLV+'까지 다 자랐어요! 도감에 기록하고 새 코끼리를 키울 수 있어요. 코인과 모은 아이템은 그대로 가져가요.';
@@ -1227,13 +1335,14 @@ function openGrad(){
 }
 function graduate(){
   if(level()<MAXLV) return;
-  S.herd.push({name:nm(), color:S.color, worn:JSON.parse(JSON.stringify(S.worn||{})), adj:JSON.parse(JSON.stringify(S.adj||{})), level:MAXLV, born:S.born, grad:Date.now()});
+  S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
+  S.herd.push(packEle());
   var keep={coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
   applyColor(); endPet(); tray.hidden=true; if(typeof zIv!=='undefined' && zIv){ clearInterval(zIv); zIv=null; }
-  $('gradWrap').hidden=true; commit();
+  $('gradWrap').hidden=true; commit(); renderComp();
   sfx.up(); confetti(); openName(true);
 }
 $('newEleBtn').addEventListener('click',openGrad);
@@ -1691,6 +1800,7 @@ last=Date.now();
 render();
 if(S.sleeping) zIv=setInterval(zzz,1700);
 if(S.color && S.color!=='blue') applyColor();
+renderComp();
 if(!S.name){
   openName(true);
 }else{
