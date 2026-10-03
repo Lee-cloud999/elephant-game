@@ -542,10 +542,11 @@ var NS = 'http://www.w3.org/2000/svg';
 var KEY = 'elephant-game-v1';
 var OX = 200, OY = 306;
 var KEYS = ['hunger','thirst','clean','happy','energy'];
-var MAXLV = 20;
-function lvAt(L){ return Math.round(8*(L-1)+1.5*(L-1)*(L-1)); }
-function stageName(L){ return L>=15?'멋쟁이 코끼리':(L>=10?'개구쟁이 코끼리':(L>=5?'꼬마 코끼리':'아기 코끼리')); }
-function lvScale(L){ return .64+.38*(L-1)/(MAXLV-1); }
+var MAXLV = 50;
+/* Lv.20까지는 예전과 같은 곡선, 그 뒤로는 레벨당 경험치 70씩 */
+function lvAt(L){ var k=Math.min(L,20)-1, v=Math.round(8*k+1.5*k*k); return L>20 ? v+(L-20)*70 : v; }
+function stageName(L){ return L>=45?'전설의 코끼리':(L>=35?'슈퍼 코끼리':(L>=25?'대장 코끼리':(L>=15?'멋쟁이 코끼리':(L>=10?'개구쟁이 코끼리':(L>=5?'꼬마 코끼리':'아기 코끼리'))))); }
+function lvScale(L){ return .64+.38*(Math.min(L,20)-1)/19; }
 var FOODS = {
   banana:{hunger:22, happy:2,  xp:6, line:'바나나 냠냠, 달콤해요!'},
   melon: {hunger:28, thirst:10, happy:6,  xp:7, line:'수박이 시원하고 맛있어요!'},
@@ -613,6 +614,10 @@ function load(){
       if(typeof h.born!=='number') h.born=h.grad||Date.now();
       h.onScreen=!!h.onScreen;
     });
+    /* 만렙이 20이던 때 졸업한 코끼리는 졸업한 채로 둬요 */
+    var MX=lvAt(MAXLV);
+    r.herd.forEach(function(h){ if(h.grad>0 && h.xp<MX) h.xp=MX; });
+    if(r.grad>0 && r.xp<MX) r.xp=MX;
     var n=0; r.herd.forEach(function(h){ if(h.onScreen){ if(n>=2 || h.xp<lvAt(MAXLV)) h.onScreen=false; else n++; } });
     return r; } }catch(e){}
   return fresh();
