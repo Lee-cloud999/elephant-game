@@ -194,6 +194,41 @@ button.prow{cursor:pointer}
 .wxs{fill:#fff; opacity:.9; animation:wxfall linear infinite}
 @keyframes wxfall{from{transform:translateY(-30px)}to{transform:translateY(380px)}}
 .roomBtn.wxBtn{left:56px}
+.roomBtn.rdBtn{left:102px}
+.scene:not(.inroom) .rdBtn{display:none}
+.scene.rdedit .roomBtn{display:none}
+#roomItems .ritem{touch-action:none}
+.scene.rdedit #roomItems .ritem{pointer-events:auto; cursor:grab}
+.scene.rdedit #eleWrap,.scene.rdedit #comp{pointer-events:none}
+.scene.rdedit #world{touch-action:none}
+.scene.rdedit{outline:3px dashed #FF8FB1; outline-offset:-3px}
+#rdWrap .sheet{padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px)); gap:6px; border-radius:18px 18px 0 0}
+#rdWrap .chips{flex-wrap:nowrap; overflow-x:auto; gap:6px; padding-bottom:2px}
+#rdWrap .chipb{flex:none; padding:5px 10px; font-size:14px}
+.scene.rdedit #world{transform:translateY(-62px)}
+.rdtop{display:flex; align-items:center; gap:8px}
+.rdtop .rdmsg{flex:1; min-width:0; font-size:13px; color:var(--ink-soft); line-height:1.25}
+.rdtop .rdmsg b{color:var(--ink)}
+.rdtop .buy{flex:none; padding:8px 12px; font-size:15px; display:flex; align-items:center; gap:4px; border-radius:14px}
+.rdres{position:absolute; left:50%; top:12px; transform:translateX(-50%); z-index:4; background:rgba(255,255,255,.96); border-radius:18px; padding:10px 18px; text-align:center; box-shadow:0 6px 20px rgba(36,46,92,.3); pointer-events:none; min-width:150px}
+.rdres img{width:96px; height:80px; object-fit:contain; display:block; margin:0 auto 2px}
+.rdres b{display:block; font-size:15px}
+.rdres .cap{font-size:44px; animation:rdshake .9s ease-in-out}
+@keyframes rdshake{0%,100%{transform:rotate(0)}15%{transform:rotate(-16deg)}35%{transform:rotate(14deg)}55%{transform:rotate(-12deg)}75%{transform:rotate(8deg)}}
+.rdres.pop img{animation:rdpop .5s ease-out}
+@keyframes rdpop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.2);opacity:1}100%{transform:scale(1)}}
+.rdres.t2{box-shadow:0 0 0 3px #FFB300,0 6px 24px rgba(255,179,0,.5)}
+.rdgrid{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px}
+.rdt{flex:none; width:66px; border:2px solid #D5DBF2; background:#fff; border-radius:12px; padding:3px 2px; text-align:center; font-size:11px; color:var(--ink); line-height:1.15; cursor:pointer; position:relative}
+.rdt img{width:56px; height:44px; object-fit:contain; display:block; margin:0 auto}
+.rdt.on{border-color:#58B96B; background:#EAF8EC}
+.rdt.sel{border-color:#FF4F8B; background:#FFEAF2}
+.rdt i{position:absolute; top:2px; right:3px; font-style:normal; font-size:10px; color:#2F9E5B; font-weight:700}
+#rdWrap .rdctl{display:flex; align-items:center; gap:6px}
+#rdWrap .rdctl .zb{width:38px; height:34px; border-radius:12px; font-size:20px}
+#rdWrap .rdctl .pct{font-size:14px; min-width:44px; text-align:center}
+#rdWrap .rdctl .del{margin-left:auto; padding:7px 12px; border-radius:12px; border:0; background:#FFE3E3; color:#8A2A2A; font-size:14px}
+#rdWrap .rdctl .done{padding:7px 14px; border-radius:12px; border:0; background:#E8EEFF; color:#2F3F8F; font-size:14px}
 #room .roomnight{opacity:0} .scene.night #room .roomnight{opacity:1} .scene.night #room .roomwin{opacity:0} .scene.night #room .roomdim{opacity:.28}
 .roomBtn{position:absolute; top:10px; left:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.82); font-size:21px; line-height:40px; padding:0; box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer}
 .scene.editing .roomBtn,.scene.editing .wxBtn,.walking .roomBtn,.hospital .roomBtn,.schooling .roomBtn{display:none}
@@ -446,22 +481,16 @@ body{margin:0}
       <g class="deco"><circle cx="95" cy="334" r="4.5" fill="#FF9EC4"/><circle cx="95" cy="334" r="1.8" fill="#FFE27A"/><circle cx="318" cy="330" r="4.5" fill="#FFFFFF"/><circle cx="318" cy="330" r="1.8" fill="#FFE27A"/><circle cx="352" cy="344" r="4.5" fill="#FFB3A1"/><circle cx="352" cy="344" r="1.8" fill="#FFE27A"/><circle cx="58" cy="322" r="4.5" fill="#FFFFFF"/><circle cx="58" cy="322" r="1.8" fill="#FFE27A"/><circle cx="140" cy="346" r="4.5" fill="#C9B6FF"/><circle cx="140" cy="346" r="1.8" fill="#FFE27A"/></g>
 
       <g id="room">
-        <rect x="-600" y="-800" width="1600" height="1090" fill="#FFE9EE"/>
-        <g opacity=".55" fill="#FFD0DC"><circle cx="30" cy="30" r="6"/><circle cx="90" cy="70" r="6"/><circle cx="150" cy="30" r="6"/><circle cx="210" cy="70" r="6"/><circle cx="270" cy="30" r="6"/><circle cx="330" cy="70" r="6"/><circle cx="390" cy="30" r="6"/><circle cx="30" cy="110" r="6"/><circle cx="90" cy="150" r="6"/><circle cx="150" cy="110" r="6"/><circle cx="210" cy="150" r="6"/><circle cx="270" cy="110" r="6"/><circle cx="330" cy="150" r="6"/><circle cx="390" cy="110" r="6"/><circle cx="30" cy="190" r="6"/><circle cx="150" cy="190" r="6"/><circle cx="270" cy="190" r="6"/><circle cx="390" cy="190" r="6"/><circle cx="90" cy="230" r="6"/><circle cx="210" cy="230" r="6"/><circle cx="330" cy="230" r="6"/></g>
-        <rect x="-600" y="262" width="1600" height="700" fill="#E6BE8A"/>
-        <g stroke="#CFA06A" stroke-width="2"><path d="M-600 262H1000"/><path d="M-20 262V360M80 262V360M180 262V360M280 262V360M380 262V360" opacity=".5"/><path d="M-600 300H1000M-600 336H1000" opacity=".5"/></g>
-        <rect x="-600" y="254" width="1600" height="10" fill="#fff" stroke="#F2CFD8" stroke-width="2"/>
-        <rect x="236" y="62" width="104" height="96" rx="8" fill="#BFE6F7" stroke="#fff" stroke-width="8"/>
-        <g class="roomwin"><rect x="240" y="66" width="96" height="88" rx="5" fill="#BFE6F7"/><ellipse cx="270" cy="92" rx="16" ry="7" fill="#fff"/><ellipse cx="280" cy="88" rx="10" ry="6" fill="#fff"/><circle cx="318" cy="84" r="9" fill="#FFD166"/></g>
-        <g class="roomnight"><rect x="240" y="66" width="96" height="88" rx="5" fill="#2A3570"/><circle cx="312" cy="88" r="11" fill="#FFF1B8"/><circle cx="262" cy="84" r="1.8" fill="#FFF6C9"/><circle cx="284" cy="120" r="1.6" fill="#FFF6C9"/><circle cx="256" cy="136" r="1.6" fill="#FFF6C9"/></g>
-        <path d="M288 62V158M236 110H340" stroke="#fff" stroke-width="5"/>
-        <path d="M222 56H234V164H222Q214 110 222 56ZM354 56H342V164H354Q362 110 354 56Z" fill="#FFB3C7" opacity=".9"/>
-        <rect x="42" y="64" width="62" height="48" rx="4" fill="#fff" stroke="#C99A5E" stroke-width="5"/><circle cx="62" cy="82" r="7" fill="#FFD166"/><path d="M48 106L68 88L82 100L92 92L100 106Z" fill="#7FCB6F"/>
-        <rect x="120" y="76" width="44" height="34" rx="4" fill="#fff" stroke="#C99A5E" stroke-width="5"/><path d="M142 104C128 94 130 84 137 84C140 84 142 86 142 88C142 86 144 84 147 84C154 84 156 94 142 104Z" fill="#FF8FB1"/>
-        <rect x="30" y="196" width="130" height="8" rx="3" fill="#C99A5E"/>
-        <rect x="40" y="170" width="18" height="26" rx="3" fill="#9ED4F5"/><rect x="62" y="176" width="16" height="20" rx="3" fill="#FFB3C1"/><rect x="82" y="168" width="16" height="28" rx="3" fill="#BDE8A6"/><circle cx="130" cy="184" r="12" fill="#C9B6FF"/><circle cx="127" cy="181" r="3" fill="#fff" opacity=".6"/>
-        <rect x="352" y="214" width="34" height="40" rx="6" fill="#E8896B" stroke="#B8604A" stroke-width="3"/><g fill="#6FBF73" stroke="#3E8E50" stroke-width="2.5"><ellipse cx="360" cy="196" rx="8" ry="18" transform="rotate(-25 360 196)"/><ellipse cx="378" cy="194" rx="8" ry="18" transform="rotate(25 378 194)"/><ellipse cx="369" cy="190" rx="7" ry="20"/></g>
-        <ellipse cx="200" cy="312" rx="150" ry="24" fill="#FF9FB9" stroke="#fff" stroke-width="4"/><ellipse cx="200" cy="312" rx="106" ry="15" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="6 6"/>
+        <defs>
+          <pattern id="rdWallP" patternUnits="userSpaceOnUse" x="0" y="150" width="114" height="104"><image id="rdWallI" x="0" y="0" width="114" height="104"/></pattern>
+          <pattern id="rdFloorP" patternUnits="userSpaceOnUse" x="0" y="264" width="132" height="99"><image id="rdFloorI" x="0" y="0" width="132" height="99"/></pattern>
+        </defs>
+        <rect x="-600" y="-800" width="1600" height="1054" fill="#FFE9EE"/>
+        <rect x="-600" y="-800" width="1600" height="1054" fill="url(#rdWallP)"/>
+        <rect x="-600" y="254" width="1600" height="10" fill="#fff" stroke="#E7CBD3" stroke-width="2"/>
+        <rect x="-600" y="264" width="1600" height="700" fill="#E6BE8A"/>
+        <rect x="-600" y="264" width="1600" height="700" fill="url(#rdFloorP)"/>
+        <g id="roomItems"></g>
         <rect class="roomdim" x="-600" y="-800" width="1600" height="1100" fill="#141B4A" opacity="0"/>
       </g>
       <g id="walkG"><g id="strip"><use href="#stripT"/><use href="#stripT" x="400"/></g></g>
@@ -530,6 +559,7 @@ body{margin:0}
       <g id="fx"></g>
     </svg>
     <button class="roomBtn wxBtn" id="wxBtn" aria-label="날씨 가져오기">🌤️</button>
+    <button class="roomBtn rdBtn" id="rdBtn" aria-label="방 꾸미기">🛋️</button>
     <button class="roomBtn" id="roomBtn" aria-label="배경 바꾸기">🏠</button>
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
   </section>
@@ -661,6 +691,18 @@ body{margin:0}
   </div>
 </div>
 
+<div class="wrap bottom pass" id="rdWrap" hidden>
+  <div class="sheet" role="dialog" aria-label="방 꾸미기">
+    <div class="rdtop"><div class="chip"><svg class="ico"><use href="#i-coin"/></svg><b id="rdCoins">0</b></div><div class="rdmsg" id="rdMsg"></div><button class="buy" id="rdPull"></button></div>
+    <div class="chips" id="rdTabs"></div>
+    <div class="rdgrid" id="rdGrid"></div>
+    <div class="rdctl" id="rdCtl">
+      <button class="zb" id="rdMinus" aria-label="작게">−</button><div class="pct" id="rdPct">100%</div><button class="zb" id="rdPlus" aria-label="크게">+</button>
+      <button class="del" id="rdDel">치우기</button><button class="done" id="rdDone">완료</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap bottom pass" id="editWrap" hidden>
   <div class="sheet" role="dialog" aria-label="아이템 위치와 크기">
     <div class="edhint" id="edHint">화면을 끌어서 아이템을 옮겨요</div>
@@ -704,6 +746,7 @@ var SHOP = [];
 /* 이미지로 만든 아이템: {id,name,slot,tier,cost,file:'assets/items/id.webp',box:[x,y,w,h]} 를 여기에 추가하면
    뽑기·꾸미기·도감에 자동으로 들어가요. box는 캔버스(640x520) 좌표, vb는 box 와 같아요. */
 var IMG_ITEMS = [{"id": "ribbon", "name": "빨간 리본", "slot": "side", "tier": 0, "cost": 8, "file": "assets/items/ribbon.webp", "box": [374.5, 56.1, 125, 71.7]}, {"id": "flower", "name": "꽃 핀", "slot": "side", "tier": 0, "cost": 12, "file": "assets/items/flower.webp", "box": [152.5, 43.1, 105, 97.7]}, {"id": "sprout", "name": "새싹 핀", "slot": "side", "tier": 0, "cost": 8, "file": "assets/items/sprout.webp", "box": [382.0, 53.3, 110, 77.5]}, {"id": "heart", "name": "하트 핀", "slot": "side", "tier": 0, "cost": 10, "file": "assets/items/heart.webp", "box": [383.0, 46.8, 108, 90.4]}, {"id": "star", "name": "별 핀", "slot": "side", "tier": 0, "cost": 10, "file": "assets/items/star.webp", "box": [383.0, 37.5, 108, 108.9]}, {"id": "cloudbow", "name": "구름 무지개 핀", "slot": "side", "tier": 0, "cost": 12, "file": "assets/items/cloudbow.webp", "box": [377.0, 51.8, 120, 80.5]}, {"id": "cherry", "name": "체리 핀", "slot": "side", "tier": 0, "cost": 12, "file": "assets/items/cherry.webp", "box": [387.0, 42.4, 100, 99.2]}, {"id": "glasses", "name": "동그란 안경", "slot": "face", "tier": 1, "cost": 15, "file": "assets/items/glasses.webp", "box": [143.5, 166.3, 355, 147.4]}, {"id": "scarf", "name": "따뜻한 목도리", "slot": "neck", "tier": 1, "cost": 20, "file": "assets/items/scarf.webp", "box": [179.5, 318.9, 285, 178.3]}, {"id": "hat", "name": "파티 모자", "slot": "head", "tier": 1, "cost": 25, "file": "assets/items/hat.webp", "box": [250.0, -80.1, 140, 168.1]}, {"id": "wingpin", "name": "날개 핀", "slot": "side", "tier": 1, "cost": 18, "file": "assets/items/wingpin.webp", "box": [379.5, 46.4, 115, 91.1]}, {"id": "purplebow", "name": "보라 리본 핀", "slot": "side", "tier": 1, "cost": 15, "file": "assets/items/purplebow.webp", "box": [377.0, 50.1, 120, 83.8]}, {"id": "lacebow", "name": "레이스 리본 핀", "slot": "side", "tier": 1, "cost": 18, "file": "assets/items/lacebow.webp", "box": [379.5, 38.0, 115, 108.1]}, {"id": "snow", "name": "눈꽃 핀", "slot": "side", "tier": 1, "cost": 20, "file": "assets/items/snow.webp", "box": [387.0, 48.3, 100, 87.4]}, {"id": "moon", "name": "달별 핀", "slot": "side", "tier": 1, "cost": 22, "file": "assets/items/moon.webp", "box": [382.0, 39.7, 110, 104.6]}, {"id": "crown", "name": "반짝 왕관", "slot": "head", "tier": 2, "cost": 0, "file": "assets/items/crown.webp", "box": [230.0, -37.8, 180, 127.8]}, {"id": "wizard", "name": "별 마법사 모자", "slot": "head", "tier": 2, "cost": 0, "file": "assets/items/wizard.webp", "box": [177.0, -77.3, 290, 189.3]}, {"id": "starwing", "name": "별무지개 날개 머리띠", "slot": "head", "tier": 2, "cost": 0, "file": "assets/items/starwing.webp", "box": [165.0, 28.9, 310, 134.2]}, {"id": "nightcap", "name": "꿀잠 모자", "slot": "head", "tier": 2, "cost": 0, "file": "assets/items/nightcap.webp", "box": [192.0, 9.8, 260, 180.4]}, {"id": "maid", "name": "프릴 리본 머리띠", "slot": "head", "tier": 2, "cost": 0, "file": "assets/items/maid.webp", "box": [190.0, 19.6, 260, 156.9]}, {"id": "angel", "name": "천사 날개 후광", "slot": "head", "tier": 3, "cost": 0, "file": "assets/items/angel.webp", "box": [150.0, 6.4, 340, 177.1]}, {"id": "bat", "name": "박쥐 날개", "slot": "head", "tier": 3, "cost": 0, "file": "assets/items/bat.webp", "box": [165.0, 48.5, 310, 127.1]}, {"id": "wreath", "name": "꽃 화관", "slot": "head", "tier": 3, "cost": 0, "file": "assets/items/wreath.webp", "box": [180.0, 19.0, 280, 162.0]}, {"id": "tiara", "name": "날개 티아라", "slot": "head", "tier": 3, "cost": 0, "file": "assets/items/tiara.webp", "box": [195.0, 18.6, 250, 146.9]}, {"id": "galaxy", "name": "은하수 머리띠", "slot": "head", "tier": 3, "cost": 0, "file": "assets/items/galaxy.webp", "box": [160.0, 23.2, 320, 161.5]}, {"id": "broom", "name": "빗자루", "slot": "hand", "tier": 0, "cost": 14, "file": "assets/items/broom.webp", "box": [401.6, 283, 100.8, 230]}, {"id": "drink", "name": "음료수", "slot": "hand", "tier": 0, "cost": 10, "file": "assets/items/drink.webp", "box": [136.2, 332, 97.6, 162]}, {"id": "schoolbag", "name": "학교가방", "slot": "hand", "tier": 0, "cost": 16, "file": "assets/items/schoolbag.webp", "box": [383.0, 392, 133.0, 140]}, {"id": "slime", "name": "슬라임", "slot": "hand", "tier": 1, "cost": 18, "file": "assets/items/slime.webp", "box": [108.0, 331.1, 154, 116.8]}, {"id": "gameboy", "name": "휴대용 게임기", "slot": "hand", "tier": 1, "cost": 24, "file": "assets/items/gameboy.webp", "box": [222.0, 359.4, 195, 109.1]}, {"id": "bananadoll", "name": "바나나 애착인형", "slot": "hand", "tier": 2, "cost": 0, "file": "assets/items/bananadoll.webp", "box": [105.0, 303.6, 150, 176.4]}, {"id": "elephantdoll", "name": "코끼리 애착인형", "slot": "hand", "tier": 2, "cost": 0, "file": "assets/items/elephantdoll.webp", "box": [385.0, 321.0, 160, 148.7]}, {"id": "tshirt", "name": "줄무늬 티셔츠", "slot": "outfit", "tier": 0, "cost": 14, "file": "assets/items/tshirt.webp", "box": [200.0, 338, 240, 131.0]}, {"id": "overalls", "name": "멜빵바지", "slot": "outfit", "tier": 0, "cost": 16, "file": "assets/items/overalls.webp", "box": [200.0, 338, 240, 177.4]}, {"id": "dress", "name": "분홍 원피스", "slot": "outfit", "tier": 1, "cost": 26, "file": "assets/items/dress.webp", "box": [200.0, 338, 240, 131.7]}, {"id": "hanbok", "name": "한복", "slot": "outfit", "tier": 1, "cost": 30, "file": "assets/items/hanbok.webp", "box": [200.0, 338, 240, 139.9]}, {"id": "uniform", "name": "세일러 교복", "slot": "outfit", "tier": 1, "cost": 28, "file": "assets/items/uniform.webp", "box": [200.0, 338, 240, 146.9]}, {"id": "cape", "name": "별빛 마법 망토", "slot": "outfit", "tier": 2, "cost": 0, "file": "assets/items/cape.webp", "box": [200.0, 375, 240, 138.0]}, {"id": "princess", "name": "공주 드레스", "slot": "outfit", "tier": 2, "cost": 0, "file": "assets/items/princess.webp", "box": [200.0, 338, 240, 157.7]}, {"id": "spacesuit", "name": "우주복", "slot": "outfit", "tier": 3, "cost": 0, "file": "assets/items/spacesuit.webp", "box": [200.0, 338, 240, 126.9]}, {"id": "heartphones", "name": "하트 헤드폰", "slot": "head", "tier": 1, "cost": 22, "file": "assets/items/heartphones.webp", "box": [82, -12, 476, 273.0]}, {"id": "nursehat", "name": "간호사 모자", "slot": "head", "tier": 0, "cost": 14, "file": "assets/items/nursehat.webp", "box": [215, 14, 210, 102.6]}, {"id": "nursedress", "name": "간호사복", "slot": "outfit", "tier": 1, "cost": 28, "file": "assets/items/nursedress.webp", "box": [180.0, 328, 280, 206.6]}, {"id": "pancake", "name": "팬케이크", "slot": "hand", "tier": 1, "cost": 18, "file": "assets/items/pancake.webp", "box": [110, 335, 150, 121.7]}, {"id": "chocochip", "name": "초코칩", "slot": "hand", "tier": 0, "cost": 12, "file": "assets/items/chocochip.webp", "box": [130, 340, 100, 101.5]}, {"id": "elephantwings", "name": "코끼리 날개", "slot": "back", "tier": 1, "cost": 32, "file": "assets/items/elephantwings.webp", "box": [10, 235, 620, 200.8]}, {"id": "angelwings", "name": "천사 날개", "slot": "back", "tier": 1, "cost": 34, "file": "assets/items/angelwings.webp", "box": [10, 235, 620, 185.0]}, {"id": "demonwings", "name": "악마 날개", "slot": "back", "tier": 1, "cost": 34, "file": "assets/items/demonwings.webp", "box": [10, 235, 620, 207.5]}, {"id": "rainbowwings", "name": "무지개 날개", "slot": "back", "tier": 2, "cost": 0, "file": "assets/items/rainbowwings.webp", "box": [10, 235, 620, 185.0]}, {"id": "butterflywings", "name": "나비 날개", "slot": "back", "tier": 0, "cost": 24, "file": "assets/items/butterflywings.webp", "box": [10, 235, 620, 201.8]}, {"id": "heartall", "name": "하트 멜빵바지", "slot": "outfit", "tier": 0, "cost": 16, "file": "assets/items/heartall.webp", "box": [180.0, 328, 280, 191.4]}, {"id": "pinklolita", "name": "분홍 로리타 원피스", "slot": "outfit", "tier": 1, "cost": 26, "file": "assets/items/pinklolita.webp", "box": [180.0, 328, 280, 199.5]}, {"id": "bearcoat", "name": "곰돌이 코트", "slot": "outfit", "tier": 1, "cost": 28, "file": "assets/items/bearcoat.webp", "box": [180.0, 328, 280, 198.9]}, {"id": "strawberry", "name": "딸기 원피스", "slot": "outfit", "tier": 1, "cost": 28, "file": "assets/items/strawberry.webp", "box": [180.0, 328, 280, 197.5]}, {"id": "sailorblue", "name": "파란 세일러복", "slot": "outfit", "tier": 0, "cost": 18, "file": "assets/items/sailorblue.webp", "box": [180.0, 328, 280, 193.2]}, {"id": "yellowdress", "name": "노랑 꽃무늬 원피스", "slot": "outfit", "tier": 1, "cost": 26, "file": "assets/items/yellowdress.webp", "box": [180.0, 328, 280, 195.9]}, {"id": "roseflower", "name": "장미 원피스", "slot": "outfit", "tier": 1, "cost": 26, "file": "assets/items/roseflower.webp", "box": [180.0, 328, 280, 196.8]}, {"id": "bearoveralls", "name": "곰돌이 멜빵바지", "slot": "outfit", "tier": 0, "cost": 18, "file": "assets/items/bearoveralls.webp", "box": [180.0, 328, 280, 192.2]}, {"id": "starcloak", "name": "별빛 망토", "slot": "outfit", "tier": 2, "cost": 0, "file": "assets/items/starcloak.webp", "box": [180.0, 328, 280, 197.3]}, {"id": "snowcoat", "name": "눈꽃 코트", "slot": "outfit", "tier": 2, "cost": 0, "file": "assets/items/snowcoat.webp", "box": [180.0, 328, 280, 210.0]}, {"id": "prince", "name": "왕자님 정복", "slot": "outfit", "tier": 2, "cost": 0, "file": "assets/items/prince.webp", "box": [180.0, 328, 280, 204.8]}, {"id": "batcloak", "name": "박쥐 망토", "slot": "outfit", "tier": 3, "cost": 0, "file": "assets/items/batcloak.webp", "box": [180.0, 328, 280, 202.5]}];
+var ROOM_ITEMS = [{"id": "wall1", "name": "분홍 줄무늬 벽지", "kind": "wallpaper", "tier": 0, "file": "assets/room/wall1.webp", "w": 114, "h": 88}, {"id": "wall2", "name": "하늘 구름 벽지", "kind": "wallpaper", "tier": 0, "file": "assets/room/wall2.webp", "w": 116, "h": 88}, {"id": "wall3", "name": "노랑 별 벽지", "kind": "wallpaper", "tier": 1, "file": "assets/room/wall3.webp", "w": 116, "h": 88}, {"id": "wall4", "name": "보라 달 벽지", "kind": "wallpaper", "tier": 1, "file": "assets/room/wall4.webp", "w": 116, "h": 88}, {"id": "floor1", "name": "분홍 체크 바닥", "kind": "floor", "tier": 0, "file": "assets/room/floor1.webp", "w": 110, "h": 51}, {"id": "floor2", "name": "나무 바닥", "kind": "floor", "tier": 0, "file": "assets/room/floor2.webp", "w": 132, "h": 99}, {"id": "floor3", "name": "하얀 대리석 바닥", "kind": "floor", "tier": 1, "file": "assets/room/floor3.webp", "w": 70, "h": 59}, {"id": "floor4", "name": "초록 다다미 바닥", "kind": "floor", "tier": 1, "file": "assets/room/floor4.webp", "w": 117, "h": 55}, {"id": "bed", "name": "하트 침대", "kind": "furn", "tier": 2, "file": "assets/room/bed.webp", "w": 155, "h": 150}, {"id": "sofa", "name": "구름 소파", "kind": "furn", "tier": 2, "file": "assets/room/sofa.webp", "w": 151, "h": 119}, {"id": "bookshelf", "name": "코끼리 책장", "kind": "furn", "tier": 2, "file": "assets/room/bookshelf.webp", "w": 116, "h": 167}, {"id": "desk", "name": "공부 책상", "kind": "furn", "tier": 2, "file": "assets/room/desk.webp", "w": 181, "h": 143}, {"id": "dresser", "name": "거울 서랍장", "kind": "furn", "tier": 2, "file": "assets/room/dresser.webp", "w": 113, "h": 147}, {"id": "armchair", "name": "하트 안락의자", "kind": "furn", "tier": 1, "file": "assets/room/armchair.webp", "w": 126, "h": 126}, {"id": "curtains", "name": "분홍 커튼", "kind": "wall", "tier": 1, "file": "assets/room/curtains.webp", "w": 149, "h": 112}, {"id": "window1", "name": "둥근 창문", "kind": "wall", "tier": 1, "file": "assets/room/window1.webp", "w": 104, "h": 99}, {"id": "window2", "name": "숲 창문", "kind": "wall", "tier": 0, "file": "assets/room/window2.webp", "w": 76, "h": 82}, {"id": "chandelier", "name": "리본 샹들리에", "kind": "wall", "tier": 1, "file": "assets/room/chandelier.webp", "w": 93, "h": 94}, {"id": "moonlight", "name": "달 구름 조명", "kind": "wall", "tier": 1, "file": "assets/room/moonlight.webp", "w": 95, "h": 78}, {"id": "mobile", "name": "별 모빌", "kind": "wall", "tier": 1, "file": "assets/room/mobile.webp", "w": 74, "h": 86}, {"id": "tablelamp", "name": "분홍 스탠드", "kind": "prop", "tier": 0, "file": "assets/room/tablelamp.webp", "w": 61, "h": 82}, {"id": "floorlamp", "name": "리본 장스탠드", "kind": "prop", "tier": 1, "file": "assets/room/floorlamp.webp", "w": 59, "h": 154}, {"id": "heartdeco", "name": "하트 장식", "kind": "wall", "tier": 0, "file": "assets/room/heartdeco.webp", "w": 58, "h": 73}, {"id": "frame1", "name": "하트 액자", "kind": "wall", "tier": 0, "file": "assets/room/frame1.webp", "w": 61, "h": 71}, {"id": "frame2", "name": "코끼리 액자", "kind": "wall", "tier": 0, "file": "assets/room/frame2.webp", "w": 76, "h": 74}, {"id": "frame3", "name": "구름 액자", "kind": "wall", "tier": 0, "file": "assets/room/frame3.webp", "w": 44, "h": 54}, {"id": "calendar", "name": "달력", "kind": "wall", "tier": 0, "file": "assets/room/calendar.webp", "w": 61, "h": 96}, {"id": "clock", "name": "리본 시계", "kind": "wall", "tier": 0, "file": "assets/room/clock.webp", "w": 62, "h": 80}, {"id": "wallshelf", "name": "코끼리 선반", "kind": "wall", "tier": 1, "file": "assets/room/wallshelf.webp", "w": 156, "h": 82}, {"id": "hangplant", "name": "걸이 화분", "kind": "wall", "tier": 0, "file": "assets/room/hangplant.webp", "w": 51, "h": 94}, {"id": "plantpot", "name": "리본 화분", "kind": "prop", "tier": 0, "file": "assets/room/plantpot.webp", "w": 73, "h": 100}, {"id": "flowershelf", "name": "꽃 선반", "kind": "wall", "tier": 1, "file": "assets/room/flowershelf.webp", "w": 120, "h": 69}, {"id": "bluerug", "name": "파란 꽃 러그", "kind": "rug", "tier": 1, "file": "assets/room/bluerug.webp", "w": 173, "h": 74}, {"id": "tulip", "name": "튤립 화병", "kind": "prop", "tier": 0, "file": "assets/room/tulip.webp", "w": 61, "h": 112}, {"id": "bigplant", "name": "큰 화분", "kind": "prop", "tier": 1, "file": "assets/room/bigplant.webp", "w": 80, "h": 117}, {"id": "flowerstool", "name": "꽃 테이블", "kind": "furn", "tier": 1, "file": "assets/room/flowerstool.webp", "w": 98, "h": 71}, {"id": "pinkstool", "name": "분홍 의자", "kind": "furn", "tier": 0, "file": "assets/room/pinkstool.webp", "w": 62, "h": 66}, {"id": "pinkbox", "name": "하트 상자", "kind": "prop", "tier": 0, "file": "assets/room/pinkbox.webp", "w": 66, "h": 56}, {"id": "teddy", "name": "곰돌이 인형", "kind": "prop", "tier": 0, "file": "assets/room/teddy.webp", "w": 65, "h": 70}, {"id": "cloudrug", "name": "구름 러그", "kind": "rug", "tier": 0, "file": "assets/room/cloudrug.webp", "w": 75, "h": 46}, {"id": "quilt", "name": "누빔 하트 러그", "kind": "rug", "tier": 0, "file": "assets/room/quilt.webp", "w": 61, "h": 50}, {"id": "sidetable", "name": "하트 협탁", "kind": "furn", "tier": 0, "file": "assets/room/sidetable.webp", "w": 51, "h": 56}, {"id": "ottoman", "name": "분홍 오토만", "kind": "furn", "tier": 0, "file": "assets/room/ottoman.webp", "w": 54, "h": 50}, {"id": "globe", "name": "지구본", "kind": "prop", "tier": 0, "file": "assets/room/globe.webp", "w": 48, "h": 58}, {"id": "mirror", "name": "스탠드 거울", "kind": "prop", "tier": 0, "file": "assets/room/mirror.webp", "w": 52, "h": 58}, {"id": "books", "name": "책 더미", "kind": "prop", "tier": 0, "file": "assets/room/books.webp", "w": 47, "h": 46}, {"id": "boxes", "name": "선물 상자", "kind": "prop", "tier": 0, "file": "assets/room/boxes.webp", "w": 49, "h": 61}, {"id": "lantern", "name": "작은 랜턴", "kind": "prop", "tier": 0, "file": "assets/room/lantern.webp", "w": 34, "h": 37}];
 var TIERS = [
   {name:'보통',     w:60, dup:4,  buy:true},
   {name:'희귀',     w:28, dup:6,  buy:true},
@@ -717,9 +760,25 @@ var scene=$('scene'), fx=$('fx'), eleWrap=$('eleWrap'), hop=$('hop'), ele=$('ele
 var tray=$('tray'), sleepLabel=$('sleepLabel');
 
 /* ---------- 저장 ---------- */
+function rdFresh(){
+  return {own:['wall1','floor2','window2','frame2','plantpot','bluerug'],wall:'wall1',floor:'floor2',
+    items:[{id:'window2',x:300,y:168,s:1},{id:'frame2',x:100,y:140,s:1},{id:'plantpot',x:350,y:300,s:1},{id:'bluerug',x:200,y:326,s:1}]};
+}
+function rdFix(r){
+  var ids={}; ROOM_ITEMS.forEach(function(i){ ids[i.id]=i; });
+  if(!r.rd || typeof r.rd!=='object') r.rd=rdFresh();
+  var d=r.rd;
+  if(!Array.isArray(d.own)) d.own=[]; d.own=d.own.filter(function(id){ return ids[id]; });
+  if(!ids[d.wall]) d.wall='wall1'; if(!ids[d.floor]) d.floor='floor2';
+  ['wall1','floor2'].forEach(function(id){ if(d.own.indexOf(id)<0) d.own.push(id); });
+  if(d.own.indexOf(d.wall)<0) d.wall='wall1'; if(d.own.indexOf(d.floor)<0) d.floor='floor2';
+  if(!Array.isArray(d.items)) d.items=[];
+  d.items=d.items.filter(function(o){ return o && ids[o.id] && d.own.indexOf(o.id)>=0 && typeof o.x==='number' && typeof o.y==='number'; })
+    .map(function(o){ return {id:o.id,x:o.x,y:o.y,s:(typeof o.s==='number'?o.s:1)}; });
+}
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -736,6 +795,7 @@ function load(){
     if(!Array.isArray(r.phone.sms)) r.phone.sms=[];
     if(typeof r.phone.callDay!=='string') r.phone.callDay='';
     if(typeof r.phone.calls!=='number') r.phone.calls=0;
+    rdFix(r);
     if(typeof r.schoolDay!=='string') r.schoolDay='';
     if(typeof r.born!=='number') r.born=r.t||Date.now();
     if(typeof r.id!=='string') r.id=newId();
@@ -1156,6 +1216,128 @@ $('wxBtn').addEventListener('click',function(){
 });
 function wxAuto(){ if(S.wx&&S.wx.on&&Date.now()-S.wx.ts>30*60000) wxGet(S.wx.lat,S.wx.lon,true).catch(function(){}); }
 setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
+/* ---------- 방 꾸미기 (뽑기로 모아요) ---------- */
+var RI={}; ROOM_ITEMS.forEach(function(i){ RI[i.id]=i; });
+var RKIND={wallpaper:'벽지',floor:'바닥',furn:'가구',wall:'벽 장식',rug:'러그',prop:'소품'};
+var RTABS=['all','wallpaper','floor','furn','wall','rug','prop'], ROOM_COST=15;
+var rdOn=false, rdSel=null, rdTab='all', rdBusy=false, rdDrag=null;
+function rdKey(o){ var k=RI[o.id].kind; return (k==='wall'?-2000:(k==='rug'?-1000:0))+o.y; }
+function rdSetPat(pid,iid,it,top){
+  var p=$(pid), im=$(iid); p.setAttribute('width',it.w); p.setAttribute('height',it.h); p.setAttribute('y',top?top:254-it.h);
+  im.setAttribute('width',it.w); im.setAttribute('height',it.h); im.setAttribute('href',it.file);
+}
+function rdRender(){
+  var R=S.rd; rdSetPat('rdWallP','rdWallI',RI[R.wall]); rdSetPat('rdFloorP','rdFloorI',RI[R.floor],264);
+  var g=$('roomItems'); g.textContent='';
+  R.items.slice().sort(function(a,b){ return rdKey(a)-rdKey(b); }).forEach(function(o){
+    var it=RI[o.id], gg=mk('g',{'class':'ritem','data-id':o.id,transform:'translate('+o.x+' '+o.y+') scale('+o.s+')'},g);
+    mk('image',{href:it.file,x:-it.w/2,y:-it.h,width:it.w,height:it.h},gg);
+    if(rdOn&&rdSel===o.id) mk('rect',{x:-it.w/2-3,y:-it.h-3,width:it.w+6,height:it.h+6,rx:6,fill:'none',stroke:'#FF4F8B','stroke-width':2/o.s,'stroke-dasharray':'5 4'},gg);
+  });
+}
+function rdPlaced(id){ return S.rd.items.filter(function(o){ return o.id===id; })[0]; }
+function rdUi(msg){
+  $('rdCoins').textContent=S.coins;
+  var left=ROOM_ITEMS.filter(function(i){ return S.rd.own.indexOf(i.id)<0; }).length, b=$('rdPull');
+  if(left===0){ b.textContent='모두 모았어요!'; b.disabled=true; }
+  else{ b.innerHTML='<svg class="ico"><use href="#i-coin"/></svg>'+ROOM_COST+' 뽑기'; b.disabled=rdBusy||S.coins<ROOM_COST; }
+  if(msg!==undefined) $('rdMsg').innerHTML=msg;
+  else if(!rdBusy) $('rdMsg').innerHTML='방 아이템이 랜덤으로 나와요<br><small>모은 것 '+(ROOM_ITEMS.length-left)+'/'+ROOM_ITEMS.length+' · 겹치면 코인을 돌려줘요</small>';
+  var tabs=$('rdTabs'); tabs.innerHTML='';
+  RTABS.forEach(function(k){
+    var c=document.createElement('button'); c.className='chipb'+(rdTab===k?' on':''); c.textContent=k==='all'?'전체':RKIND[k];
+    c.onclick=function(){ rdTab=k; rdUi(); }; tabs.appendChild(c);
+  });
+  var grid=$('rdGrid'); grid.innerHTML=''; var n=0;
+  ROOM_ITEMS.forEach(function(it){
+    if(S.rd.own.indexOf(it.id)<0 || (rdTab!=='all'&&it.kind!==rdTab)) return; n++;
+    var using=(it.kind==='wallpaper'&&S.rd.wall===it.id)||(it.kind==='floor'&&S.rd.floor===it.id)||!!rdPlaced(it.id);
+    var b2=document.createElement('button'); b2.className='rdt'+(using?' on':'')+(rdSel===it.id?' sel':'');
+    b2.innerHTML='<img src="'+it.file+'" alt=""><span>'+it.name+'</span>'+(using?'<i>'+(it.kind==='wallpaper'||it.kind==='floor'?'사용중':'배치중')+'</i>':'');
+    b2.onclick=function(){ rdTap(it); }; grid.appendChild(b2);
+  });
+  if(!n) grid.innerHTML='<div class="pinfo" style="padding:14px 8px">아직 없어요. 뽑기로 모아 보세요!</div>';
+  var o=rdSel&&rdPlaced(rdSel); $('rdCtl').style.display=o?'flex':'none';
+  if(o){ $('rdPct').textContent=Math.round(o.s*100)+'%'; $('rdMinus').disabled=o.s<=.41; $('rdPlus').disabled=o.s>=2.49; }
+}
+function rdDefaultPos(it){
+  var k=it.kind, x=Math.round(rand(90,310));
+  if(k==='wall') return {x:x,y:it.w*.6>110?190:165};
+  if(k==='rug') return {x:200,y:326};
+  return {x:x,y:k==='furn'?302:300};
+}
+function rdPlace(it){
+  var p=rdDefaultPos(it); S.rd.items.push({id:it.id,x:p.x,y:p.y,s:1}); rdSel=it.id;
+}
+function rdTap(it){
+  sfx.pop();
+  if(it.kind==='wallpaper'){ S.rd.wall=it.id; }
+  else if(it.kind==='floor'){ S.rd.floor=it.id; }
+  else if(!rdPlaced(it.id)) rdPlace(it);
+  else rdSel=rdSel===it.id?null:it.id;
+  rdRender(); save(); rdUi();
+}
+function rdOpen(){
+  endPet(); tray.hidden=true; bubble.classList.remove('show');
+  rdOn=true; rdSel=null; scene.classList.add('rdedit'); $('rdWrap').hidden=false; rdRender(); rdUi();
+}
+function rdClose(){ rdOn=false; rdSel=null; rdDrag=null; scene.classList.remove('rdedit'); $('rdWrap').hidden=true; rdRender(); save(); }
+$('rdBtn').addEventListener('click',function(){ sfx.pop(); rdOpen(); });
+$('rdDone').addEventListener('click',function(){ sfx.up(); rdClose(); });
+function rdZoom(f){ var o=rdSel&&rdPlaced(rdSel); if(!o) return; o.s=Math.min(2.5,Math.max(.4,Math.round((o.s+f)*10)/10)); sfx.pop(); rdRender(); save(); rdUi(); }
+$('rdMinus').addEventListener('click',function(){ rdZoom(-.1); });
+$('rdPlus').addEventListener('click',function(){ rdZoom(.1); });
+$('rdDel').addEventListener('click',function(){
+  if(!rdSel) return; S.rd.items=S.rd.items.filter(function(o){ return o.id!==rdSel; }); rdSel=null; sfx.pop(); rdRender(); save(); rdUi();
+});
+/* 끌어서 옮기기 */
+$('roomItems').addEventListener('pointerdown',function(e){
+  if(!rdOn) return; var g=e.target.closest('.ritem'); if(!g) return;
+  var o=rdPlaced(g.getAttribute('data-id')); if(!o) return;
+  e.preventDefault(); e.stopPropagation(); rdSel=o.id; var p=svgPt(e);
+  rdDrag={id:e.pointerId,o:o,dx:o.x-p.x,dy:o.y-p.y,moved:false};
+  try{ g.setPointerCapture(e.pointerId); }catch(_){}
+  rdRender(); rdUi();
+});
+window.addEventListener('pointermove',function(e){
+  if(!rdDrag||e.pointerId!==rdDrag.id) return;
+  var p=svgPt(e), o=rdDrag.o; o.x=Math.max(0,Math.min(400,Math.round(p.x+rdDrag.dx))); o.y=Math.max(60,Math.min(358,Math.round(p.y+rdDrag.dy))); rdDrag.moved=true;
+  var g=$('roomItems').querySelector('.ritem[data-id="'+o.id+'"]'); if(g) g.setAttribute('transform','translate('+o.x+' '+o.y+') scale('+o.s+')');
+});
+function rdUp(e){ if(rdDrag&&e.pointerId===rdDrag.id){ var mv=rdDrag.moved; rdDrag=null; if(mv){ rdRender(); save(); } } }
+window.addEventListener('pointerup',rdUp); window.addEventListener('pointercancel',rdUp);
+/* 뽑기 */
+function rdRoll(){
+  var pool=TIERS.map(function(t,i){ return {i:i,w:t.w,items:ROOM_ITEMS.filter(function(it){ return it.tier===i; })}; }).filter(function(x){ return x.items.length; });
+  var tot=0; pool.forEach(function(x){ tot+=x.w; }); var r=Math.random()*tot, x=pool[pool.length-1];
+  for(var i=0;i<pool.length;i++){ r-=pool[i].w; if(r<0){ x=pool[i]; break; } }
+  return pick(x.items);
+}
+function rdPull(){
+  if(rdBusy||S.coins<ROOM_COST) return;
+  if(ROOM_ITEMS.every(function(i){ return S.rd.own.indexOf(i.id)>=0; })) return;
+  rdBusy=true; S.coins-=ROOM_COST; commit(); rdUi('데구르르... 뭐가 나올까요?');
+  var it=rdRoll(), dup=S.rd.own.indexOf(it.id)>=0, tr=it.tier;
+  var box=document.createElement('div'); box.className='rdres'; box.innerHTML='<div class="cap">🎁</div>'; scene.appendChild(box);
+  [0,150,300,450,600,750].forEach(function(tm){ setTimeout(function(){ sfx.step(); },tm); });
+  wait(950).then(function(){
+    sfx.pop();
+    var refund=TIERS[tr].dup;
+    box.className='rdres pop'+(tr>=2?' t2':'');
+    box.innerHTML='<img src="'+it.file+'" alt=""><b>'+it.name+'</b><small>'+TIERS[tr].name+' · '+RKIND[it.kind]+'</small>';
+    if(dup){ S.coins+=refund; sfx.coin(); }
+    else{
+      S.rd.own.push(it.id); sfx.up();
+      if(it.kind==='wallpaper') S.rd.wall=it.id; else if(it.kind==='floor') S.rd.floor=it.id; else rdPlace(it);
+      if(tr>=2) [1047,1319,1568].forEach(function(f,i){ tone(f,f,.25,'triangle',.07,.5+i*.12); });
+    }
+    commit(); rdRender();
+    var m='<span class="rar r'+tr+'">'+TIERS[tr].name+'</span> <b>'+it.name+'</b>'+(dup?'<br><small>이미 있어서 코인 '+refund+'개를 돌려받았어요</small>':'<br><small>새로 얻어서 방에 놓았어요!</small>');
+    return wait(1800).then(function(){ box.remove(); rdBusy=false; rdUi(m); });
+  });
+}
+$('rdPull').addEventListener('click',rdPull);
+
 $('roomBtn').addEventListener('click',function(){ S.room=!S.room; sfx.up&&sfx.up(); commit(); say(S.room?'방 안이 포근해요!':'마당이 시원해요!',2200); });
 function popCoin(){
   $('coinChip').animate([{transform:'scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:320});
@@ -1542,7 +1724,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
@@ -2274,7 +2456,7 @@ document.addEventListener('visibilitychange',function(){ if(!document.hidden) lo
 /* ---------- 시작 ---------- */
 tickBy(Math.min((Date.now()-last)/1000,21600)*.25);
 last=Date.now();
-render();
+rdRender(); render();
 if(S.sleeping) zIv=setInterval(zzz,1700);
 if(S.color && S.color!=='blue') applyColor();
 renderComp();
