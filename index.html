@@ -170,6 +170,32 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 .vol b{min-width:46px; text-align:right; font-family:var(--font-display); font-size:16px; color:var(--ink-soft)}
 .sgroup{display:flex; flex-direction:column; gap:6px; padding:12px 14px; border-radius:20px; background:#F5F8FF}
 .sgroup.off .vol{opacity:.45}
+.gacha{display:flex; align-items:center; gap:12px; padding:10px; border-radius:20px; background:linear-gradient(135deg,#FFF3C9,#FFE0EC)}
+.gstage{width:104px; height:104px; flex:none; position:relative; border-radius:18px; background:rgba(255,255,255,.7); overflow:hidden}
+.gstage>svg{position:absolute; inset:0; width:100%; height:100%}
+.gside{flex:1; display:flex; flex-direction:column; gap:8px; min-width:0}
+.gmsg{font-size:15px; line-height:1.35; color:var(--ink); min-height:40px}
+.gmsg small{display:block; color:var(--ink-soft); font-size:12px}
+.gbtn{align-self:flex-start; background:#FF8FB1; color:#fff}
+.gbtn:disabled{background:#E7E9F2; color:#9AA2BE}
+.rar{display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; margin-right:4px; color:#fff}
+.rar.r0{background:#9AA2BE}.rar.r1{background:#6B86E8}.rar.r2{background:#E8A200}
+.wrap.pass{background:none; pointer-events:none}
+.wrap.pass .sheet{pointer-events:auto; max-height:none; border-radius:24px 24px 0 0; box-shadow:0 -6px 24px rgba(36,46,92,.25); gap:10px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chipb{border:2px solid transparent; background:#EEF2FF; border-radius:14px; padding:7px 12px; font-size:15px; cursor:pointer; color:var(--ink)}
+.chipb.on{border-color:#6B86E8; background:#E8EEFF; font-weight:700}
+.sizerow{display:flex; align-items:center; gap:8px}
+.sizerow .zb{width:48px; height:48px; border:0; border-radius:16px; background:#FFE08A; color:#5E4600; font-size:26px; line-height:1; cursor:pointer}
+.sizerow .zb:disabled{background:#E7E9F2; color:#9AA2BE}
+.sizerow .pct{flex:1; text-align:center; font-size:18px; font-variant-numeric:tabular-nums}
+.sizerow .rst{border:0; border-radius:14px; background:#EEF2FF; padding:12px 12px; font-size:15px; cursor:pointer; color:var(--ink)}
+.edbtns{display:flex; gap:8px}
+.edbtns button{flex:1; border:0; border-radius:16px; padding:13px; font-size:17px; cursor:pointer}
+.edbtns .sv{background:#6B86E8; color:#fff}
+.edbtns .cx{background:#EEF2FF; color:var(--ink)}
+.edhint{font-size:13px; color:var(--ink-soft); text-align:center}
+.scene.editing{cursor:grab; outline:3px dashed #6B86E8; outline-offset:-3px}
 .sub{margin:4px 0 0; font-family:var(--font-display); font-weight:400; font-size:18px}
 .trk{display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:10px 14px; border:2px solid transparent; border-radius:18px; background:#F5F8FF; cursor:pointer}
 .trk .tx{min-width:0; display:flex; flex-direction:column; gap:1px}
@@ -399,11 +425,42 @@ body{margin:0}
       <h2 id="shopTitle">꾸미기</h2>
       <div class="chip"><svg class="ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b></div>
     </div>
+    <h3 class="sub">뽑기</h3>
+    <div class="gacha">
+      <div class="gstage" id="gStage">
+        <svg viewBox="0 0 104 104" aria-hidden="true">
+          <svg id="gRes" viewBox="0 0 10 10" x="12" y="12" width="80" height="80" style="opacity:0"></svg>
+          <g id="gCap" style="transform-origin:52px 54px">
+            <g id="gBot"><path d="M24 54h56a28 28 0 0 1-56 0z" fill="#FFFFFF" stroke="#C9D3F5" stroke-width="3"/></g>
+            <g id="gTop"><path d="M24 54a28 28 0 0 1 56 0z" fill="#FF8FB1" stroke="#E4678F" stroke-width="3"/><ellipse cx="38" cy="38" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 38 38)"/></g>
+          </g>
+        </svg>
+      </div>
+      <div class="gside">
+        <div class="gmsg" id="gMsg"></div>
+        <button class="buy gbtn" id="gachaBtn"></button>
+      </div>
+    </div>
     <h3 class="sub">몸 색깔</h3>
     <div class="swatches" id="colorList"></div>
     <h3 class="sub">아이템</h3>
     <div id="shopList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button class="buy" id="editBtn" style="width:100%;background:#E8EEFF;color:#2F3F8F">아이템 위치·크기 바꾸기</button>
     <button class="ghost" id="shopClose">닫기</button>
+  </div>
+</div>
+
+<div class="wrap bottom pass" id="editWrap" hidden>
+  <div class="sheet" role="dialog" aria-label="아이템 위치와 크기">
+    <div class="edhint" id="edHint">화면을 끌어서 아이템을 옮겨요</div>
+    <div class="chips" id="edChips"></div>
+    <div class="sizerow">
+      <button class="zb" id="zMinus" aria-label="작게">−</button>
+      <div class="pct" id="zPct">100%</div>
+      <button class="zb" id="zPlus" aria-label="크게">+</button>
+      <button class="rst" id="zReset">원래대로</button>
+    </div>
+    <div class="edbtns"><button class="cx" id="edCancel">취소</button><button class="sv" id="edSave">저장</button></div>
   </div>
 </div>
 
@@ -439,12 +496,17 @@ var SHOP = [
   {id:'crown',  name:'반짝 왕관',   slot:'head', cost:45, vb:'220 -30 200 125'}
 ];
 
+var GACHA_COST=10, GACHA_DUP=5;
+var GACHA_W={ribbon:28,flower:24,glasses:18,scarf:14,hat:10,crown:6};
+function rarity(id){ var w=GACHA_W[id]; return w>=24?0:(w>=14?1:2); }
+var RAR_NAME=['일반','레어','에픽'];
+
 var scene=$('scene'), fx=$('fx'), eleWrap=$('eleWrap'), hop=$('hop'), ele=$('ele'), bubble=$('bubble');
 var tray=$('tray'), sleepLabel=$('sleepLabel');
 
 /* ---------- 저장 ---------- */
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',t:Date.now()};
+  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -454,6 +516,7 @@ function load(){
     if(typeof r.bgmVol!=='number') r.bgmVol=.5;
     if(typeof r.bgmTrack!=='number') r.bgmTrack=0;
     if(typeof r.color!=='string') r.color='blue';
+    if(!r.adj || typeof r.adj!=='object') r.adj={};
     return r; } }catch(e){}
   return fresh();
 }
@@ -773,7 +836,7 @@ function render(){
   SHOP.forEach(function(it){ show($('acc-'+it.id), S.worn[it.slot]===it.id); });
   var m=pose();
   ele.setAttribute('data-pose', m);
-  $('acc-glasses').setAttribute('transform','translate(0 '+(m==='sad'?22:(m==='sleep'?21:0))+')');
+  applyAcc(m);
   scene.classList.toggle('night', isNight());
   scene.classList.toggle('sleeping', S.sleeping);
   sleepLabel.textContent = S.sleeping ? '깨우기' : '자기';
@@ -1019,6 +1082,7 @@ function poke(){
 function renderShop(){
   var list=$('shopList'); list.innerHTML='';
   $('shopCoins').textContent=S.coins;
+  if(!gBusy) renderGacha();
   SHOP.forEach(function(it){
     var owned=S.owned.indexOf(it.id)>=0, worn=S.worn[it.slot]===it.id;
     var row=document.createElement('div'); row.className='row';
@@ -1035,6 +1099,130 @@ function renderShop(){
     row.appendChild(btn); list.appendChild(row);
   });
 }
+/* ---------- 아이템 위치·크기 ---------- */
+var ZMIN=.5, ZMAX=2, editing=false, draft=null, edSel=null, edDrag=null;
+function adjOf(src,id){ var a=src&&src[id]; return {x:a&&+a.x||0, y:a&&+a.y||0, s:a&&+a.s||1}; }
+function applyAcc(m){
+  m=m||pose();
+  var src=editing?draft:S.adj;
+  SHOP.forEach(function(it){
+    var a=adjOf(src,it.id), v=it.vb.split(' ').map(Number), cx=v[0]+v[2]/2, cy=v[1]+v[3]/2;
+    var oy=it.id==='glasses'?(m==='sad'?22:(m==='sleep'?21:0)):0;
+    $('acc-'+it.id).setAttribute('transform','translate('+a.x+' '+(a.y+oy)+') translate('+cx+' '+cy+') scale('+a.s+') translate('+(-cx)+' '+(-cy)+')');
+  });
+}
+function wornItems(){ return SHOP.filter(function(it){ return S.worn[it.slot]===it.id; }); }
+function renderEdit(){
+  var w=wornItems(), box=$('edChips'); box.innerHTML='';
+  if(!edSel || !w.some(function(it){ return it.id===edSel; })) edSel=w.length?w[0].id:null;
+  w.forEach(function(it){
+    var b=document.createElement('button'); b.className='chipb'+(it.id===edSel?' on':''); b.textContent=it.name;
+    b.addEventListener('click',function(){ edSel=it.id; sfx.pop(); renderEdit(); });
+    box.appendChild(b);
+  });
+  var a=edSel?adjOf(draft,edSel):{s:1};
+  $('zPct').textContent=Math.round(a.s*100)+'%';
+  $('zMinus').disabled=!edSel||a.s<=ZMIN+.001; $('zPlus').disabled=!edSel||a.s>=ZMAX-.001; $('zReset').disabled=!edSel;
+  $('edHint').textContent=edSel?'화면을 끌어서 아이템을 옮겨요':'먼저 꾸미기에서 아이템을 입혀 주세요';
+}
+function startEdit(){
+  endPet(); tray.hidden=true; $('shopWrap').hidden=true;
+  draft=JSON.parse(JSON.stringify(S.adj||{})); editing=true; edSel=null; edDrag=null;
+  scene.classList.add('editing'); $('editWrap').hidden=false; renderEdit(); applyAcc();
+}
+function endEdit(){
+  editing=false; edDrag=null; scene.classList.remove('editing'); $('editWrap').hidden=true; applyAcc();
+}
+function zoomBy(f){
+  if(!edSel) return;
+  var a=adjOf(draft,edSel); a.s=Math.min(ZMAX,Math.max(ZMIN,Math.round(a.s*f*100)/100)); draft[edSel]=a;
+  sfx.pop(); applyAcc(); renderEdit();
+}
+function accPt(e){
+  var el=$('acc-'+edSel), par=el.parentNode, m=par.getScreenCTM();
+  if(!m) return null;
+  var pt=$('world').createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  return pt.matrixTransform(m.inverse());
+}
+scene.addEventListener('pointerdown',function(e){
+  if(!editing) return;
+  e.stopPropagation(); e.preventDefault();
+  if(!edSel) return;
+  var p=accPt(e); if(!p) return;
+  var a=adjOf(draft,edSel); edDrag={id:e.pointerId,px:p.x,py:p.y,ax:a.x,ay:a.y};
+  try{ scene.setPointerCapture(e.pointerId); }catch(_){}
+},true);
+scene.addEventListener('pointermove',function(e){
+  if(!editing||!edDrag||e.pointerId!==edDrag.id) return;
+  e.stopPropagation();
+  var p=accPt(e); if(!p) return;
+  var a=adjOf(draft,edSel);
+  a.x=Math.max(-260,Math.min(260,Math.round(edDrag.ax+p.x-edDrag.px)));
+  a.y=Math.max(-300,Math.min(300,Math.round(edDrag.ay+p.y-edDrag.py)));
+  draft[edSel]=a; applyAcc();
+},true);
+function upEdit(e){ if(editing&&edDrag){ e.stopPropagation(); edDrag=null; } }
+scene.addEventListener('pointerup',upEdit,true);
+scene.addEventListener('pointercancel',upEdit,true);
+['click','dblclick'].forEach(function(t){ scene.addEventListener(t,function(e){ if(editing){ e.stopPropagation(); e.preventDefault(); } },true); });
+$('editBtn').addEventListener('click',startEdit);
+$('zMinus').addEventListener('click',function(){ zoomBy(1/1.12); });
+$('zPlus').addEventListener('click',function(){ zoomBy(1.12); });
+$('zReset').addEventListener('click',function(){ if(!edSel) return; delete draft[edSel]; sfx.pop(); applyAcc(); renderEdit(); });
+$('edCancel').addEventListener('click',function(){ endEdit(); });
+$('edSave').addEventListener('click',function(){
+  S.adj=JSON.parse(JSON.stringify(draft)); endEdit(); sfx.up(); commit(); say('저장했어요! 잘 어울려요');
+});
+
+/* ---------- 뽑기 ---------- */
+var gBusy=false;
+function gachaRemain(){ return SHOP.filter(function(it){ return S.owned.indexOf(it.id)<0; }); }
+function renderGacha(msgHtml){
+  var left=gachaRemain().length, b=$('gachaBtn');
+  if(left===0){ b.innerHTML='모두 모았어요!'; b.disabled=true; }
+  else{ b.innerHTML='<svg class="ico"><use href="#i-coin"/></svg>'+GACHA_COST+' 뽑기'; b.disabled=gBusy||S.coins<GACHA_COST; }
+  if(msgHtml!==undefined) $('gMsg').innerHTML=msgHtml;
+  else if(!gBusy) $('gMsg').innerHTML=left===0?'아이템을 전부 모았어요!':'랜덤으로 아이템이 나와요<small>모은 아이템 '+(SHOP.length-left)+'/'+SHOP.length+' · 겹치면 코인 '+GACHA_DUP+'개 돌려줘요</small>';
+}
+function rollItem(){
+  var tot=0; SHOP.forEach(function(it){ tot+=GACHA_W[it.id]; });
+  var r=Math.random()*tot;
+  for(var i=0;i<SHOP.length;i++){ r-=GACHA_W[SHOP[i].id]; if(r<0) return SHOP[i]; }
+  return SHOP[0];
+}
+function gachaPull(){
+  if(gBusy || S.coins<GACHA_COST || gachaRemain().length===0) return;
+  gBusy=true; S.coins-=GACHA_COST; commit(); $('shopCoins').textContent=S.coins;
+  var it=rollItem(), dup=S.owned.indexOf(it.id)>=0;
+  var cap=$('gCap'), top=$('gTop'), bot=$('gBot'), res=$('gRes');
+  res.style.opacity=0; res.innerHTML='<use href="#g-'+it.id+'"/>'; res.setAttribute('viewBox',it.vb);
+  renderGacha('데구르르... 뭐가 나올까요?');
+  $('gachaBtn').disabled=true;
+  cap.style.opacity=1; top.style.transform=''; bot.style.transform='';
+  var shake=cap.animate([{transform:'rotate(0)'},{transform:'rotate(-14deg)'},{transform:'rotate(12deg)'},{transform:'rotate(-10deg)'},{transform:'rotate(8deg)'},{transform:'rotate(0)'}],{duration:900,easing:'ease-in-out'});
+  [0,150,300,450,600,750].forEach(function(t){ setTimeout(function(){ sfx.step(); },t); });
+  done(shake).then(function(){
+    sfx.pop();
+    top.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate(-26px,-30px) rotate(-30deg)',opacity:0}],{duration:420,easing:'ease-out',fill:'forwards'});
+    bot.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate(18px,34px)',opacity:0}],{duration:420,easing:'ease-out',fill:'forwards'});
+    return wait(220);
+  }).then(function(){
+    res.style.opacity=1;
+    var a=res.animate([{transform:'scale(.2)',opacity:0},{transform:'scale(1.2)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:450,easing:'ease-out'});
+    var rr=rarity(it.id);
+    if(dup){ S.coins+=GACHA_DUP; sfx.coin(); }
+    else{ S.owned.push(it.id); S.worn[it.slot]=it.id; sfx.up(); say('와, 새 아이템이에요!'); }
+    commit();
+    var tag='<span class="rar r'+rr+'">'+RAR_NAME[rr]+'</span><b>'+it.name+'</b>';
+    var m=dup?tag+'<small>이미 있어서 코인 '+GACHA_DUP+'개를 돌려받았어요</small>':tag+' <b>새로 얻었어요!</b><small>바로 입혀 줬어요</small>';
+    if(!dup){ setFlash('joy',1800); }
+    gBusy=false; $('shopCoins').textContent=S.coins;
+    renderShop(); renderGacha(m);
+    return done(a);
+  });
+}
+$('gachaBtn').addEventListener('click',gachaPull);
+
 function buy(it){
   if(S.coins<it.cost) return;
   S.coins-=it.cost; S.owned.push(it.id); S.worn[it.slot]=it.id;
@@ -1266,7 +1454,7 @@ $('petBtn').addEventListener('click',startPet);
 $('walkBtn').addEventListener('click',function(){ endPet(); walk(); });
 $('hospBtn').addEventListener('click',function(){ endPet(); hospital(); });
 $('sleepBtn').addEventListener('click',function(){ endPet(); if(S.sleeping) wake(); else startSleep(); });
-$('decorBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; renderShop(); renderColors(); $('shopWrap').hidden=false; });
+$('decorBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; gBusy=false; $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; });
 $('shopClose').addEventListener('click',function(){ $('shopWrap').hidden=true; });
 $('shopWrap').addEventListener('pointerdown',function(e){ if(e.target===$('shopWrap')) $('shopWrap').hidden=true; });
 $('nameBtn').addEventListener('click',function(){ openName(false); });
