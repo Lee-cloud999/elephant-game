@@ -452,6 +452,7 @@ body{margin:0}
           <stop offset="0" style="stop-color:var(--sky-a)"/><stop offset="1" style="stop-color:var(--sky-b)"/>
         </linearGradient>
         <clipPath id="faceClip" clipPathUnits="userSpaceOnUse"><polygon points="165,236 158,290 176,314 205,333 250,344 295,350 332,358 366,360 398,352 426,343 458,326 480,296 482,236"/></clipPath>
+        <clipPath id="faceClipSad" clipPathUnits="userSpaceOnUse"><polygon points="165,236 158,290 176,314 205,333 250,344 295,352 318,372 345,384 378,386 402,372 412,352 430,342 458,326 480,296 482,236"/></clipPath>
         <g id="stripT">
           <rect class="ground-deep" x="0" y="322" width="400" height="34"/>
           <g fill="#EADFB9"><rect x="14" y="336" width="42" height="5" rx="2.5"/><rect x="114" y="336" width="42" height="5" rx="2.5"/><rect x="214" y="336" width="42" height="5" rx="2.5"/><rect x="314" y="336" width="42" height="5" rx="2.5"/></g>
@@ -860,10 +861,10 @@ var ACC_ORDER=[];
     if(it.slot==='back') layer.insertBefore(u, layer.firstChild); else layer.appendChild(u);
   });
   /* 얼굴 아랫부분과 코는 옷 위에 다시 그려서 항상 보이게 해요 */
-  var ft=document.createElementNS(NS,'g'); ft.id='faceTop'; ft.setAttribute('clip-path','url(#faceClip)');
+  var ft=document.createElementNS(NS,'g'); ft.id='faceTop';
   ['idle','sad','sleep','eat','angry','joy','surprise'].forEach(function(p){
     var im=document.createElementNS(NS,'image'); im.setAttribute('class','pose p-'+p); im.setAttribute('href','assets/'+p+'.webp');
-    im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',640); im.setAttribute('height',520); ft.appendChild(im);
+    im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',640); im.setAttribute('height',520); im.setAttribute('clip-path',p==='sad'?'url(#faceClipSad)':'url(#faceClip)'); ft.appendChild(im);
   });
   var firstTop=null;
   IMG_ITEMS.slice().sort(function(a,b){ return Z[a.slot]-Z[b.slot]; }).forEach(function(it){ if(!firstTop && Z[it.slot]>=0) firstTop=$('acc-'+it.id); });
