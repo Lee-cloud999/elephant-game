@@ -451,8 +451,12 @@ body{margin:0}
         <linearGradient id="skyG" gradientUnits="userSpaceOnUse" x1="0" y1="-60" x2="0" y2="290">
           <stop offset="0" style="stop-color:var(--sky-a)"/><stop offset="1" style="stop-color:var(--sky-b)"/>
         </linearGradient>
-        <clipPath id="faceClip" clipPathUnits="userSpaceOnUse"><polygon points="165,236 158,290 176,314 205,333 250,344 295,350 332,358 366,360 398,352 426,343 458,326 480,296 482,236"/></clipPath>
-        <clipPath id="faceClipSad" clipPathUnits="userSpaceOnUse"><polygon points="165,236 158,290 176,314 205,333 250,344 295,352 318,372 345,384 378,386 402,372 412,352 430,342 458,326 480,296 482,236"/></clipPath>
+        <clipPath id="faceClip" clipPathUnits="userSpaceOnUse"><polygon points="268,250 266,300 282,330 305,350 330,363 355,367 380,364 402,355 420,342 428,322 424,302 404,290 385,298 366,262 352,246"/></clipPath>
+        <clipPath id="faceClipSleep" clipPathUnits="userSpaceOnUse"><polygon points="268,250 266,300 282,330 305,352 330,367 355,371 380,368 402,358 420,344 428,322 424,302 404,290 385,298 366,262 352,246"/></clipPath>
+        <clipPath id="faceClipSad" clipPathUnits="userSpaceOnUse"><polygon points="268,250 266,300 284,332 305,354 325,372 350,383 374,379 391,364 396,345 388,328 372,316 356,300 342,276 336,250"/></clipPath>
+        <clipPath id="faceClipEat" clipPathUnits="userSpaceOnUse"><polygon points="200,250 200,322 240,340 290,342 330,340 346,322 349,290 336,252"/></clipPath>
+        <clipPath id="faceClipAngry" clipPathUnits="userSpaceOnUse"><polygon points="200,250 200,326 240,344 282,346 322,332 342,302 346,262 336,246"/></clipPath>
+        <clipPath id="faceClipSurp" clipPathUnits="userSpaceOnUse"><polygon points="200,250 200,322 240,336 290,336 330,320 343,290 341,250"/></clipPath>
         <g id="stripT">
           <rect class="ground-deep" x="0" y="322" width="400" height="34"/>
           <g fill="#EADFB9"><rect x="14" y="336" width="42" height="5" rx="2.5"/><rect x="114" y="336" width="42" height="5" rx="2.5"/><rect x="214" y="336" width="42" height="5" rx="2.5"/><rect x="314" y="336" width="42" height="5" rx="2.5"/></g>
@@ -864,7 +868,7 @@ var ACC_ORDER=[];
   var ft=document.createElementNS(NS,'g'); ft.id='faceTop';
   ['idle','sad','sleep','eat','angry','joy','surprise'].forEach(function(p){
     var im=document.createElementNS(NS,'image'); im.setAttribute('class','pose p-'+p); im.setAttribute('href','assets/'+p+'.webp');
-    im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',640); im.setAttribute('height',520); im.setAttribute('clip-path',p==='sad'?'url(#faceClipSad)':'url(#faceClip)'); ft.appendChild(im);
+    im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',640); im.setAttribute('height',520); im.setAttribute('clip-path','url(#'+({sad:'faceClipSad',sleep:'faceClipSleep',eat:'faceClipEat',joy:'faceClipEat',angry:'faceClipAngry',surprise:'faceClipSurp'}[p]||'faceClip')+')'); ft.appendChild(im);
   });
   var firstTop=null;
   IMG_ITEMS.slice().sort(function(a,b){ return Z[a.slot]-Z[b.slot]; }).forEach(function(it){ if(!firstTop && Z[it.slot]>=0) firstTop=$('acc-'+it.id); });
