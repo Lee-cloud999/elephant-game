@@ -571,6 +571,11 @@ body{margin:0}
       <button class="zb" id="zPlus" aria-label="크게">+</button>
       <button class="rst" id="zReset">원래대로</button>
     </div>
+    <div class="sizerow">
+      <button class="zb" id="rLeft" aria-label="왼쪽으로 45도 돌리기">↺</button>
+      <div class="pct" id="rPct">회전 0°</div>
+      <button class="zb" id="rRight" aria-label="오른쪽으로 45도 돌리기">↻</button>
+    </div>
     <div class="edbtns"><button class="cx" id="edCancel">취소</button><button class="sv" id="edSave">저장</button></div>
   </div>
 </div>
@@ -1280,7 +1285,7 @@ function renderShop(){
 /* ---------- 도감 / 새 코끼리 ---------- */
 function accTf(it,a,oy){
   var v=it.vb.split(' ').map(Number), cx=v[0]+v[2]/2, cy=v[1]+v[3]/2;
-  return 'translate('+a.x+' '+(a.y+(oy||0))+') translate('+cx+' '+cy+') scale('+a.s+') translate('+(-cx)+' '+(-cy)+')';
+  return 'translate('+a.x+' '+(a.y+(oy||0))+') translate('+cx+' '+cy+') rotate('+(a.r||0)+') scale('+a.s+') translate('+(-cx)+' '+(-cy)+')';
 }
 function thumbSvg(rec){
   var h='<svg viewBox="40 -80 560 600" aria-hidden="true"><image href="'+poseSrc(rec.color||'blue','idle')+'" x="0" y="0" width="640" height="520"/>';
@@ -1638,7 +1643,7 @@ setInterval(function(){ var b=unread(); render(); if(unread()>b){ sfx.msg(); sav
 
 /* ---------- 아이템 위치·크기 ---------- */
 var ZMIN=.5, ZMAX=2, editing=false, draft=null, edSel=null, edDrag=null;
-function adjOf(src,id){ var a=src&&src[id]; return {x:a&&+a.x||0, y:a&&+a.y||0, s:a&&+a.s||1}; }
+function adjOf(src,id){ var a=src&&src[id]; return {x:a&&+a.x||0, y:a&&+a.y||0, s:a&&+a.s||1, r:a&&+a.r||0}; }
 function applyAcc(m){
   m=m||pose();
   var src=editing?draft:S.adj;
@@ -1658,6 +1663,7 @@ function renderEdit(){
   });
   var a=edSel?adjOf(draft,edSel):{s:1};
   $('zPct').textContent=Math.round(a.s*100)+'%';
+  $('rPct').textContent='회전 '+(a.r||0)+'°'; $('rLeft').disabled=$('rRight').disabled=!edSel;
   $('zMinus').disabled=!edSel||a.s<=ZMIN+.001; $('zPlus').disabled=!edSel||a.s>=ZMAX-.001; $('zReset').disabled=!edSel;
   $('edHint').textContent=edSel?'화면을 끌어서 아이템을 옮겨요':'먼저 꾸미기에서 아이템을 입혀 주세요';
 }
@@ -1672,6 +1678,11 @@ function endEdit(){
 function zoomBy(f){
   if(!edSel) return;
   var a=adjOf(draft,edSel); a.s=Math.min(ZMAX,Math.max(ZMIN,Math.round(a.s*f*100)/100)); draft[edSel]=a;
+  sfx.pop(); applyAcc(); renderEdit();
+}
+function rotBy(d){
+  if(!edSel) return;
+  var a=adjOf(draft,edSel), r=(((a.r+d)%360)+360)%360; a.r=r>180?r-360:r; draft[edSel]=a;
   sfx.pop(); applyAcc(); renderEdit();
 }
 function accPt(e){
@@ -1702,6 +1713,8 @@ scene.addEventListener('pointerup',upEdit,true);
 scene.addEventListener('pointercancel',upEdit,true);
 ['click','dblclick'].forEach(function(t){ scene.addEventListener(t,function(e){ if(editing){ e.stopPropagation(); e.preventDefault(); } },true); });
 $('editBtn').addEventListener('click',startEdit);
+$('rLeft').addEventListener('click',function(){ rotBy(-45); });
+$('rRight').addEventListener('click',function(){ rotBy(45); });
 $('zMinus').addEventListener('click',function(){ zoomBy(1/1.12); });
 $('zPlus').addEventListener('click',function(){ zoomBy(1.12); });
 $('zReset').addEventListener('click',function(){ if(!edSel) return; delete draft[edSel]; sfx.pop(); applyAcc(); renderEdit(); });
