@@ -181,9 +181,21 @@ button.prow{cursor:pointer}
 #hosp,#walkG,#school,#room{opacity:0; transition:opacity .7s; pointer-events:none}
 .hospital #hosp,.walking #walkG,.schooling #school{opacity:1}
 .inroom #room{opacity:1}
+.scene.wx-cloud:not(.night){--sky-a:#A9BCCB; --sky-b:#D3DEE6; --cloud:#F3F6F9}
+.scene.wx-rain:not(.night){--sky-a:#7F8FA3; --sky-b:#AEBBC9; --cloud:#8D9AAC; --hill:#8FB98A; --ground:#80AF7C; --ground-deep:#6FA06C}
+.scene.wx-snow:not(.night){--sky-a:#B9C7D8; --sky-b:#E3EBF3; --cloud:#FFFFFF; --hill:#EEF4F8; --ground:#E4EEF3; --ground-deep:#D3E1EA; --tree:#9DBFA6}
+.scene.wx-fog:not(.night){--sky-a:#C9D2D8; --sky-b:#E5EAED; --cloud:#F4F6F7}
+.scene.night.wx-rain{--sky-a:#161E40; --sky-b:#37436E} .scene.night.wx-snow{--ground:#7C93A3; --hill:#6C8496}
+.scene.wx-rain .moon,.scene.wx-snow .moon,.scene.wx-cloud .moon,.scene.wx-rain .sun,.scene.wx-snow .sun,.scene.wx-cloud .sun,.scene.wx-fog .sun,.scene.wx-rain .stars,.scene.wx-snow .stars,.scene.wx-cloud .stars,.scene.wx-fog .stars{opacity:0!important}
+.scene.inroom #wx,.scene.walking #wx,.scene.hospital #wx,.scene.schooling #wx{opacity:0}
+#wx{transition:opacity .6s}
+.wxr{stroke:#DDEBFF; stroke-width:1.6; stroke-linecap:round; opacity:.75; animation:wxfall linear infinite}
+.wxs{fill:#fff; opacity:.9; animation:wxfall linear infinite}
+@keyframes wxfall{from{transform:translateY(-30px)}to{transform:translateY(380px)}}
+.roomBtn.wxBtn{left:56px}
 #room .roomnight{opacity:0} .scene.night #room .roomnight{opacity:1} .scene.night #room .roomwin{opacity:0} .scene.night #room .roomdim{opacity:.28}
 .roomBtn{position:absolute; top:10px; left:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.82); font-size:21px; line-height:40px; padding:0; box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer}
-.scene.editing .roomBtn,.walking .roomBtn,.hospital .roomBtn,.schooling .roomBtn{display:none}
+.scene.editing .roomBtn,.scene.editing .wxBtn,.walking .roomBtn,.hospital .roomBtn,.schooling .roomBtn{display:none}
 .actions.five{grid-template-columns:repeat(5,1fr)}
 .actions .act{font-size:14px}
 .walking #strip{animation:scrollx 2.4s linear infinite}
@@ -512,9 +524,11 @@ body{margin:0}
           </g>
         </g></g>
       </g>
+      <g id="wx" pointer-events="none"></g>
       <rect class="dim" x="-600" y="-800" width="1600" height="1800"/>
       <g id="fx"></g>
     </svg>
+    <button class="roomBtn wxBtn" id="wxBtn" aria-label="날씨 가져오기">🌤️</button>
     <button class="roomBtn" id="roomBtn" aria-label="배경 바꾸기">🏠</button>
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
   </section>
@@ -1095,12 +1109,52 @@ function render(){
   ele.setAttribute('data-pose', m);
   applyAcc(m);
   scene.classList.toggle('night', isNight());
-  scene.classList.toggle('inroom', !!S.room); $('roomBtn').textContent=S.room?'🌳':'🏠';
+  scene.classList.toggle('inroom', !!S.room); wxApply(); $('roomBtn').textContent=S.room?'🌳':'🏠';
   scene.classList.toggle('sleeping', S.sleeping);
   sleepLabel.textContent = S.sleeping ? '깨우기' : '자기';
   $('soundUse').setAttribute('href', (S.bgmOn||S.sfxOn) ? '#i-sound' : '#i-mute');
 }
 function commit(){ render(); save(); }
+/* ---------- 실제 날씨 ---------- */
+var WXN={clear:'맑음',cloud:'흐림',fog:'안개',rain:'비',snow:'눈'}, WXI={clear:'☀️',cloud:'☁️',fog:'🌫️',rain:'🌧️',snow:'❄️'}, wxBuilt='', wxOffT=0;
+function wxKind(c){ if(c<=1) return 'clear'; if(c<=3) return 'cloud'; if(c===45||c===48) return 'fog'; if((c>=71&&c<=77)||c===85||c===86) return 'snow'; return 'rain'; }
+function wxApply(){
+  var c=(S.wx&&S.wx.on)?S.wx.c:'';
+  ['rain','snow','cloud','fog'].forEach(function(k){ scene.classList.toggle('wx-'+k, c===k); });
+  var btn=$('wxBtn'); btn.textContent=c?WXI[c]:'🌤️';
+  if(wxBuilt===c) return; wxBuilt=c;
+  var g=$('wx'); g.textContent='';
+  if(c!=='rain'&&c!=='snow') return;
+  var n=c==='rain'?46:34;
+  for(var i=0;i<n;i++){
+    var x=Math.random()*440-20, d=(c==='rain'?0.7+Math.random()*.5:3+Math.random()*3), e;
+    if(c==='rain'){ e=document.createElementNS(NS,'line'); e.setAttribute('x1',x); e.setAttribute('x2',x-4); e.setAttribute('y1',0); e.setAttribute('y2',14); e.setAttribute('class','wxr'); }
+    else{ e=document.createElementNS(NS,'circle'); e.setAttribute('cx',x); e.setAttribute('cy',0); e.setAttribute('r',1.6+Math.random()*2); e.setAttribute('class','wxs'); }
+    e.style.animationDuration=d+'s'; e.style.animationDelay='-'+(Math.random()*d)+'s'; g.appendChild(e);
+  }
+}
+function wxGet(lat,lon,quiet){
+  return fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&timezone=auto')
+    .then(function(r){ return r.json(); }).then(function(j){
+      var cu=j.current; S.wx={on:true,c:wxKind(cu.weather_code),temp:Math.round(cu.temperature_2m),ts:Date.now(),lat:lat,lon:lon};
+      commit(); if(!quiet) say('지금 날씨는 '+WXN[S.wx.c]+' '+S.wx.temp+'°C 예요!',3200);
+    });
+}
+$('wxBtn').addEventListener('click',function(){
+  if(S.wx&&S.wx.on){
+    if(Date.now()-wxOffT<4000){ S.wx.on=false; wxOffT=0; commit(); say('날씨 연동을 껐어요',2000); return; }
+    wxOffT=Date.now(); wxGet(S.wx.lat,S.wx.lon).catch(function(){ say('날씨를 못 가져왔어요',2400); });
+    setTimeout(function(){ if(S.wx&&S.wx.on&&wxOffT) say('지금 '+WXN[S.wx.c]+' '+S.wx.temp+'°C · 한 번 더 누르면 연동 끄기',3400); },900);
+    return;
+  }
+  if(!navigator.geolocation){ say('이 기기는 위치를 지원하지 않아요',2600); return; }
+  say('위치를 허용해 주세요',2200);
+  navigator.geolocation.getCurrentPosition(function(pos){
+    wxGet(Math.round(pos.coords.latitude*100)/100, Math.round(pos.coords.longitude*100)/100).catch(function(){ say('날씨를 못 가져왔어요',2400); });
+  },function(){ say('위치 허용이 필요해요 (브라우저 설정에서 허용해 주세요)',3200); },{timeout:10000,maximumAge:600000});
+});
+function wxAuto(){ if(S.wx&&S.wx.on&&Date.now()-S.wx.ts>30*60000) wxGet(S.wx.lat,S.wx.lon,true).catch(function(){}); }
+setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 $('roomBtn').addEventListener('click',function(){ S.room=!S.room; sfx.up&&sfx.up(); commit(); say(S.room?'방 안이 포근해요!':'마당이 시원해요!',2200); });
 function popCoin(){
   $('coinChip').animate([{transform:'scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:320});
@@ -1487,7 +1541,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
