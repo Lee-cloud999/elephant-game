@@ -129,9 +129,11 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 #stageText.sick{color:#C9402F}
 .scene{touch-action:none}
 .deco{transition:opacity .6s}
-.walking .deco,.hospital .deco{opacity:0}
-#hosp,#walkG{opacity:0; transition:opacity .7s; pointer-events:none}
-.hospital #hosp,.walking #walkG{opacity:1}
+.walking .deco,.hospital .deco,.schooling .deco{opacity:0}
+#hosp,#walkG,#school{opacity:0; transition:opacity .7s; pointer-events:none}
+.hospital #hosp,.walking #walkG,.schooling #school{opacity:1}
+.actions.five{grid-template-columns:repeat(5,1fr)}
+.actions.five .act{font-size:14px}
 .walking #strip{animation:scrollx 2.4s linear infinite}
 @keyframes scrollx{to{transform:translateX(-400px)}}
 #docArm{transform-origin:-36px -98px; animation:wave 1.1s ease-in-out infinite}
@@ -196,6 +198,20 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 .edbtns .cx{background:#EEF2FF; color:var(--ink)}
 .edhint{font-size:13px; color:var(--ink-soft); text-align:center}
 .scene.editing{cursor:grab; outline:3px dashed #6B86E8; outline-offset:-3px}
+.lv{font-weight:700; color:#4A5FB8; background:#E3E9FA; border-radius:10px; padding:2px 8px; font-size:13px; white-space:nowrap; font-variant-numeric:tabular-nums}
+.lv.max{background:#FFE08A; color:#6E5200}
+.mini{border:0; border-radius:12px; padding:6px 11px; font-size:13px; background:#E3E9FA; color:#3B4A8F; cursor:pointer; white-space:nowrap}
+.mini.hot{background:#FF8FB1; color:#fff; font-weight:700; animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.herd{display:flex; flex-direction:column; gap:8px}
+.hrow{display:flex; align-items:center; gap:12px; padding:8px; border-radius:18px; background:#F5F8FF}
+.hrow.now{background:#FFF6D6}
+.hth{width:72px; height:72px; flex:none; border-radius:16px; background:#E8EEFF; overflow:hidden}
+.hth svg{width:100%; height:100%; display:block}
+.hmeta{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.hmeta b{font-weight:400; font-size:19px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.hmeta small{color:var(--ink-soft); font-size:13px; line-height:1.35}
+.hempty{padding:14px; text-align:center; color:var(--ink-soft); font-size:14px; line-height:1.5}
 .sub{margin:4px 0 0; font-family:var(--font-display); font-weight:400; font-size:18px}
 .trk{display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:10px 14px; border:2px solid transparent; border-radius:18px; background:#F5F8FF; cursor:pointer}
 .trk .tx{min-width:0; display:flex; flex-direction:column; gap:1px}
@@ -247,6 +263,7 @@ body{margin:0}
     <symbol id="i-coin" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="#FFD54F" stroke="#D9A400" stroke-width="2.5"/><circle cx="24" cy="24" r="12" fill="none" stroke="#E8B400" stroke-width="2.5"/><path d="M24 17l2.2 4.6 5 .6-3.7 3.4 1 5-4.5-2.5-4.5 2.5 1-5-3.7-3.4 5-.6z" fill="#F2B800"/></symbol>
     <symbol id="i-bolt" viewBox="0 0 48 48"><path d="M27 4L10 27H22L19 44L38 20H26Z" fill="#FFC93C" stroke="#D99A00" stroke-width="2.5" stroke-linejoin="round"/></symbol>
     <symbol id="i-bow" viewBox="0 0 48 48"><path d="M24 24L6 13V35Z" fill="#FF5C7A" stroke="#C9405C" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 24L42 13V35Z" fill="#FF5C7A" stroke="#C9405C" stroke-width="2.5" stroke-linejoin="round"/><circle cx="24" cy="24" r="6.5" fill="#E03E5E" stroke="#C9405C" stroke-width="2.5"/></symbol>
+    <symbol id="i-school" viewBox="0 0 48 48"><path d="M6 20L24 8l18 12z" fill="#E86C5A"/><rect x="9" y="20" width="30" height="21" rx="2" fill="#FFD9A0" stroke="#E0B070" stroke-width="2"/><rect x="20" y="29" width="8" height="12" rx="1.5" fill="#8A6A4A"/><rect x="12" y="24" width="6" height="6" rx="1" fill="#BFE6F7"/><rect x="30" y="24" width="6" height="6" rx="1" fill="#BFE6F7"/><path d="M24 8V3" stroke="#8A6A4A" stroke-width="2"/><path d="M24 3h6l-1.5 2L30 7h-6z" fill="#FF6F91"/></symbol>
     <symbol id="i-sound" viewBox="0 0 48 48"><path d="M6 18h8l11-9v30l-11-9H6z" fill="#5B6CAE"/><path d="M31 17a9 9 0 0 1 0 14M36 11a17 17 0 0 1 0 26" fill="none" stroke="#5B6CAE" stroke-width="3.5" stroke-linecap="round"/></symbol>
     <symbol id="i-mute" viewBox="0 0 48 48"><path d="M6 18h8l11-9v30l-11-9H6z" fill="#9AA3C8"/><path d="M32 18l10 12M42 18L32 30" fill="none" stroke="#9AA3C8" stroke-width="3.5" stroke-linecap="round"/></symbol>
 
@@ -266,7 +283,7 @@ body{margin:0}
     <button class="iconbtn" id="soundBtn" aria-label="소리 설정"><svg class="ico"><use id="soundUse" href="#i-sound"/></svg></button>
   </header>
 
-  <div class="growth"><div class="bar"><i id="xpFill"></i></div><span id="xpText"></span></div>
+  <div class="growth"><b class="lv" id="lvText">Lv.1</b><div class="bar"><i id="xpFill"></i></div><span id="xpText"></span><button class="mini hot" id="newEleBtn" hidden>새 코끼리 키우기</button><button class="mini" id="herdBtn">도감</button></div>
 
   <section class="stats" id="stats" aria-label="코끼리 상태">
     <div class="stat" data-k="hunger" style="--c:var(--hunger)"><div class="lab"><svg><use href="#i-banana"/></svg>배부름</div><div class="bar"><i></i></div></div>
@@ -312,6 +329,23 @@ body{margin:0}
       <g class="deco"><circle cx="95" cy="334" r="4.5" fill="#FF9EC4"/><circle cx="95" cy="334" r="1.8" fill="#FFE27A"/><circle cx="318" cy="330" r="4.5" fill="#FFFFFF"/><circle cx="318" cy="330" r="1.8" fill="#FFE27A"/><circle cx="352" cy="344" r="4.5" fill="#FFB3A1"/><circle cx="352" cy="344" r="1.8" fill="#FFE27A"/><circle cx="58" cy="322" r="4.5" fill="#FFFFFF"/><circle cx="58" cy="322" r="1.8" fill="#FFE27A"/><circle cx="140" cy="346" r="4.5" fill="#C9B6FF"/><circle cx="140" cy="346" r="1.8" fill="#FFE27A"/></g>
 
       <g id="walkG"><g id="strip"><use href="#stripT"/><use href="#stripT" x="400"/></g></g>
+      <g id="school">
+        <rect x="-600" y="-800" width="1600" height="1090" fill="#DDF1FF"/>
+        <rect x="-600" y="288" width="1600" height="700" fill="#E8D9B5"/>
+        <rect x="-600" y="282" width="1600" height="8" fill="#CDBB98"/>
+        <ellipse cx="60" cy="52" rx="30" ry="12" fill="#fff"/><ellipse cx="78" cy="46" rx="20" ry="11" fill="#fff"/>
+        <ellipse cx="338" cy="40" rx="28" ry="11" fill="#fff"/>
+        <rect x="52" y="78" width="296" height="206" rx="10" fill="#FFD9A0" stroke="#E0B070" stroke-width="4"/>
+        <path d="M34 84L200 14L366 84Z" fill="#E86C5A" stroke="#C4503F" stroke-width="5" stroke-linejoin="round"/>
+        <circle cx="200" cy="52" r="14" fill="#fff" stroke="#C4503F" stroke-width="4"/><path d="M200 52V43M200 52L207 56" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="68" y="108" width="64" height="58" rx="6" fill="#BFE6F7" stroke="#fff" stroke-width="6"/><path d="M100 108V166M68 137H132" stroke="#fff" stroke-width="4"/>
+        <rect x="268" y="108" width="64" height="58" rx="6" fill="#BFE6F7" stroke="#fff" stroke-width="6"/><path d="M300 108V166M268 137H332" stroke="#fff" stroke-width="4"/>
+        <rect x="146" y="92" width="108" height="62" rx="4" fill="#2F6B4F" stroke="#B88A55" stroke-width="6"/>
+        <text id="schText" x="200" y="132" text-anchor="middle" font-size="26" fill="#FFFFFF" font-family="Jua, sans-serif"></text>
+        <rect x="146" y="154" width="108" height="6" rx="2" fill="#B88A55"/>
+        <circle cx="30" cy="290" r="22" fill="#7FCB6F"/><circle cx="372" cy="292" r="24" fill="#7FCB6F"/>
+        <path d="M388 286V210" stroke="#8A6A4A" stroke-width="4"/><path d="M388 212h-26l8 9-8 9h26z" fill="#FF6F91"/>
+      </g>
       <g id="hosp">
         <rect x="-600" y="-800" width="1600" height="1090" fill="#E7F4F1"/>
         <rect x="-600" y="288" width="1600" height="700" fill="#F2E6D2"/>
@@ -380,17 +414,35 @@ body{margin:0}
     </div>
   </div>
 
-  <nav class="actions" aria-label="돌보기">
+  <nav class="actions" id="actions" aria-label="돌보기">
     <button class="act" id="feedBtn" style="--bg:#FFE9A8;--edge:#E6C25B;--fg:#6B4F00"><svg><use href="#i-banana"/></svg>먹이</button>
     <button class="act" id="washBtn" style="--bg:#CDEBFB;--edge:#8CC9EE;--fg:#1F5A80"><svg><use href="#i-drop"/></svg>씻기</button>
     <button class="act" id="playBtn" style="--bg:#FFD3C4;--edge:#EFA088;--fg:#8A3A22"><svg><use href="#i-ball"/></svg>놀기</button>
     <button class="act" id="petBtn" style="--bg:#F1DDFB;--edge:#CFA9EA;--fg:#5E2F82"><svg><use href="#i-hand"/></svg><span id="petLabel">쓰다듬기</span></button>
     <button class="act" id="walkBtn" style="--bg:#D5F0C8;--edge:#A3D68F;--fg:#2F5E1E"><svg><use href="#i-walk"/></svg>산책</button>
     <button class="act" id="sleepBtn" style="--bg:#DADDF8;--edge:#A8AEE5;--fg:#34408A"><svg><use href="#i-moon"/></svg><span id="sleepLabel">자기</span></button>
+    <button class="act" id="schoolBtn" style="--bg:#C9F0EA;--edge:#8ED3C8;--fg:#1B5F57"><svg><use href="#i-school"/></svg>학교</button>
     <button class="act" id="hospBtn" style="--bg:#FFE3E3;--edge:#F2A9A9;--fg:#8A2A2A"><svg><use href="#i-cross"/></svg>병원</button>
     <button class="act" id="decorBtn" style="--bg:#FFD6E6;--edge:#F0A1C0;--fg:#8A2C55"><svg><use href="#i-bow"/></svg>꾸미기</button>
   </nav>
 </main>
+
+<div class="wrap center" id="gradWrap" hidden>
+  <div class="card" role="dialog" aria-labelledby="gradTitle">
+    <h2 id="gradTitle">만렙이에요!</h2>
+    <p id="gradMsg"></p>
+    <button class="go" id="gradOk">도감에 기록하고 새 코끼리 키우기</button>
+    <button class="ghost" id="gradLater">조금 더 같이 있을래요</button>
+  </div>
+</div>
+
+<div class="wrap bottom" id="herdWrap" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="herdTitle">
+    <div class="sheet-head"><h2 id="herdTitle">우리 코끼리 도감</h2></div>
+    <div class="herd" id="herdList"></div>
+    <button class="ghost" id="herdClose">닫기</button>
+  </div>
+</div>
 
 <div class="wrap center" id="nameWrap" hidden>
   <div class="card" role="dialog" aria-labelledby="nameTitle">
@@ -425,6 +477,7 @@ body{margin:0}
       <h2 id="shopTitle">꾸미기</h2>
       <div class="chip"><svg class="ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b></div>
     </div>
+    <button class="buy" id="editBtn" style="width:100%;background:#E8EEFF;color:#2F3F8F">아이템 위치·크기 바꾸기</button>
     <h3 class="sub">뽑기</h3>
     <div class="gacha">
       <div class="gstage" id="gStage">
@@ -445,7 +498,6 @@ body{margin:0}
     <div class="swatches" id="colorList"></div>
     <h3 class="sub">아이템</h3>
     <div id="shopList" style="display:flex;flex-direction:column;gap:8px"></div>
-    <button class="buy" id="editBtn" style="width:100%;background:#E8EEFF;color:#2F3F8F">아이템 위치·크기 바꾸기</button>
     <button class="ghost" id="shopClose">닫기</button>
   </div>
 </div>
@@ -472,12 +524,10 @@ var NS = 'http://www.w3.org/2000/svg';
 var KEY = 'elephant-game-v1';
 var OX = 200, OY = 306;
 var KEYS = ['hunger','thirst','clean','happy','energy'];
-var STAGES = [
-  {at:0,   name:'아기 코끼리',     s:.64},
-  {at:40,  name:'꼬마 코끼리',     s:.76},
-  {at:120, name:'개구쟁이 코끼리', s:.89},
-  {at:260, name:'멋쟁이 코끼리',   s:1.02}
-];
+var MAXLV = 20;
+function lvAt(L){ return Math.round(8*(L-1)+1.5*(L-1)*(L-1)); }
+function stageName(L){ return L>=15?'멋쟁이 코끼리':(L>=10?'개구쟁이 코끼리':(L>=5?'꼬마 코끼리':'아기 코끼리')); }
+function lvScale(L){ return .64+.38*(L-1)/(MAXLV-1); }
 var FOODS = {
   banana:{hunger:22, happy:2,  xp:6, line:'바나나 냠냠, 달콤해요!'},
   melon: {hunger:28, thirst:10, happy:6,  xp:7, line:'수박이 시원하고 맛있어요!'},
@@ -506,7 +556,7 @@ var tray=$('tray'), sleepLabel=$('sleepLabel');
 
 /* ---------- 저장 ---------- */
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},t:Date.now()};
+  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],born:Date.now(),schoolDay:'',t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -517,6 +567,9 @@ function load(){
     if(typeof r.bgmTrack!=='number') r.bgmTrack=0;
     if(typeof r.color!=='string') r.color='blue';
     if(!r.adj || typeof r.adj!=='object') r.adj={};
+    if(!Array.isArray(r.herd)) r.herd=[];
+    if(typeof r.schoolDay!=='string') r.schoolDay='';
+    if(typeof r.born!=='number') r.born=r.t||Date.now();
     return r; } }catch(e){}
   return fresh();
 }
@@ -538,8 +591,8 @@ function hasJong(w){ var c=w.charCodeAt(w.length-1); return c>=0xAC00 && c<=0xD7
 function ga(w){ return w+(hasJong(w)?'이':'가'); }
 function eun(w){ return w+(hasJong(w)?'은':'는'); }
 function nm(){ return S.name||'코순이'; }
-function stageIdx(){ var i=0; for(var j=0;j<STAGES.length;j++) if(S.xp>=STAGES[j].at) i=j; return i; }
-function sc(){ return STAGES[stageIdx()].s; }
+function level(){ var L=1; for(var j=2;j<=MAXLV;j++) if(S.xp>=lvAt(j)) L=j; return L; }
+function sc(){ return lvScale(level()); }
 function isNight(){ var h=new Date().getHours(); return S.sleeping || h>=19 || h<6; }
 function done(anim){ return anim.finished.catch(function(){}); }
 
@@ -815,18 +868,21 @@ function mood(){
   return low<28 ? 'sad' : 'ok';
 }
 function render(){
-  var i=stageIdx(), st=STAGES[i], nxt=STAGES[i+1];
+  var L=level(), maxed=L>=MAXLV;
   $('nameText').textContent=nm();
-  $('stageText').textContent=st.name+(S.sick?' · 아파요':'');
+  $('stageText').textContent=stageName(L)+(S.sick?' · 아파요':'');
   $('stageText').classList.toggle('sick', !!S.sick);
   $('hospBtn').classList.toggle('alert', !!S.sick);
-  eleWrap.style.setProperty('--s', st.s);
-  if(nxt){
-    $('xpFill').style.width=Math.round((S.xp-st.at)/(nxt.at-st.at)*100)+'%';
-    $('xpText').textContent=nxt.name+'까지 '+(nxt.at-S.xp);
+  eleWrap.style.setProperty('--s', lvScale(L));
+  $('lvText').textContent=maxed?'Lv.MAX':'Lv.'+L; $('lvText').classList.toggle('max', maxed);
+  if(!maxed){
+    $('xpFill').style.width=Math.round((S.xp-lvAt(L))/(lvAt(L+1)-lvAt(L))*100)+'%';
+    $('xpText').textContent='다음 레벨까지 '+(lvAt(L+1)-S.xp);
   }else{
-    $('xpFill').style.width='100%'; $('xpText').textContent='다 자랐어요!';
+    $('xpFill').style.width='100%';
   }
+  $('xpText').hidden=maxed; $('newEleBtn').hidden=!maxed;
+  var baby=L<5; $('schoolBtn').hidden=!baby; $('actions').classList.toggle('five', baby);
   KEYS.forEach(function(k){
     var el=document.querySelector('.stat[data-k="'+k+'"]'), v=Math.round(S[k]);
     el.querySelector('i').style.width=v+'%';
@@ -849,8 +905,10 @@ function popCoin(){
 
 /* ---------- 성장 ---------- */
 function addXp(n){
-  var before=stageIdx(); S.xp+=n;
-  if(stageIdx()>before) celebrate();
+  var before=level(); if(before>=MAXLV) return;
+  S.xp=Math.min(S.xp+n, lvAt(MAXLV));
+  var after=level();
+  if(after>before) celebrate(before,after);
 }
 function confetti(){
   var cols=['#FF6F91','#FFD166','#5EBBF0','#7FCB6F','#B38CFF','#FF8A65'];
@@ -864,9 +922,13 @@ function confetti(){
     (function(node,anim){ anim.finished.then(function(){ node.remove(); }).catch(function(){}); })(r,a);
   }
 }
-function celebrate(){
-  sfx.up(); confetti(); setFlash('joy',3500);
-  say('와! '+eun(nm())+' 이제 '+STAGES[stageIdx()].name+'예요!', 4200);
+function celebrate(before,after){
+  var stageUp=stageName(after)!==stageName(before), maxed=after>=MAXLV;
+  sfx.up(); if(stageUp||maxed) confetti(); setFlash('joy',stageUp||maxed?3500:1800);
+  if(maxed) say('만렙이에요! '+eun(nm())+' 다 자랐어요!', 4200);
+  else if(stageUp) say('와! '+eun(nm())+' 이제 '+stageName(after)+'예요!', 4200);
+  else say('레벨 '+after+'(으)로 올랐어요!', 3200);
+  if(maxed) setTimeout(function(){ if(level()>=MAXLV && $('nameWrap').hidden) openGrad(); },2600);
   hop.animate([{transform:'translateY(0)'},{transform:'translateY(-26px)'},{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:800,easing:'ease-out'});
 }
 
@@ -1099,6 +1161,60 @@ function renderShop(){
     row.appendChild(btn); list.appendChild(row);
   });
 }
+/* ---------- 도감 / 새 코끼리 ---------- */
+function accTf(it,a,oy){
+  var v=it.vb.split(' ').map(Number), cx=v[0]+v[2]/2, cy=v[1]+v[3]/2;
+  return 'translate('+a.x+' '+(a.y+(oy||0))+') translate('+cx+' '+cy+') scale('+a.s+') translate('+(-cx)+' '+(-cy)+')';
+}
+function thumbSvg(rec){
+  var h='<svg viewBox="40 -80 560 600" aria-hidden="true"><image href="'+poseSrc(rec.color||'blue','idle')+'" x="0" y="0" width="640" height="520"/>';
+  ['scarf','glasses','ribbon','flower','hat','crown'].forEach(function(id){
+    var it=SHOP.filter(function(x){ return x.id===id; })[0];
+    if(it && rec.worn && rec.worn[it.slot]===id) h+='<use href="#g-'+id+'" transform="'+accTf(it,adjOf(rec.adj,id),0)+'"/>';
+  });
+  return h+'</svg>';
+}
+function fmtDate(t){ var d=new Date(t); return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate(); }
+function daysBetween(a,b){ return Math.max(1,Math.ceil((b-a)/86400000)); }
+function curRec(){ return {name:nm(), color:S.color, worn:S.worn, adj:S.adj}; }
+function renderHerd(){
+  var box=$('herdList'); box.innerHTML='';
+  function row(rec,cls,title,sub){
+    var d=document.createElement('div'); d.className='hrow'+cls;
+    d.innerHTML='<div class="hth">'+thumbSvg(rec)+'</div><div class="hmeta"><b></b><small></small></div>';
+    d.querySelector('b').textContent=title; d.querySelector('small').textContent=sub;
+    box.appendChild(d);
+  }
+  var L=level();
+  row(curRec(),' now', nm()+' · 키우는 중', 'Lv.'+(L>=MAXLV?'MAX':L)+' · '+stageName(L)+' · '+daysBetween(S.born,Date.now())+'일째');
+  var hs=S.herd.slice().reverse();
+  hs.forEach(function(r,i){
+    row(r,'', r.name+' · 졸업', 'Lv.MAX · '+daysBetween(r.born||r.grad,r.grad)+'일 키움 · '+fmtDate(r.grad)+' 졸업 · '+(S.herd.length-i)+'번째');
+  });
+  if(!hs.length){ var e=document.createElement('div'); e.className='hempty'; e.textContent='아직 졸업한 코끼리가 없어요. 만렙(Lv.'+MAXLV+')까지 키우면 여기에 기록돼요.'; box.appendChild(e); }
+}
+function openGrad(){
+  $('gradMsg').textContent=ga(nm())+' Lv.'+MAXLV+'까지 다 자랐어요! 도감에 기록하고 새 코끼리를 키울 수 있어요. 코인과 모은 아이템은 그대로 가져가요.';
+  $('gradWrap').hidden=false;
+}
+function graduate(){
+  if(level()<MAXLV) return;
+  S.herd.push({name:nm(), color:S.color, worn:JSON.parse(JSON.stringify(S.worn||{})), adj:JSON.parse(JSON.stringify(S.adj||{})), level:MAXLV, born:S.born, grad:Date.now()});
+  var keep={coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd};
+  var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
+  Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
+  S.name=''; S.t=Date.now();
+  applyColor(); endPet(); tray.hidden=true; if(typeof zIv!=='undefined' && zIv){ clearInterval(zIv); zIv=null; }
+  $('gradWrap').hidden=true; commit();
+  sfx.up(); confetti(); openName(true);
+}
+$('newEleBtn').addEventListener('click',openGrad);
+$('gradOk').addEventListener('click',graduate);
+$('gradLater').addEventListener('click',function(){ $('gradWrap').hidden=true; });
+$('herdBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; renderHerd(); $('herdWrap').hidden=false; });
+$('herdClose').addEventListener('click',function(){ $('herdWrap').hidden=true; });
+$('herdWrap').addEventListener('pointerdown',function(e){ if(e.target===$('herdWrap')) $('herdWrap').hidden=true; });
+
 /* ---------- 아이템 위치·크기 ---------- */
 var ZMIN=.5, ZMAX=2, editing=false, draft=null, edSel=null, edDrag=null;
 function adjOf(src,id){ var a=src&&src[id]; return {x:a&&+a.x||0, y:a&&+a.y||0, s:a&&+a.s||1}; }
@@ -1106,9 +1222,8 @@ function applyAcc(m){
   m=m||pose();
   var src=editing?draft:S.adj;
   SHOP.forEach(function(it){
-    var a=adjOf(src,it.id), v=it.vb.split(' ').map(Number), cx=v[0]+v[2]/2, cy=v[1]+v[3]/2;
     var oy=it.id==='glasses'?(m==='sad'?22:(m==='sleep'?21:0)):0;
-    $('acc-'+it.id).setAttribute('transform','translate('+a.x+' '+(a.y+oy)+') translate('+cx+' '+cy+') scale('+a.s+') translate('+(-cx)+' '+(-cy)+')');
+    $('acc-'+it.id).setAttribute('transform',accTf(it,adjOf(src,it.id),oy));
   });
 }
 function wornItems(){ return SHOP.filter(function(it){ return S.worn[it.slot]===it.id; }); }
@@ -1361,6 +1476,57 @@ async function walk(){
   commit();
 }
 
+/* ---------- 학교 ---------- */
+function isMorning(){ var h=new Date().getHours(); return h>=6 && h<12; }
+function dayKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function boardText(t){
+  var el=$('schText'); el.textContent=t;
+  el.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:400,fill:'both'});
+  sfx.pop();
+}
+function schoolBounce(){ hop.animate([{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:420,easing:'ease-out'}); }
+async function school(){
+  if(locked || sleepingGuard()) return;
+  tray.hidden=true;
+  if(level()>=5){ say('이제 다 커서 학교는 졸업했어요', 3000); return; }
+  if(!isMorning()){ say('학교는 아침에 가요. 지금은 문이 닫혀 있어요', 3600); setFlash('sad',1600); return; }
+  if(S.schoolDay===dayKey()){ say('오늘은 벌써 학교에 다녀왔어요. 내일 또 가요!', 3600); setFlash('joy',1400); return; }
+  if(S.sick){ say('아파서 학교에 못 가요. 병원에 먼저 가요', 3200); return; }
+  if(S.energy<25){ say('너무 졸려서 학교에 못 가요. 조금 쉬어요', 3000); setFlash('angry',1300); return; }
+  if(S.hunger<20 || S.thirst<20){ say('배고프고 목말라서 학교에 못 가요', 3000); setFlash('angry',1300); return; }
+  locked=true;
+  var bob=null, st=null;
+  try{
+    $('schText').textContent='';
+    scene.classList.add('schooling');
+    say('아침이에요! 학교에 가요', 2600); setFlash('joy',1800);
+    bob=hop.animate([
+      {transform:'translateY(0) rotate(-2.2deg)'},{transform:'translateY(-9px) rotate(0deg)'},{transform:'translateY(0) rotate(2.2deg)'},{transform:'translateY(-9px) rotate(0deg)'},{transform:'translateY(0) rotate(-2.2deg)'}
+    ],{duration:1040,iterations:Infinity,easing:'ease-in-out'});
+    st=setInterval(sfx.step,520);
+    await wait(2300);
+    clearInterval(st); st=null; bob.cancel(); bob=null;
+    say('선생님이 글자를 알려 줘요', 2800); boardText('가 나 다'); schoolBounce();
+    await wait(1100); sfx.pop(); schoolBounce();
+    await wait(1900);
+    say('숫자도 배워요', 2600); boardText('1 + 1 = 2'); schoolBounce();
+    await wait(2800);
+    say('참 잘했어요!', 3000); boardText('★ ★ ★'); sfx.up(); confetti(); setFlash('joy',2800);
+    await wait(2600);
+  }finally{
+    if(st) clearInterval(st);
+    if(bob) bob.cancel();
+    scene.classList.remove('schooling');
+    locked=false;
+  }
+  S.schoolDay=dayKey();
+  S.happy=cl(S.happy+14); S.energy=cl(S.energy-12); S.hunger=cl(S.hunger-8); S.thirst=cl(S.thirst-8); S.clean=cl(S.clean-4); S.coins+=3; popCoin();
+  addXp(12); sfx.coin();
+  setFlash('joy',2400);
+  say('학교 끝! 코인 3개를 받았어요', 3600);
+  commit();
+}
+
 /* ---------- 병원 ---------- */
 function flyTool(sym,x0,y0,x1,y1,ms){
   var g=mk('g',{}); mk('use',{href:'#'+sym,x:-26,y:-26,width:52,height:52},g);
@@ -1453,6 +1619,7 @@ $('playBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; pl
 $('petBtn').addEventListener('click',startPet);
 $('walkBtn').addEventListener('click',function(){ endPet(); walk(); });
 $('hospBtn').addEventListener('click',function(){ endPet(); hospital(); });
+$('schoolBtn').addEventListener('click',function(){ endPet(); school(); });
 $('sleepBtn').addEventListener('click',function(){ endPet(); if(S.sleeping) wake(); else startSleep(); });
 $('decorBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; gBusy=false; $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; });
 $('shopClose').addEventListener('click',function(){ $('shopWrap').hidden=true; });
