@@ -265,6 +265,22 @@ button.prow{cursor:pointer}
 .wbtns button{flex:1; border:0; border-radius:14px; padding:11px; font-size:16px; cursor:pointer}
 .wbtns .wy{background:#E5484D; color:#fff} .wbtns .wy.on{background:#58B96B}
 .wbtns .wn{background:#EEF2FF; color:var(--ink)}
+
+/* 아이템 격자 */
+.sgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.stile{border:2px solid transparent; background:#F5F8FF; border-radius:16px; padding:8px 4px 8px; display:flex; flex-direction:column; align-items:center; gap:3px; font:inherit; color:var(--ink); cursor:pointer; min-width:0}
+.stile:active{transform:scale(.97)}
+.stile .prev{width:100%; height:64px; background:none; border-radius:0}
+.stile b{font-weight:400; font-family:var(--font-display); font-size:14px; line-height:1.2; text-align:center}
+.stile .rar{margin:0; font-size:11px; padding:0 7px}
+.stile .st{font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:3px; font-variant-numeric:tabular-nums; text-align:center; line-height:1.2; margin-top:2px}
+.stile .st .ico{width:14px; height:14px}
+.stile .st.cost{color:#8A6A00; font-size:14px}
+.stile .st.on{color:#2F9E5B}
+.stile.worn{border-color:#58B96B; background:#EAF8EC}
+.stile.sel{border-color:#E8A200; background:#FFF6D8}
+.stile.lockd{opacity:.5; cursor:default}
+.stile:disabled{color:var(--ink)}
 .edhint{font-size:13px; color:var(--ink-soft); text-align:center}
 /* 아이템 편집: 장면을 가리지 않게 작게 */
 #editWrap .sheet{padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px)); gap:6px; border-radius:18px 18px 0 0}
@@ -589,7 +605,7 @@ body{margin:0}
     <h3 class="sub">몸 색깔</h3>
     <div class="swatches" id="colorList"></div>
     <h3 class="sub">아이템</h3>
-    <div id="shopList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="shopList" class="sgrid"></div>
     <button class="ghost" id="shopClose">닫기</button>
   </div>
 </div>
@@ -1281,6 +1297,7 @@ function poke(){
   if(S.sleeping){ say('쿨쿨... 조금만 더 잘래요'); return; }
   if(locked) return;
   var now=Date.now(); if(now-pokeAt<700) return; pokeAt=now;
+  S.coins+=1; popCoin(); setTimeout(sfx.coin,160); commit();
   var s=sc();
   sfx.trunk();
   hop.animate([{transform:'translateY(0)'},{transform:'translateY(-16px)'},{transform:'translateY(0)'}],{duration:380,easing:'ease-out'});
@@ -1309,22 +1326,22 @@ function renderShop(){
   SHOP.map(function(it,i){ return {it:it,i:i}; }).sort(function(a,b){ return (a.it.tier-b.it.tier)||(a.i-b.i); }).forEach(function(o){
     var it=o.it, owned=S.owned.indexOf(it.id)>=0, worn=S.worn[it.slot]===it.id, buyable=TIERS[it.tier].buy;
     if(!owned && it.tier===3) return;
-    var row=document.createElement('div'); row.className='row'+((!owned&&!buyable)?' lockd':'');
-    row.innerHTML='<svg class="prev" viewBox="'+it.vb+'" aria-hidden="true"><use href="#g-'+it.id+'"/></svg><div class="meta">'+it.name+'<span class="rar r'+it.tier+'">'+TIERS[it.tier].name+'</span></div>';
-    var btn=document.createElement('button'); btn.className='buy';
-    if(!owned && !buyable){
-      btn.textContent='뽑기 전용'; btn.disabled=true;
-    }else if(!owned){
-      btn.innerHTML='<svg class="ico"><use href="#i-coin"/></svg>'+it.cost;
-      btn.disabled=S.coins<it.cost;
-      btn.addEventListener('click',function(){ buy(it); });
-    }else{
-      btn.textContent=worn?'벗기':'입히기'; if(worn) btn.classList.add('on');
-      btn.addEventListener('click',function(){ wear(it); });
-    }
-    row.appendChild(btn); list.appendChild(row);
+    var tile=document.createElement('button'); tile.className='stile'+(worn?' worn':'')+((!owned&&!buyable)?' lockd':'')+(buySel===it.id?' sel':'');
+    var status;
+    if(!owned && !buyable) status='<small class="st lk">뽑기 전용</small>';
+    else if(!owned) status='<small class="st cost"><svg class="ico"><use href="#i-coin"/></svg>'+it.cost+'</small>';
+    else status='<small class="st '+(worn?'on':'')+'">'+(worn?'입는 중 · 눌러서 벗기':'눌러서 입기')+'</small>';
+    tile.innerHTML='<svg class="prev" viewBox="'+it.vb+'" aria-hidden="true"><use href="#g-'+it.id+'"/></svg><b>'+it.name+'</b><span class="rar r'+it.tier+'">'+TIERS[it.tier].name+'</span>'+status;
+    if(!owned && !buyable) tile.disabled=true;
+    tile.addEventListener('click',function(){
+      if(owned){ buySel=null; wear(it); return; }
+      if(S.coins<it.cost){ sfx.no(); say('코인이 모자라요', 1400); return; }
+      if(buySel===it.id){ buySel=null; buy(it); } else { buySel=it.id; sfx.pop(); renderShop(); }
+    });
+    list.appendChild(tile);
   });
 }
+var buySel=null;
 /* ---------- 도감 / 새 코끼리 ---------- */
 function accTf(it,a,oy){
   var v=it.vb.split(' ').map(Number), cx=v[0]+v[2]/2, cy=v[1]+v[3]/2;
