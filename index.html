@@ -375,6 +375,7 @@ button.prow{cursor:pointer}
 #decoPop[hidden]{display:none}
 #decoPop .dp{flex:1; border:0; border-radius:14px; padding:12px 2px; font:inherit; font-family:var(--font-display); font-size:13.5px; line-height:1.2; white-space:nowrap; cursor:pointer}
 #decoPop::before{content:""; position:absolute; top:-7px; left:50%; margin-left:-8px; border:8px solid transparent; border-top:0; border-bottom-color:#fff}
+.ci{width:1.15em;height:1.15em;vertical-align:-.22em;flex:none}
 /* 출석 보상 */
 .attcard{display:flex; flex-direction:column; gap:10px; text-align:center; max-width:360px; width:calc(100% - 24px)}
 .attsub{font-size:14px; color:var(--ink-soft)}
@@ -704,7 +705,7 @@ body{margin:0}
 
 <div class="wrap bottom" id="cookWrap" hidden>
   <div class="sheet cooksheet" role="dialog" aria-labelledby="cookTitle">
-    <div class="sheet-head"><h2 id="cookTitle">요리</h2><span class="ckcoin">🪙 <b id="ckCoin">0</b></span></div>
+    <div class="sheet-head"><h2 id="cookTitle">요리</h2><span class="ckcoin"><svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg> <b id="ckCoin">0</b></span></div>
     <div class="cktabs"><button id="ckTabCook" class="on">요리하기</button><button id="ckTabMix">재료 합치기</button><button id="ckTabFridge">냉장고 <span id="ckFridgeN"></span></button><button id="ckTabDex">도감</button></div>
     <div class="cklist" id="ckList"></div>
     <div class="cknote" id="ckNote" role="status" aria-live="polite"></div>
@@ -714,7 +715,7 @@ body{margin:0}
 
 <div class="wrap bottom" id="superWrap" hidden>
   <div class="sheet cooksheet" role="dialog" aria-labelledby="spTitle">
-    <div class="sheet-head"><h2 id="spTitle">🛒 슈퍼</h2><span class="ckcoin">🪙 <b id="spCoin">0</b></span></div>
+    <div class="sheet-head"><h2 id="spTitle">🛒 슈퍼</h2><span class="ckcoin"><svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg> <b id="spCoin">0</b></span></div>
     <div class="cklist" id="spList"></div>
     <div class="cknote" id="spNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="spClose">닫기</button>
@@ -1447,7 +1448,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
         if(d.combo) return;
         var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(qty[d.id]||1,Math.max(room,1))); qty[d.id]=q;
         var r=document.createElement('div'); r.className='ckrow';
-        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef st">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
+        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef st">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'<svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg> 요리</button></div>';
         r.querySelector('[data-a=c]').disabled=busy||room<=0||S.coins<d.c*q;
         r.addEventListener('click',function(e){ if(e.target.closest('.em,.nm')){ info(d,0); return; } var a=e.target.getAttribute('data-a'); if(!a) return;
           if(a==='m') qty[d.id]=Math.max(1,q-1); else if(a==='p') qty[d.id]=Math.min(room,q+1); else { play(d,q); return; } draw(); });
@@ -1532,7 +1533,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
     $('spCoin').textContent=S.coins; spList.innerHTML='';
     ING.forEach(function(ig){ if(ig.off) return; var have=ingOf(ig.id), room=Math.max(0,20-have), q=Math.max(1,Math.min(spQty[ig.id]||1,Math.max(room,1))); spQty[ig.id]=q;
       var r=document.createElement('div'); r.className='ckrow';
-      r.innerHTML='<div class="em">'+ig.e+'</div><div><div class="nm">'+ig.n+' <span class="have">보유 '+have+'</span></div><div class="ef">개당 '+ig.c+'🪙</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="b">'+(ig.c*q)+'🪙 사기</button></div>';
+      r.innerHTML='<div class="em">'+ig.e+'</div><div><div class="nm">'+ig.n+' <span class="have">보유 '+have+'</span></div><div class="ef">개당 '+ig.c+'<svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg></div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="b">'+(ig.c*q)+'<svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg> 사기</button></div>';
       r.querySelector('[data-a=b]').disabled=room<=0||S.coins<ig.c*q;
       r.addEventListener('click',function(e){ var a=e.target.getAttribute('data-a'); if(!a) return;
         if(a==='m') spQty[ig.id]=Math.max(1,q-1); else if(a==='p') spQty[ig.id]=Math.min(room,q+1);
@@ -1560,7 +1561,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04s', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04t', date:'2026.10.04', title:'업데이트 안내', items:[
   '매일 접속하면 출석 보상을 받아요! 코인, 이벤트재화, 코끼리재화가 들어와요',
   '만렙이 Lv.100으로 바뀌었어요',
   '마당에 🎪 이벤트 상점이 생겼어요! 이벤트재화으로 뽑기를 할 수 있어요',
@@ -1611,7 +1612,7 @@ function attDraw(){
   var a=attState(), done=attClaimed(), idx=(done?a.n-1:a.n)%7, g=$('attGrid'); g.innerHTML='';
   ATT.forEach(function(r,i){
     var d=document.createElement('div'); d.className='attday'+(i===6?' big':'')+(i<idx||(i===idx&&done)?' done':'')+(i===idx&&!done?' today':'');
-    d.innerHTML='<b>'+(i+1)+'일차</b>🪙'+r.c+'<br>🎟️'+r.e+'<br>🐘'+r.g; g.appendChild(d);
+    d.innerHTML='<b>'+(i+1)+'일차</b><svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg>'+r.c+'<br>🎟️'+r.e+'<br>🐘'+r.g; g.appendChild(d);
   });
   $('attSub').textContent=done?'오늘 보상은 받았어요! 내일 또 만나요':'매일 접속하면 코인, 이벤트재화, 코끼리재화를 받아요 (총 '+a.n+'일 출석)';
   $('attGo').textContent=done?'닫기':'오늘 보상 받기';
@@ -1620,7 +1621,7 @@ function attClaim(){
   if(attClaimed()){ $('attWrap').hidden=true; return; }
   var a=attState(), r=ATT[a.n%7];
   S.coins+=r.c; S.ev=(S.ev|0)+r.e; S.gems=(S.gems|0)+r.g; a.n++; a.last=dayKey(); commit(); sfx.up&&sfx.up();
-  say('출석 보상! 🪙'+r.c+' 🎟️'+r.e+' 🐘'+r.g, 3200); attDraw();
+  say('출석 보상! 코인 +'+r.c+', 이벤트재화 +'+r.e+', 코끼리재화 +'+r.g, 3200); attDraw();
   setTimeout(function(){ $('attWrap').hidden=true; },1100);
 }
 $('attGo').addEventListener('click',attClaim);
@@ -2389,7 +2390,7 @@ function vMsg(id){
   phTitle(m.name); var b=phBodyEl();
   var c={banana:m.banana,rec:S.herd.filter(function(h){ return h.id===m.from; })[0]||S};
   var first=!m.read, extra='';
-  if(first){ m.read=true; S.coins+=m.coin; sfx.coin(); popCoin(); extra='<div class="pinfo" style="color:#B8860B;font-size:16px">🪙 선물 코인 +'+m.coin+' 받았어요!</div>'; commit(); }
+  if(first){ m.read=true; S.coins+=m.coin; sfx.coin(); popCoin(); extra='<div class="pinfo" style="color:#B8860B;font-size:16px"><svg class="ci" aria-hidden="true"><use href="#i-coin"/></svg> 선물 코인 +'+m.coin+' 받았어요!</div>'; commit(); }
   b.innerHTML='<div class="callav" style="width:84px;height:84px">'+avatarHtml(c,first?'joy':'idle')+'</div><div class="smsb">'+phEsc(m.text)+'</div>'+extra+'<div class="pinfo">'+stampText(m.t)+'</div><div class="btnrow"><button id="msgBack">문자 목록</button></div>';
   $('msgBack').addEventListener('click',function(){ phGo('sms'); });
 }
