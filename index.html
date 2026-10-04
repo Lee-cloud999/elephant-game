@@ -1572,7 +1572,7 @@ function celebrate(before,after){
 
 /* ---------- 시간 흐름 ---------- */
 function tickBy(sec){
-  if(S.sleeping){ S.energy+=1.2*sec; S.hunger-=.01*sec; S.thirst-=.005*sec; S.clean-=.006*sec; S.happy-=.004*sec; }
+  if(S.sleeping){ S.energy+=3*sec; S.hunger-=.01*sec; S.thirst-=.005*sec; S.clean-=.006*sec; S.happy-=.004*sec; }
   else{ S.hunger-=.02*sec; S.thirst-=.026*sec; S.clean-=.013*sec; S.happy-=.015*sec; S.energy-=.008*sec; }
   if(S.sick) S.happy-=.01*sec;
   KEYS.forEach(function(k){ S[k]=cl(S[k]); });
