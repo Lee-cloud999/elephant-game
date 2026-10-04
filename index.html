@@ -1746,7 +1746,7 @@ function wake(){
   S.sleeping=false; clearInterval(zIv); zIv=null;
   var gain=S.energy-(S.sleepFrom||0);
   if(gain>=25){ addXp(5); say('푹 잤어요! 기운이 넘쳐요'); setFlash('joy',1800); }
-  else{ say('더 자고 싶었는데...'); setFlash('angry',1500); }
+  else{ say('으음... 일어났어요. 좋은 아침!'); }
   commit();
 }
 var pokeAt=0;
