@@ -267,6 +267,17 @@ button.prow{cursor:pointer}
 .ckempty{padding:18px; text-align:center; opacity:.7; font-size:14px}
 .ckbar{height:8px; border-radius:6px; background:#EEE; overflow:hidden}
 .ckbar i{display:block; height:100%; width:0; background:var(--coral); transition:width 1.8s linear}
+.ckplay{display:flex; flex-direction:column; align-items:center; gap:10px; padding:8px 4px}
+.ckplay .em{font-size:44px} .ckplay .em.big{font-size:64px}
+.ckt{font-size:18px; font-weight:700} .ckhint{font-size:14px; opacity:.7; text-align:center}
+.ckmeter{position:relative; width:100%; height:34px; border-radius:17px; background:#E7E8F1; overflow:hidden; cursor:pointer}
+.ckmeter i{position:absolute; top:0; bottom:0}
+.z1{background:#FFD36E} .z2{background:#FF7A59}
+.ckmeter b{position:absolute; top:-2px; bottom:-2px; width:6px; margin-left:-3px; background:#23284a; border-radius:3px}
+.ckleg{display:flex; gap:14px; font-size:13px} .ckleg span{display:flex; align-items:center; gap:5px} .ckleg i{width:14px; height:14px; border-radius:4px; display:inline-block}
+.ckplay .go{width:100%}
+.rstar{letter-spacing:1px; font-size:13px} .rstar.s1{color:#9AA0BD} .rstar.s2{color:#E0A400} .rstar.s3{color:#F25C2B} .rstar.lg{font-size:32px}
+.ckres{font-size:28px; font-weight:800} .ckres.s1{color:#7B819F} .ckres.s2{color:#C98B00} .ckres.s3{color:#F25C2B}
 .ntc .card{width:min(360px,100%); text-align:left}
 .ntc h2{margin:0 0 10px; font-size:20px}
 .ntc .date{font-size:12px; opacity:.6; margin:-4px 0 10px}
@@ -805,7 +816,10 @@ var DISHES=[
   {id:'bento',  e:'🍱',n:'코끼리 도시락',c:14, hunger:55,happy:15,xp:14,line:'도시락이 최고예요! 배가 빵빵해요'}
 ];
 var FRIDGE_MAX=20;
-DISHES.forEach(function(d){ FOODS['dish_'+d.id]={hunger:d.hunger,thirst:d.thirst,happy:d.happy,xp:d.xp,drink:d.drink,line:d.line,full:d.full,emoji:d.e,dish:d.id}; });
+var STAR_X=[0,.7,1,1.5], STAR_TXT=['','★☆☆','★★☆','★★★'];
+function sc2(v,x){ return v?Math.round(v*x):v; }
+DISHES.forEach(function(d){ for(var st=1;st<=3;st++){ var x=STAR_X[st];
+  FOODS['dish_'+d.id+':'+st]={hunger:sc2(d.hunger,x),thirst:d.thirst>0?sc2(d.thirst,x):d.thirst,happy:sc2(d.happy,x),xp:sc2(d.xp,x),drink:d.drink,line:(st===3?'대성공 요리! ':'')+d.line,full:d.full,emoji:d.e,dish:d.id+':'+st}; } });
 var SHOP = [];
 /* 이미지로 만든 아이템: {id,name,slot,tier,cost,file:'assets/items/id.webp',box:[x,y,w,h]} 를 여기에 추가하면
    뽑기·꾸미기·도감에 자동으로 들어가요. box는 캔버스(640x520) 좌표, vb는 box 와 같아요. */
@@ -859,7 +873,7 @@ function load(){
     if(!Array.isArray(r.phone.sms)) r.phone.sms=[];
     if(typeof r.phone.callDay!=='string') r.phone.callDay='';
     if(typeof r.phone.calls!=='number') r.phone.calls=0;
-    rdFix(r); if(!r.fridge || typeof r.fridge!=='object') r.fridge={};
+    rdFix(r); if(!r.fridge || typeof r.fridge!=='object') r.fridge={}; Object.keys(r.fridge).forEach(function(k){ if(k.indexOf(':')<0){ r.fridge[k+':2']=(r.fridge[k+':2']||0)+r.fridge[k]; delete r.fridge[k]; } });
     var GONE=["heartall", "pinklolita", "bearcoat", "strawberry", "sailorblue", "yellowdress", "roseflower", "bearoveralls", "starcloak", "snowcoat", "prince", "batcloak"];
     if(Array.isArray(r.owned)) r.owned=r.owned.filter(function(id){ return GONE.indexOf(id)<0; });
     [r].concat(Array.isArray(r.herd)?r.herd:[]).forEach(function(o){
@@ -1300,52 +1314,66 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 (function(){
   var tab='cook', qty={}, busy=false, wrap=$('cookWrap'), list=$('ckList'), note=$('ckNote');
   function fN(){ var n=0; for(var k in S.fridge) n+=S.fridge[k]; return n; }
-  function eff(d){ var a=[]; if(d.hunger) a.push('배고픔 +'+d.hunger); if(d.thirst) a.push('목마름 '+(d.thirst>0?'+':'')+d.thirst); if(d.happy) a.push('기분 +'+d.happy); return a.join(' · '); }
-  function say2(t){ note.textContent=t; }
+  function eff(d,x){ var a=[]; if(d.hunger) a.push('배고픔 +'+sc2(d.hunger,x)); if(d.thirst) a.push('목마름 '+(d.thirst>0?'+':'')+(d.thirst>0?sc2(d.thirst,x):d.thirst)); if(d.happy) a.push('기분 +'+sc2(d.happy,x)); return a.join(' · '); }
+  function haveOf(id){ return (S.fridge[id+':1']||0)+(S.fridge[id+':2']||0)+(S.fridge[id+':3']||0); }
   function draw(){
     $('ckCoin').textContent=S.coins; var n=fN(); $('ckFridgeN').textContent=n?'('+n+')':'';
     $('ckTabCook').className=tab==='cook'?'on':''; $('ckTabFridge').className=tab==='fridge'?'on':'';
     list.innerHTML='';
     if(tab==='cook'){
       DISHES.forEach(function(d){
-        var have=S.fridge[d.id]||0, room=FRIDGE_MAX-have, q=Math.max(1,Math.min(qty[d.id]||1,Math.max(room,1))); qty[d.id]=q;
+        var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(qty[d.id]||1,Math.max(room,1))); qty[d.id]=q;
         var r=document.createElement('div'); r.className='ckrow';
-        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+'</div><div class="ef">'+eff(d)+'</div><div class="ef">냉장고 '+have+'/'+FRIDGE_MAX+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
+        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+'</div><div class="ef">'+eff(d,1)+'</div><div class="ef">냉장고 '+haveOf(d.id)+'개</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
         r.querySelector('[data-a=c]').disabled=busy||room<=0||S.coins<d.c*q;
         r.addEventListener('click',function(e){ var a=e.target.getAttribute('data-a'); if(!a) return;
-          if(a==='m') qty[d.id]=Math.max(1,q-1); else if(a==='p') qty[d.id]=Math.min(room,q+1); else cook(d,q); draw(); });
+          if(a==='m') qty[d.id]=Math.max(1,q-1); else if(a==='p') qty[d.id]=Math.min(room,q+1); else { play(d,q); return; } draw(); });
         list.appendChild(r);
       });
     } else {
       var any=false;
-      DISHES.forEach(function(d){ var c=S.fridge[d.id]||0; if(!c) return; any=true;
+      DISHES.forEach(function(d){ [3,2,1].forEach(function(st){ var c=S.fridge[d.id+':'+st]||0; if(!c) return; any=true;
         var r=document.createElement('div'); r.className='ckrow';
-        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+'</div><div class="ef">'+eff(d)+'</div></div><div class="ctl"><span class="q">×'+c+'</span><button class="go2" data-a="f">먹이기</button></div>';
-        r.querySelector('[data-a=f]').onclick=function(){ wrap.hidden=true; feed('dish_'+d.id); };
-        list.appendChild(r); });
+        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="rstar s'+st+'">'+STAR_TXT[st]+'</span></div><div class="ef">'+eff(d,STAR_X[st])+'</div></div><div class="ctl"><span class="q">×'+c+'</span><button class="go2" data-a="f">먹이기</button></div>';
+        r.querySelector('[data-a=f]').onclick=function(){ wrap.hidden=true; feed('dish_'+d.id+':'+st); };
+        list.appendChild(r); }); });
       if(!any){ var e=document.createElement('div'); e.className='ckempty'; e.textContent='냉장고가 비었어요. 요리하기에서 만들어 넣어 보세요.'; list.appendChild(e); }
     }
   }
-  async function cook(d,q){
-    if(busy||S.coins<d.c*q) return; busy=true; S.coins-=d.c*q;
-    var bar=document.createElement('div'); bar.className='ckbar'; bar.innerHTML='<i></i>'; list.prepend(bar);
-    say2(d.e+' '+d.n+' '+q+'개 만드는 중...');
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.firstChild.style.width='100%'; }); });
-    await wait(1900);
-    S.fridge[d.id]=Math.min(FRIDGE_MAX,(S.fridge[d.id]||0)+q); busy=false; commit();
-    say2(d.e+' '+d.n+' '+q+'개를 냉장고에 넣었어요! (현재 '+S.fridge[d.id]+'개)'); draw();
+  /* 타이밍 게임: 움직이는 막대가 색깔 구간에 있을 때 누르면 성공 */
+  function play(d,q){
+    if(busy||S.coins<d.c*q) return; busy=true; S.coins-=d.c*q; commit();
+    var gw=25, sw=15, c=gw/2+Math.random()*(100-gw), g0=c-gw/2, g1=c+gw/2, s0=Math.max(0,g0-sw), s1=Math.min(100,g1+sw);
+    list.innerHTML='<div class="ckplay"><div class="em">'+d.e+'</div><div class="ckt">'+d.n+' '+q+'개</div><div class="ckhint">막대가 색깔 구간에 왔을 때 눌러요!</div>'
+     +'<div class="ckmeter" id="ckMeter"><i class="z1" style="left:'+s0+'%;width:'+(s1-s0)+'%"></i><i class="z2" style="left:'+g0+'%;width:'+gw+'%"></i><b id="ckMark"></b></div>'
+     +'<div class="ckleg"><span><i class="z1"></i>성공 ★★☆</span><span><i class="z2"></i>대성공 ★★★</span></div>'
+     +'<button class="go" id="ckHit">지금!</button></div>';
+    note.textContent='';
+    var mark=$('ckMark'), pos=0, dir=1, last=performance.now(), done=false, laps=0, speed=75;
+    function res(){ if(done) return; done=true; cancelAnimationFrame(raf);
+      var st=(pos>=g0&&pos<=g1)?3:((pos>=s0&&pos<=s1)?2:1);
+      S.fridge[d.id+':'+st]=Math.min(FRIDGE_MAX,(S.fridge[d.id+':'+st]||0)+q); busy=false; commit();
+      var t=['','아쉬워요','성공!','대성공!'][st];
+      list.innerHTML='<div class="ckplay"><div class="em big">'+d.e+'</div><div class="ckres s'+st+'">'+t+'</div><div class="rstar s'+st+' lg">'+STAR_TXT[st]+'</div><div class="ckhint">'+d.n+' '+q+'개를 냉장고에 넣었어요</div><button class="go" id="ckAgain">확인</button></div>';
+      if(st===3) { try{ sfx.eat(); }catch(e){} }
+      $('ckAgain').onclick=function(){ draw(); }; }
+    var raf;
+    function tick(now){ var dt=(now-last)/1000; last=now; pos+=dir*speed*dt; if(pos>=100){ pos=100; dir=-1; laps++; } if(pos<=0){ pos=0; dir=1; laps++; }
+      mark.style.left=pos+'%'; if(laps>=6){ pos=-1; res(); return; } raf=requestAnimationFrame(tick); }
+    raf=requestAnimationFrame(tick);
+    $('ckHit').onclick=res; $('ckMeter').onclick=res;
   }
   function open(t){ tab=t||'cook'; endPet(); tray.hidden=true; note.textContent=''; draw(); wrap.hidden=false; }
   $('cookBtn').addEventListener('click',function(){ if(locked) return; open('cook'); });
   $('fridgeOpen').addEventListener('click',function(){ open('fridge'); });
-  $('ckTabCook').onclick=function(){ tab='cook'; draw(); };
-  $('ckTabFridge').onclick=function(){ tab='fridge'; draw(); };
+  $('ckTabCook').onclick=function(){ if(!busy){ tab='cook'; draw(); } };
+  $('ckTabFridge').onclick=function(){ if(!busy){ tab='fridge'; draw(); } };
   $('ckClose').onclick=function(){ if(!busy) wrap.hidden=true; };
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
 var NOTICE={id:'2026-10-04b', date:'2026.10.04', title:'업데이트 안내', items:[
-  '요리 기능이 생겼어요! 요리해서 먹이로 주고, 냉장고에 보관해 보세요',
+  '요리 기능이 생겼어요! 타이밍을 맞춰 요리하고, 냉장고에 보관해 먹이로 주세요',
   '새 옷과 머리 장식이 많이 늘었어요 (경찰복, 경찰모, 원피스, 베레모, 리본)',
   '만렙이 Lv.150으로 올라갔어요',
   '방 꾸미기와 실제 날씨 연동이 생겼어요',
