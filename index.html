@@ -855,10 +855,10 @@ var DISHES=[
 ];
 /* 재료 2개를 합쳐서 만드는 메뉴 (45가지 조합) */
 var ING=[
-  {id:'banana',e:'🍌',n:'바나나',c:3,h:22,t:0,p:2},{id:'melon',e:'🍉',n:'수박',c:4,h:28,t:10,p:6},
-  {id:'peanut',e:'🥜',n:'땅콩',c:3,h:14,t:-6,p:10},{id:'berry',e:'🍓',n:'딸기',c:4,h:16,t:4,p:10},
-  {id:'milk',e:'🥛',n:'우유',c:3,h:12,t:22,p:4},{id:'carrot',e:'🥕',n:'당근',c:2,h:14,t:0,p:-2},
-  {id:'broccoli',e:'🥦',n:'브로콜리',c:2,h:14,t:0,p:-2},{id:'cabbage',e:'🥬',n:'양배추',c:2,h:12,t:0,p:-2},
+  {id:'banana',off:1,e:'🍌',n:'바나나',c:3,h:22,t:0,p:2},{id:'melon',off:1,e:'🍉',n:'수박',c:4,h:28,t:10,p:6},
+  {id:'peanut',off:1,e:'🥜',n:'땅콩',c:3,h:14,t:-6,p:10},{id:'berry',off:1,e:'🍓',n:'딸기',c:4,h:16,t:4,p:10},
+  {id:'milk',off:1,e:'🥛',n:'우유',c:3,h:12,t:22,p:4},{id:'carrot',off:1,e:'🥕',n:'당근',c:2,h:14,t:0,p:-2},
+  {id:'broccoli',off:1,e:'🥦',n:'브로콜리',c:2,h:14,t:0,p:-2},{id:'cabbage',e:'🥬',n:'양배추',c:2,h:12,t:0,p:-2},
   {id:'flour',e:'🌾',n:'밀가루',c:2,h:18,t:-4,p:0},{id:'cheese',e:'🧀',n:'치즈',c:4,h:16,t:-2,p:6}];
 var MIXNAMED={
   'banana+peanut':['🥪','바나나 땅콩 샌드'],'banana+melon':['🍧','바나나 수박 화채'],'banana+berry':['🍨','딸기 바나나 컵'],
@@ -1415,7 +1415,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   function ingOf(id){ return (S.ing&&S.ing[id])|0; }
   function drawMix(){
     var g=document.createElement('div'); g.className='ckgrid';
-    ING.forEach(function(ig){ var b=document.createElement('button'); b.className='ingb'+(mixSel.indexOf(ig.id)>=0?' sel':''); b.innerHTML='<span>'+ig.e+'</span><b>'+ig.n+'</b><small>×'+ingOf(ig.id)+'</small>';
+    ING.forEach(function(ig){ if(ig.off&&!ingOf(ig.id)) return; var b=document.createElement('button'); b.className='ingb'+(mixSel.indexOf(ig.id)>=0?' sel':''); b.innerHTML='<span>'+ig.e+'</span><b>'+ig.n+'</b><small>×'+ingOf(ig.id)+'</small>';
       b.onclick=function(){ var i=mixSel.indexOf(ig.id); if(i>=0) mixSel.splice(i,1); else { mixSel.push(ig.id); if(mixSel.length>2) mixSel.shift(); } mixQty=1; draw(); };
       g.appendChild(b); });
     list.appendChild(g);
@@ -1461,7 +1461,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   var spQty={}, spWrap=$('superWrap'), spList=$('spList');
   function spDraw(){
     $('spCoin').textContent=S.coins; spList.innerHTML='';
-    ING.forEach(function(ig){ var have=ingOf(ig.id), room=Math.max(0,20-have), q=Math.max(1,Math.min(spQty[ig.id]||1,Math.max(room,1))); spQty[ig.id]=q;
+    ING.forEach(function(ig){ if(ig.off) return; var have=ingOf(ig.id), room=Math.max(0,20-have), q=Math.max(1,Math.min(spQty[ig.id]||1,Math.max(room,1))); spQty[ig.id]=q;
       var r=document.createElement('div'); r.className='ckrow';
       r.innerHTML='<div class="em">'+ig.e+'</div><div><div class="nm">'+ig.n+' <span class="have">보유 '+have+'</span></div><div class="ef">개당 '+ig.c+'🪙</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="b">'+(ig.c*q)+'🪙 사기</button></div>';
       r.querySelector('[data-a=b]').disabled=room<=0||S.coins<ig.c*q;
@@ -1490,8 +1490,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04e', date:'2026.10.04', title:'업데이트 안내', items:[
-  '마당에 🛒 슈퍼 버튼이 생겼어요! 재료(밀가루, 치즈 포함)를 사 와서 합쳐 요리해요',
+var NOTICE={id:'2026-10-04f', date:'2026.10.04', title:'업데이트 안내', items:[
+  '마당에 🛒 슈퍼 버튼이 생겼어요! 밀가루, 치즈, 양배추를 사 와서 합쳐 요리해요',
   '요리에서 재료 2개를 합쳐 새 메뉴를 만들 수 있어요 (재료 합치기)',
   '도감에 쓰다듬기 횟수가 표시돼요',
   '방 꾸미기 뽑기는 30코인, 겹치면 코인을 돌려주지 않아요',
