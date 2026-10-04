@@ -263,7 +263,12 @@ button.prow{cursor:pointer}
 .ckrow{display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:8px; padding:8px 10px; border-radius:16px; background:#FFF8EC}
 .ckrow .em{font-size:30px; text-align:center}
 .ckrow .nm{font-size:15px; font-weight:700}
-.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px} .ckrow .em,.ckrow .nm{cursor:pointer} .ckrow .st{display:none}
+.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px} .ckgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:8px}
+.ingb{border:2px solid #E5D9BE; background:#FFF8EC; border-radius:14px; padding:6px 2px; display:flex; flex-direction:column; align-items:center; gap:1px; cursor:pointer; font:inherit; color:var(--ink)}
+.ingb span{font-size:26px; line-height:1.1} .ingb b{font-size:12px} .ingb small{font-size:11px; opacity:.65}
+.ingb.sel{border-color:var(--coral); background:#FFE9E0}
+.ckmixbox{text-align:center; padding:6px}
+.ckrow .em,.ckrow .nm{cursor:pointer} .ckrow .st{display:none}
 .ckinfo .rstar:empty{display:none}
 .ckinfo{text-align:center; width:min(300px,100%)} .ckiem{font-size:52px} .ckinfo h2{margin:4px 0} .ckistats{display:grid; gap:6px; margin:10px 0 14px; text-align:left}
 .ckistats div{display:flex; justify-content:space-between; background:#FFF8EC; border-radius:10px; padding:7px 12px; font-size:14px} .ckistats b{font-variant-numeric:tabular-nums} .ckrow .have{font-size:11px; font-weight:600; opacity:.6; margin-left:4px}
@@ -666,7 +671,7 @@ body{margin:0}
 <div class="wrap bottom" id="cookWrap" hidden>
   <div class="sheet cooksheet" role="dialog" aria-labelledby="cookTitle">
     <div class="sheet-head"><h2 id="cookTitle">요리</h2><span class="ckcoin">🪙 <b id="ckCoin">0</b></span></div>
-    <div class="cktabs"><button id="ckTabCook" class="on">요리하기</button><button id="ckTabFridge">냉장고 <span id="ckFridgeN"></span></button></div>
+    <div class="cktabs"><button id="ckTabCook" class="on">요리하기</button><button id="ckTabMix">재료 합치기</button><button id="ckTabFridge">냉장고 <span id="ckFridgeN"></span></button></div>
     <div class="cklist" id="ckList"></div>
     <div class="cknote" id="ckNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="ckClose">닫기</button>
@@ -836,6 +841,24 @@ var DISHES=[
   {id:'salad',  e:'🥗',n:'과일 샐러드',c:9, hunger:30,thirst:15,happy:12,xp:10,line:'과일 샐러드가 상큼해요!'},
   {id:'bento',  e:'🍱',n:'코끼리 도시락',c:14, hunger:55,happy:15,xp:14,line:'도시락이 최고예요! 배가 빵빵해요'}
 ];
+/* 재료 2개를 합쳐서 만드는 메뉴 (28가지 조합) */
+var ING=[
+  {id:'banana',e:'🍌',n:'바나나',c:2,h:22,t:0,p:2},{id:'melon',e:'🍉',n:'수박',c:3,h:28,t:10,p:6},
+  {id:'peanut',e:'🥜',n:'땅콩',c:2,h:14,t:-6,p:10},{id:'berry',e:'🍓',n:'딸기',c:3,h:16,t:4,p:10},
+  {id:'milk',e:'🥛',n:'우유',c:2,h:12,t:22,p:4},{id:'carrot',e:'🥕',n:'당근',c:1,h:14,t:0,p:-2},
+  {id:'broccoli',e:'🥦',n:'브로콜리',c:1,h:14,t:0,p:-2},{id:'cabbage',e:'🥬',n:'양배추',c:1,h:12,t:0,p:-2}];
+var MIXNAMED={
+  'banana+peanut':['🥪','바나나 땅콩 샌드'],'banana+melon':['🍧','바나나 수박 화채'],'banana+berry':['🍨','딸기 바나나 컵'],
+  'banana+milk':['🥛','바나나 우유'],'banana+carrot':['🥤','당근 바나나 스무디'],'melon+berry':['🍹','딸기 수박 펀치'],
+  'melon+carrot':['🧃','당근 수박 주스'],'peanut+milk':['☕','땅콩 라떼'],'berry+milk':['🍓','딸기 우유'],
+  'peanut+carrot':['🥜','당근 땅콩 볼'],'peanut+broccoli':['🥗','브로콜리 땅콩 무침'],'berry+cabbage':['🥗','양배추 딸기 샐러드'],
+  'carrot+broccoli':['🥕','야채 스틱'],'carrot+cabbage':['🌯','양배추 당근 롤'],'melon+milk':['🥤','수박 우유 셰이크'],'berry+peanut':['🍫','딸기 땅콩 바크']};
+var MIXDRINK={'banana+milk':1,'banana+carrot':1,'melon+berry':1,'melon+carrot':1,'peanut+milk':1,'berry+milk':1,'melon+milk':1};
+function mixKey(a,b){ return ING.map(function(i){return i.id;}).indexOf(a)<=ING.map(function(i){return i.id;}).indexOf(b)?a+'+'+b:b+'+'+a; }
+(function(){ for(var i=0;i<ING.length;i++) for(var j=i+1;j<ING.length;j++){ var a=ING[i], b=ING[j], k=a.id+'+'+b.id, nd=MIXNAMED[k], bonus=nd?3:0;
+  DISHES.push({id:'mix_'+a.id+'_'+b.id, combo:true, ia:a.id, ib:b.id, e:nd?nd[0]:'🍽️', n:nd?nd[1]:a.n+' '+b.n+' 믹스', c:a.c+b.c+3,
+    hunger:Math.round((a.h+b.h)*.7+4+bonus), thirst:(a.t+b.t)>0?Math.round((a.t+b.t)*.8):((a.t+b.t)<0?(a.t+b.t):0), happy:Math.max(6,Math.round(a.p+b.p+8+bonus)), xp:9,
+    drink:!!MIXDRINK[k], line:nd?nd[1]+'(이)라니, 정말 맛있어요!':a.n+'와 '+b.n+'을 합쳤더니 의외로 맛있어요!', full:'이제 충분해요!'}); } })();
 var FRIDGE_MAX=20;
 var STAR_X=[0,.7,1,1.5], STAR_TXT=['','★☆☆','★★☆','★★★'];
 function sc2(v,x){ return v?Math.round(v*x):v; }
@@ -1346,10 +1369,12 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   function haveOf(id){ return (S.fridge[id+':1']||0)+(S.fridge[id+':2']||0)+(S.fridge[id+':3']||0); }
   function draw(){
     $('ckCoin').textContent=S.coins; var n=fN(); $('ckFridgeN').textContent=n?'('+n+')':'';
-    $('ckTabCook').className=tab==='cook'?'on':''; $('ckTabFridge').className=tab==='fridge'?'on':'';
+    $('ckTabCook').className=tab==='cook'?'on':''; $('ckTabMix').className=tab==='mix'?'on':''; $('ckTabFridge').className=tab==='fridge'?'on':'';
     list.innerHTML='';
-    if(tab==='cook'){
+    if(tab==='mix'){ drawMix(); }
+    else if(tab==='cook'){
       DISHES.forEach(function(d){
+        if(d.combo) return;
         var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(qty[d.id]||1,Math.max(room,1))); qty[d.id]=q;
         var r=document.createElement('div'); r.className='ckrow';
         r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef st">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
@@ -1368,6 +1393,23 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
         list.appendChild(r); }); });
       if(!any){ var e=document.createElement('div'); e.className='ckempty'; e.textContent='냉장고가 비었어요. 요리하기에서 만들어 넣어 보세요.'; list.appendChild(e); }
     }
+  }
+  var mixSel=[], mixQty=1;
+  function drawMix(){
+    var g=document.createElement('div'); g.className='ckgrid';
+    ING.forEach(function(ig){ var b=document.createElement('button'); b.className='ingb'+(mixSel.indexOf(ig.id)>=0?' sel':''); b.innerHTML='<span>'+ig.e+'</span><b>'+ig.n+'</b><small>'+ig.c+'🪙</small>';
+      b.onclick=function(){ var i=mixSel.indexOf(ig.id); if(i>=0) mixSel.splice(i,1); else { mixSel.push(ig.id); if(mixSel.length>2) mixSel.shift(); } mixQty=1; draw(); };
+      g.appendChild(b); });
+    list.appendChild(g);
+    var box=document.createElement('div'); box.className='ckmixbox';
+    if(mixSel.length<2){ box.innerHTML='<div class="ckhint">재료 2개를 골라 합쳐 보세요 ('+mixSel.length+'/2)</div>'; list.appendChild(box); return; }
+    var d=DISHES.filter(function(x){ return x.combo && x.id==='mix_'+mixKey(mixSel[0],mixSel[1]).replace('+','_'); })[0];
+    var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(mixQty,Math.max(room,1))); mixQty=q;
+    box.className='ckrow'; box.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
+    box.querySelector('[data-a=c]').disabled=busy||room<=0||S.coins<d.c*q;
+    box.addEventListener('click',function(e){ if(e.target.closest('.em,.nm')){ info(d,0); return; } var a=e.target.getAttribute('data-a'); if(!a) return;
+      if(a==='m') mixQty=Math.max(1,q-1); else if(a==='p') mixQty=Math.min(room,q+1); else { play(d,q); return; } draw(); });
+    list.appendChild(box);
   }
   /* 타이밍 게임: 움직이는 막대가 색깔 구간에 있을 때 누르면 성공 */
   function play(d,q){
@@ -1396,12 +1438,16 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   $('cookBtn').addEventListener('click',function(){ if(locked) return; open('cook'); });
   $('fridgeOpen').addEventListener('click',function(){ open('fridge'); });
   $('ckTabCook').onclick=function(){ if(!busy){ tab='cook'; draw(); } };
+  $('ckTabMix').onclick=function(){ if(!busy){ tab='mix'; draw(); } };
   $('ckTabFridge').onclick=function(){ if(!busy){ tab='fridge'; draw(); } };
   $('ckClose').onclick=function(){ if(!busy) wrap.hidden=true; };
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04b', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04c', date:'2026.10.04', title:'업데이트 안내', items:[
+  '요리에서 재료 2개를 합쳐 새 메뉴를 만들 수 있어요 (재료 합치기)',
+  '도감에 쓰다듬기 횟수가 표시돼요',
+  '방 꾸미기 뽑기는 30코인, 겹치면 코인을 돌려주지 않아요',
   '요리 기능이 생겼어요! 타이밍을 맞춰 요리하고, 냉장고에 보관해 먹이로 주세요',
   '새 옷과 머리 장식이 많이 늘었어요 (경찰복, 경찰모, 원피스, 베레모, 리본)',
   '만렙이 Lv.150으로 올라갔어요',
