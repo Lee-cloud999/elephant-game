@@ -1415,11 +1415,6 @@ var NOTICE={id:'2026-10-04b', date:'2026.10.04', title:'업데이트 안내', it
   setTimeout(function(){ if(!seen() && $('nameWrap').hidden) w.hidden=false; },600);
 })();
 
-/* 테스트용: 코인 표시를 5번 누르면 300코인 */
-(function(){ var n=0, t=null, ch=$('coinChip'); ch.style.cursor='pointer';
-  ch.addEventListener('click',function(){ n++; clearTimeout(t); t=setTimeout(function(){ n=0; },2500);
-    if(n>=5){ n=0; S.coins+=300; commit(); say('테스트 코인 +300!'); } });
-})();
 /* ---------- 방 꾸미기 (뽑기로 모아요) ---------- */
 var RI={}; ROOM_ITEMS.forEach(function(i){ RI[i.id]=i; });
 var RKIND={wallpaper:'벽지',floor:'바닥',furn:'가구',wall:'벽 장식',rug:'러그',prop:'소품'};
