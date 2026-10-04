@@ -249,6 +249,12 @@ button.prow{cursor:pointer}
 .card h2,.sheet h2{margin:0; font-weight:400; font-size:24px}
 .card p{margin:0; color:var(--ink-soft); line-height:1.5}
 #nameInput{width:100%; font-size:24px; text-align:center; padding:12px; border:3px solid #C9D5F6; border-radius:18px; background:#F6F8FF; -webkit-user-select:text; user-select:text}
+.ntc .card{width:min(360px,100%); text-align:left}
+.ntc h2{margin:0 0 10px; font-size:20px}
+.ntc .date{font-size:12px; opacity:.6; margin:-4px 0 10px}
+.ntc ul{margin:0 0 14px; padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:15px; line-height:1.4}
+.ntc .row2{display:flex; gap:8px}
+.ntc .row2 button{flex:1; padding:12px 8px; font-size:15px}
 .go{border:0; border-radius:20px; padding:14px; background:var(--coral); color:#fff; font-size:20px; box-shadow:0 4px 0 var(--coral-edge); cursor:pointer}
 .go:active{transform:translateY(4px); box-shadow:none}
 .ghost{border:0; background:none; padding:8px; font-size:16px; color:var(--ink-soft); cursor:pointer}
@@ -616,6 +622,15 @@ body{margin:0}
   </div>
 </div>
 
+<div class="wrap center ntc" id="noticeWrap" hidden>
+  <div class="card" role="dialog" aria-labelledby="ntcTitle">
+    <h2 id="ntcTitle"></h2>
+    <div class="date" id="ntcDate"></div>
+    <ul id="ntcList"></ul>
+    <div class="row2"><button class="ghost" id="ntcHide">오늘 하루 보지 않기</button><button class="go" id="ntcClose">닫기</button></div>
+  </div>
+</div>
+
 <div class="wrap center" id="nameWrap" hidden>
   <div class="card" role="dialog" aria-labelledby="nameTitle">
     <h2 id="nameTitle">새 친구가 왔어요</h2>
@@ -735,7 +750,7 @@ var NS = 'http://www.w3.org/2000/svg';
 var KEY = 'elephant-game-v1';
 var OX = 200, OY = 306;
 var KEYS = ['hunger','thirst','clean','happy','energy'];
-var MAXLV = 50;
+var MAXLV = 150;
 /* Lv.20까지는 예전과 같은 곡선, 그 뒤로는 레벨당 경험치 70씩 */
 function lvAt(L){ var k=Math.min(L,20)-1, v=Math.round(8*k+1.5*k*k); return L>20 ? v+(L-20)*70 : v; }
 function stageName(L){ return L>=45?'전설의 코끼리':(L>=35?'슈퍼 코끼리':(L>=25?'대장 코끼리':(L>=15?'멋쟁이 코끼리':(L>=10?'개구쟁이 코끼리':(L>=5?'꼬마 코끼리':'아기 코끼리'))))); }
@@ -1238,6 +1253,24 @@ $('wxBtn').addEventListener('click',function(){
 });
 function wxAuto(){ if(S.wx&&S.wx.on&&Date.now()-S.wx.ts>30*60000) wxGet(S.wx.lat,S.wx.lon,true).catch(function(){}); }
 setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
+
+/* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
+var NOTICE={id:'2026-10-04', date:'2026.10.04', title:'업데이트 안내', items:[
+  '새 옷과 머리 장식이 많이 늘었어요 (경찰복, 경찰모, 원피스, 베레모, 리본)',
+  '만렙이 Lv.150으로 올라갔어요',
+  '방 꾸미기와 실제 날씨 연동이 생겼어요',
+  '잘려 보이던 옷 이미지를 고쳤어요']};
+(function(){
+  var KEY='elephant-notice-seen';
+  function seen(){ try{ return localStorage.getItem(KEY)===NOTICE.id; }catch(e){ return false; } }
+  function mark(){ try{ localStorage.setItem(KEY,NOTICE.id); }catch(e){} }
+  var w=$('noticeWrap');
+  $('ntcTitle').textContent=NOTICE.title; $('ntcDate').textContent=NOTICE.date;
+  NOTICE.items.forEach(function(t){ var li=document.createElement('li'); li.textContent=t; $('ntcList').appendChild(li); });
+  $('ntcClose').onclick=function(){ w.hidden=true; };
+  $('ntcHide').onclick=function(){ mark(); w.hidden=true; };
+  setTimeout(function(){ if(!seen() && $('nameWrap').hidden) w.hidden=false; },600);
+})();
 
 /* 테스트용: 코인 표시를 5번 누르면 300코인 */
 (function(){ var n=0, t=null, ch=$('coinChip'); ch.style.cursor='pointer';
