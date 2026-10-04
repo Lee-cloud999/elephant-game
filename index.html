@@ -503,7 +503,7 @@ body{margin:0}
 <main class="app">
   <header class="top">
     <button class="namebtn" id="nameBtn" aria-label="이름 바꾸기"><span id="nameText">코순이</span><span id="stageText">아기 코끼리</span></button>
-    <div class="cur"><div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div><div class="chip gem" id="gemChip" aria-label="코끼리재화"><span class="gemi">🐘</span><b id="gemText">0</b></div><div class="chip evc" id="evChip" aria-label="이벤트 코인"><span class="gemi">🎟️</span><b id="evText">0</b></div></div>
+    <div class="cur"><div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div><div class="chip gem" id="gemChip" aria-label="코끼리재화"><span class="gemi">🐘</span><b id="gemText">0</b></div><div class="chip evc" id="evChip" aria-label="이벤트재화"><span class="gemi">🎟️</span><b id="evText">0</b></div></div>
     <button class="iconbtn" id="soundBtn" aria-label="소리 설정"><svg class="ico"><use id="soundUse" href="#i-sound"/></svg></button>
   </header>
 
@@ -1541,9 +1541,9 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04q', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04r', date:'2026.10.04', title:'업데이트 안내', items:[
   '만렙이 Lv.100으로 바뀌었어요',
-  '마당에 🎪 이벤트 상점이 생겼어요! 이벤트 코인으로 뽑기를 할 수 있어요',
+  '마당에 🎪 이벤트 상점이 생겼어요! 이벤트재화으로 뽑기를 할 수 있어요',
   '꾸미기 버튼을 누르면 코끼리 아래에 입고 있는 것, 위치·크기 바꾸기 메뉴가 떠요',
   '새 머리 장식 8종과 의상 10종이 추가됐어요! 뽑기와 옷장에서 만나요',
   '요리창에 도감이 생겼어요! 아직 못 만든 요리는 ❓로 나와요',
@@ -1749,10 +1749,10 @@ $('evBtn').addEventListener('click',function(){
 });
 $('evClose').addEventListener('click',function(){ $('evWrap').hidden=true; });
 $('evWrap').addEventListener('pointerdown',function(e){ if(e.target===$('evWrap')) $('evWrap').hidden=true; });
-/* 테스트용: 이벤트 코인 표시를 5번 누르면 300개 */
+/* 테스트용: 이벤트재화 표시를 5번 누르면 300개 */
 (function(){ var n=0, t=null, ch=$('evChip'); ch.style.cursor='pointer';
   ch.addEventListener('click',function(){ n++; clearTimeout(t); t=setTimeout(function(){ n=0; },2500);
-    if(n>=5){ n=0; S.ev=(S.ev|0)+300; commit(); say('테스트 이벤트 코인 +300!'); } });
+    if(n>=5){ n=0; S.ev=(S.ev|0)+300; commit(); say('테스트 이벤트재화 +300!'); } });
 })();
 applyGskin();
 
