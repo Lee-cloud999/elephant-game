@@ -364,6 +364,11 @@ button.prow{cursor:pointer}
 .edbtns .sv{background:#6B86E8; color:#fff}
 .edbtns .cx{background:#EEF2FF; color:var(--ink)}
 
+/* 꾸미기 팝업 (코끼리 아래) */
+#decoPop{position:fixed; left:50%; transform:translateX(-50%); z-index:9; display:flex; gap:6px; padding:8px; background:#fff; border-radius:20px; box-shadow:0 8px 24px rgba(36,46,92,.28); width:calc(100% - 24px); max-width:420px}
+#decoPop[hidden]{display:none}
+#decoPop .dp{flex:1; border:0; border-radius:14px; padding:12px 2px; font:inherit; font-family:var(--font-display); font-size:13.5px; line-height:1.2; white-space:nowrap; cursor:pointer}
+#decoPop::before{content:""; position:absolute; top:-7px; left:50%; margin-left:-8px; border:8px solid transparent; border-top:0; border-bottom-color:#fff}
 /* 입고 있는 아이템 창 */
 .wgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
 .wtile{border:2px solid transparent; background:#F5F8FF; border-radius:16px; padding:8px 4px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; font:inherit; color:var(--ink); cursor:pointer}
@@ -752,15 +757,17 @@ body{margin:0}
   </div>
 </div>
 
+<div id="decoPop" hidden role="menu" aria-label="꾸미기 메뉴">
+  <button class="dp" id="dpWorn" style="background:#FFE9F1;color:#8A2C55">입고 있는 것</button>
+  <button class="dp" id="dpEdit" style="background:#E8EEFF;color:#2F3F8F">위치·크기 바꾸기</button>
+  <button class="dp" id="dpShop" style="background:#FFF1C9;color:#6A4B00">뽑기·아이템</button>
+</div>
+
 <div class="wrap bottom" id="shopWrap" hidden>
   <div class="sheet" role="dialog" aria-labelledby="shopTitle">
     <div class="sheet-head">
       <h2 id="shopTitle">꾸미기</h2>
       <div class="chip"><svg class="ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="buy" id="wornBtn" style="flex:1;background:#FFE9F1;color:#8A2C55">입고 있는 것</button>
-      <button class="buy" id="editBtn" style="flex:1.4;background:#E8EEFF;color:#2F3F8F">위치·크기 바꾸기</button>
     </div>
     <h3 class="sub">뽑기</h3>
     <div class="gacha">
@@ -1518,7 +1525,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04k', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04l', date:'2026.10.04', title:'업데이트 안내', items:[
+  '꾸미기 버튼을 누르면 코끼리 아래에 입고 있는 것, 위치·크기 바꾸기 메뉴가 떠요',
   '새 머리 장식 11종과 의상 14종이 추가됐어요! 뽑기와 옷장에서 만나요',
   '요리창에 도감이 생겼어요! 아직 못 만든 요리는 ❓로 나와요',
   '마당에 🛒 슈퍼 버튼이 생겼어요! 재료를 사 와서 합쳐 요리해요 (밀가루, 치즈도 있어요)',
@@ -2385,7 +2393,7 @@ function upEdit(e){ if(editing&&edDrag){ e.stopPropagation(); edDrag=null; } }
 scene.addEventListener('pointerup',upEdit,true);
 scene.addEventListener('pointercancel',upEdit,true);
 ['click','dblclick'].forEach(function(t){ scene.addEventListener(t,function(e){ if(editing){ e.stopPropagation(); e.preventDefault(); } },true); });
-$('editBtn').addEventListener('click',startEdit);
+$('dpEdit').addEventListener('click',function(){ decoHide(); startEdit(); });
 function holdRepeat(btn,fn){
   var to=null, iv=null;
   function stop(){ clearTimeout(to); clearInterval(iv); to=iv=null; }
@@ -2517,7 +2525,7 @@ $('wornYes').addEventListener('click',function(){
   wear(it); wornSel=null; renderWorn();
 });
 $('wornNo').addEventListener('click',function(){ wornSel=null; renderWorn(); });
-$('wornBtn').addEventListener('click',openWorn);
+$('dpWorn').addEventListener('click',function(){ decoHide(); openWorn(); });
 $('wornClose').addEventListener('click',function(){ $('wornWrap').hidden=true; });
 $('wornWrap').addEventListener('pointerdown',function(e){ if(e.target===$('wornWrap')) $('wornWrap').hidden=true; });
 
@@ -2794,7 +2802,13 @@ $('walkBtn').addEventListener('click',function(){ if(S.room){ say('방 안에서
 $('hospBtn').addEventListener('click',function(){ endPet(); hospital(); });
 $('schoolBtn').addEventListener('click',function(){ endPet(); school(); });
 $('sleepBtn').addEventListener('click',function(){ endPet(); if(S.sleeping) wake(); else startSleep(); });
-$('decorBtn').addEventListener('click',function(){ endPet(); tray.hidden=true; gBusy=false; $('gStage').classList.remove('t2','t3'); $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').querySelector('path').setAttribute('fill','#FF8FB1'); $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; });
+function openShop(){ endPet(); tray.hidden=true; gBusy=false; $('gStage').classList.remove('t2','t3'); $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').querySelector('path').setAttribute('fill','#FF8FB1'); $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; }
+function decoPos(){ var r=scene.getBoundingClientRect(); var pop=$('decoPop'); pop.style.top=Math.min(window.innerHeight-90, Math.round(r.bottom+10))+'px'; }
+function decoHide(){ $('decoPop').hidden=true; }
+$('decorBtn').addEventListener('click',function(e){ e.stopPropagation(); if(!$('decoPop').hidden){ decoHide(); return; } endPet(); tray.hidden=true; decoPos(); $('decoPop').hidden=false; });
+document.addEventListener('pointerdown',function(e){ if(!$('decoPop').hidden && !$('decoPop').contains(e.target) && e.target!==$('decorBtn') && !$('decorBtn').contains(e.target)) decoHide(); },true);
+window.addEventListener('resize',function(){ if(!$('decoPop').hidden) decoPos(); });
+$('dpShop').addEventListener('click',function(){ decoHide(); openShop(); });
 $('shopClose').addEventListener('click',function(){ $('shopWrap').hidden=true; });
 $('shopWrap').addEventListener('pointerdown',function(e){ if(e.target===$('shopWrap')) $('shopWrap').hidden=true; });
 $('nameBtn').addEventListener('click',function(){ openName(false); });
