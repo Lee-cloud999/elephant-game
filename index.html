@@ -40,9 +40,11 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 
 /* 윗줄 */
 .top{display:flex; align-items:center; gap:10px}
-.namebtn{flex:1; min-width:0; display:flex; align-items:baseline; gap:8px; background:none; border:0; padding:4px 0; text-align:left; cursor:pointer}
+.namebtn{flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:0; background:none; border:0; padding:4px 0; text-align:left; cursor:pointer}
 #nameText{font-size:26px; line-height:1.1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-#stageText{font-size:14px; color:var(--ink-soft); white-space:nowrap; font-family:var(--font-body)}
+#stageText{font-size:13px; color:var(--ink-soft); white-space:nowrap; font-family:var(--font-body)}
+.cur{display:flex; align-items:center; gap:5px; margin-left:auto}
+.chip.gem{background:#EBE2FF; color:#4A2F99; font-size:17px; padding:5px 11px 5px 7px; gap:4px} .chip.gem .gemi{font-size:17px; line-height:1}
 .chip{display:flex; align-items:center; gap:6px; padding:5px 13px 5px 8px; border-radius:999px; background:#FFF0BF; color:#6E5200; font-size:19px; font-variant-numeric:tabular-nums}
 .ico{width:22px; height:22px; flex:none}
 .iconbtn{width:40px; height:40px; border-radius:50%; border:0; background:#E3E9FA; display:grid; place-items:center; cursor:pointer}
@@ -488,7 +490,7 @@ body{margin:0}
 <main class="app">
   <header class="top">
     <button class="namebtn" id="nameBtn" aria-label="이름 바꾸기"><span id="nameText">코순이</span><span id="stageText">아기 코끼리</span></button>
-    <div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div>
+    <div class="cur"><div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div><div class="chip gem" id="gemChip" aria-label="코끼리재화"><span class="gemi">🐘</span><b id="gemText">0</b></div></div>
     <button class="iconbtn" id="soundBtn" aria-label="소리 설정"><svg class="ico"><use id="soundUse" href="#i-sound"/></svg></button>
   </header>
 
@@ -922,7 +924,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},gems:0,worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1323,7 +1325,7 @@ function render(){
     el.querySelector('i').style.width=v+'%';
     el.classList.toggle('low', v<30);
   });
-  $('coinText').textContent=S.coins;
+  $('coinText').textContent=S.coins; $('gemText').textContent=S.gems|0;
   SHOP.forEach(function(it){ show($('acc-'+it.id), S.worn[it.slot]===it.id); });
   var m=pose();
   ele.setAttribute('data-pose', m);
@@ -2057,7 +2059,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={gems:S.gems,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
