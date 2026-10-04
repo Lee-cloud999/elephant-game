@@ -306,6 +306,8 @@ button.prow{cursor:pointer}
 .ntc .date{font-size:12px; opacity:.6; margin:-4px 0 10px}
 .ntc ul{margin:0 0 14px; padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:15px; line-height:1.4}
 .ntc .row2{display:flex; gap:8px}
+.ntcnav{display:flex; align-items:center; justify-content:center; gap:14px; margin:-4px 0 12px; font-size:15px; font-variant-numeric:tabular-nums}
+.ntcnav button{width:40px; height:34px; border:0; border-radius:12px; background:#E8EEFF; color:#2F3F8F; font-size:22px; line-height:1; cursor:pointer} .ntcnav button:disabled{opacity:.3}
 .ntc .row2 button{flex:1; padding:12px 8px; font-size:15px}
 .go{border:0; border-radius:20px; padding:14px; background:var(--coral); color:#fff; font-size:20px; box-shadow:0 4px 0 var(--coral-edge); cursor:pointer}
 .go:active{transform:translateY(4px); box-shadow:none}
@@ -710,6 +712,7 @@ body{margin:0}
     <h2 id="ntcTitle"></h2>
     <div class="date" id="ntcDate"></div>
     <ul id="ntcList"></ul>
+    <div class="ntcnav" id="ntcNav" hidden><button id="ntcPrev" aria-label="이전">‹</button><span id="ntcPage">1 / 1</span><button id="ntcNext" aria-label="다음">›</button></div>
     <div class="row2"><button class="ghost" id="ntcHide">오늘 하루 보지 않기</button><button class="go" id="ntcClose">닫기</button></div>
   </div>
 </div>
@@ -1532,7 +1535,13 @@ var NOTICE={id:'2026-10-04i', date:'2026.10.04', title:'업데이트 안내', it
   function mark(){ try{ localStorage.setItem(KEY,NOTICE.id); }catch(e){} }
   var w=$('noticeWrap');
   $('ntcTitle').textContent=NOTICE.title; $('ntcDate').textContent=NOTICE.date;
-  NOTICE.items.forEach(function(t){ var li=document.createElement('li'); li.textContent=t; $('ntcList').appendChild(li); });
+  var PER=5, pg=0, pages=Math.max(1,Math.ceil(NOTICE.items.length/PER));
+  function ntcDraw(){ var ul=$('ntcList'); ul.innerHTML='';
+    NOTICE.items.slice(pg*PER,pg*PER+PER).forEach(function(t){ var li=document.createElement('li'); li.textContent=t; ul.appendChild(li); });
+    $('ntcNav').hidden=pages<2; $('ntcPage').textContent=(pg+1)+' / '+pages; $('ntcPrev').disabled=pg<=0; $('ntcNext').disabled=pg>=pages-1; }
+  $('ntcPrev').onclick=function(){ if(pg>0){ pg--; ntcDraw(); } };
+  $('ntcNext').onclick=function(){ if(pg<pages-1){ pg++; ntcDraw(); } };
+  ntcDraw();
   $('ntcClose').onclick=function(){ w.hidden=true; };
   $('ntcHide').onclick=function(){ mark(); w.hidden=true; };
   setTimeout(function(){ if(!seen() && $('nameWrap').hidden) w.hidden=false; },600);
