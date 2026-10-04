@@ -1495,7 +1495,11 @@ $('roomItems').addEventListener('pointerdown',function(e){
   e.preventDefault(); e.stopPropagation(); rdSel=o.id; var p=svgPt(e);
   rdDrag={id:e.pointerId,o:o,dx:o.x-p.x,dy:o.y-p.y,moved:false};
   try{ g.setPointerCapture(e.pointerId); }catch(_){}
-  rdRender(); rdUi();
+  /* 드래그 중인 요소를 다시 만들지 않고 선택 표시만 바꿈 (터치에서 요소가 사라지면 이동이 끊김) */
+  var gs=$('roomItems').querySelectorAll('.ritem');
+  for(var i=0;i<gs.length;i++){ var sel=gs[i].querySelector('rect'); if(sel) gs[i].removeChild(sel); }
+  var it=RI[o.id]; mk('rect',{x:-it.w/2-3,y:-it.h-3,width:it.w+6,height:it.h+6,rx:6,fill:'none',stroke:'#FF4F8B','stroke-width':2/o.s,'stroke-dasharray':'5 4'},g);
+  rdUi();
 });
 window.addEventListener('pointermove',function(e){
   if(!rdDrag||e.pointerId!==rdDrag.id) return;
