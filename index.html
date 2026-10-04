@@ -30,7 +30,7 @@ body{
   margin:0; padding-inline:16px; background:var(--paper); color:var(--ink);
   font-family:var(--font-body); font-size:15px; font-weight:400;
   -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-  -webkit-user-select:none; user-select:none; overscroll-behavior:none;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; overscroll-behavior:none;
 }
 button,input{font-family:var(--font-display); font-weight:400; color:inherit}
 b{font-weight:inherit}
@@ -431,6 +431,7 @@ button.prow{cursor:pointer}
 @media (prefers-reduced-motion:reduce){
   .breathe,.cloud,.stars circle,#docArm,#doc,.walking #strip{animation:none}
 }
+img,image,svg,canvas{-webkit-touch-callout:none; -webkit-user-drag:none; user-select:none}
 </style>
 <style>
 :root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -801,6 +802,9 @@ body{margin:0}
 </div>
 
 <script>
+/* 길게 눌러도 이미지 메뉴(복사/다운로드)가 뜨지 않게 */
+document.addEventListener('contextmenu',function(e){ if(!/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) e.preventDefault(); });
+document.addEventListener('dragstart',function(e){ e.preventDefault(); });
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
