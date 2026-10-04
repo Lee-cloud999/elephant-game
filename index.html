@@ -1422,7 +1422,7 @@ var NOTICE={id:'2026-10-04b', date:'2026.10.04', title:'업데이트 안내', it
 /* ---------- 방 꾸미기 (뽑기로 모아요) ---------- */
 var RI={}; ROOM_ITEMS.forEach(function(i){ RI[i.id]=i; });
 var RKIND={wallpaper:'벽지',floor:'바닥',furn:'가구',wall:'벽 장식',rug:'러그',prop:'소품'};
-var RTABS=['all','wallpaper','floor','furn','wall','rug','prop'], ROOM_COST=15;
+var RTABS=['all','wallpaper','floor','furn','wall','rug','prop'], ROOM_COST=30;
 var rdOn=false, rdSel=null, rdTab='all', rdBusy=false, rdDrag=null;
 function rdKey(o){ var k=RI[o.id].kind; return (k==='wall'?-2000:(k==='rug'?-1000:0))+o.y; }
 function rdSetPat(pid,iid,it,top){
@@ -1445,7 +1445,7 @@ function rdUi(msg){
   if(left===0){ b.textContent='모두 모았어요!'; b.disabled=true; }
   else{ b.innerHTML='<svg class="ico"><use href="#i-coin"/></svg>'+ROOM_COST+' 뽑기'; b.disabled=rdBusy||S.coins<ROOM_COST; }
   if(msg!==undefined) $('rdMsg').innerHTML=msg;
-  else if(!rdBusy) $('rdMsg').innerHTML='방 아이템이 랜덤으로 나와요<br><small>모은 것 '+(ROOM_ITEMS.length-left)+'/'+ROOM_ITEMS.length+' · 겹치면 코인을 돌려줘요</small>';
+  else if(!rdBusy) $('rdMsg').innerHTML='방 아이템이 랜덤으로 나와요<br><small>모은 것 '+(ROOM_ITEMS.length-left)+'/'+ROOM_ITEMS.length+' · 겹치면 코인은 돌려주지 않아요</small>';
   var tabs=$('rdTabs'); tabs.innerHTML='';
   RTABS.forEach(function(k){
     var c=document.createElement('button'); c.className='chipb'+(rdTab===k?' on':''); c.textContent=k==='all'?'전체':RKIND[k];
@@ -1532,14 +1532,14 @@ function rdPull(){
     var refund=TIERS[tr].dup;
     box.className='rdres pop'+(tr>=2?' t2':'');
     box.innerHTML='<img src="'+it.file+'" alt=""><b>'+it.name+'</b><small>'+TIERS[tr].name+' · '+RKIND[it.kind]+'</small>';
-    if(dup){ S.coins+=refund; sfx.coin(); }
+    if(dup){ sfx.pop(); }
     else{
       S.rd.own.push(it.id); sfx.up();
       if(it.kind==='wallpaper') S.rd.wall=it.id; else if(it.kind==='floor') S.rd.floor=it.id; else rdPlace(it);
       if(tr>=2) [1047,1319,1568].forEach(function(f,i){ tone(f,f,.25,'triangle',.07,.5+i*.12); });
     }
     commit(); rdRender();
-    var m='<span class="rar r'+tr+'">'+TIERS[tr].name+'</span> <b>'+it.name+'</b>'+(dup?'<br><small>이미 있어서 코인 '+refund+'개를 돌려받았어요</small>':'<br><small>새로 얻어서 방에 놓았어요!</small>');
+    var m='<span class="rar r'+tr+'">'+TIERS[tr].name+'</span> <b>'+it.name+'</b>'+(dup?'<br><small>이미 가지고 있는 아이템이에요</small>':'<br><small>새로 얻어서 방에 놓았어요!</small>');
     return wait(1800).then(function(){ box.remove(); rdBusy=false; rdUi(m); });
   });
 }
