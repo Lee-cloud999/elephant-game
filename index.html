@@ -202,6 +202,8 @@ button.prow{cursor:pointer}
 @keyframes wxfall{from{transform:translateY(-30px)}to{transform:translateY(380px)}}
 .roomBtn.wxBtn{left:56px}
 .roomBtn.rdBtn{left:102px}
+.roomBtn.superBtn{left:102px; font-size:20px}
+.scene.inroom .superBtn{display:none}
 .scene:not(.inroom) .rdBtn{display:none}
 .scene.rdedit .roomBtn{display:none}
 #roomItems .ritem{touch-action:none}
@@ -237,7 +239,7 @@ button.prow{cursor:pointer}
 #rdWrap .rdctl .done{padding:7px 14px; border-radius:12px; border:0; background:#E8EEFF; color:#2F3F8F; font-size:14px}
 #room .roomnight{opacity:0} .scene.night #room .roomnight{opacity:1} .scene.night #room .roomwin{opacity:0} .scene.night #room .roomdim{opacity:.28}
 .roomBtn{position:absolute; top:10px; left:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.82); font-size:21px; line-height:40px; padding:0; box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer}
-.scene.editing .roomBtn,.scene.editing .wxBtn,.walking .roomBtn,.hospital .roomBtn,.schooling .roomBtn{display:none}
+.scene.editing .superBtn,.scene.editing .roomBtn,.scene.editing .wxBtn,.walking .roomBtn,.hospital .roomBtn,.schooling .roomBtn{display:none}
 .actions.five{grid-template-columns:repeat(5,1fr)}
 .actions .act{font-size:14px}
 .walking #strip{animation:scrollx 2.4s linear infinite}
@@ -618,6 +620,7 @@ body{margin:0}
     <button class="roomBtn wxBtn" id="wxBtn" aria-label="날씨 가져오기">🌤️</button>
     <button class="roomBtn rdBtn" id="rdBtn" aria-label="방 꾸미기">🛋️</button>
     <button class="roomBtn" id="roomBtn" aria-label="배경 바꾸기">🏠</button>
+    <button class="roomBtn superBtn" id="superBtn" aria-label="슈퍼 가기">🛒</button>
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
   </section>
 
@@ -675,6 +678,15 @@ body{margin:0}
     <div class="cklist" id="ckList"></div>
     <div class="cknote" id="ckNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="ckClose">닫기</button>
+  </div>
+</div>
+
+<div class="wrap bottom" id="superWrap" hidden>
+  <div class="sheet cooksheet" role="dialog" aria-labelledby="spTitle">
+    <div class="sheet-head"><h2 id="spTitle">🛒 슈퍼</h2><span class="ckcoin">🪙 <b id="spCoin">0</b></span></div>
+    <div class="cklist" id="spList"></div>
+    <div class="cknote" id="spNote" role="status" aria-live="polite"></div>
+    <button class="ghost" id="spClose">닫기</button>
   </div>
 </div>
 
@@ -843,10 +855,10 @@ var DISHES=[
 ];
 /* 재료 2개를 합쳐서 만드는 메뉴 (28가지 조합) */
 var ING=[
-  {id:'banana',e:'🍌',n:'바나나',c:2,h:22,t:0,p:2},{id:'melon',e:'🍉',n:'수박',c:3,h:28,t:10,p:6},
-  {id:'peanut',e:'🥜',n:'땅콩',c:2,h:14,t:-6,p:10},{id:'berry',e:'🍓',n:'딸기',c:3,h:16,t:4,p:10},
-  {id:'milk',e:'🥛',n:'우유',c:2,h:12,t:22,p:4},{id:'carrot',e:'🥕',n:'당근',c:1,h:14,t:0,p:-2},
-  {id:'broccoli',e:'🥦',n:'브로콜리',c:1,h:14,t:0,p:-2},{id:'cabbage',e:'🥬',n:'양배추',c:1,h:12,t:0,p:-2}];
+  {id:'banana',e:'🍌',n:'바나나',c:3,h:22,t:0,p:2},{id:'melon',e:'🍉',n:'수박',c:4,h:28,t:10,p:6},
+  {id:'peanut',e:'🥜',n:'땅콩',c:3,h:14,t:-6,p:10},{id:'berry',e:'🍓',n:'딸기',c:4,h:16,t:4,p:10},
+  {id:'milk',e:'🥛',n:'우유',c:3,h:12,t:22,p:4},{id:'carrot',e:'🥕',n:'당근',c:2,h:14,t:0,p:-2},
+  {id:'broccoli',e:'🥦',n:'브로콜리',c:2,h:14,t:0,p:-2},{id:'cabbage',e:'🥬',n:'양배추',c:2,h:12,t:0,p:-2}];
 var MIXNAMED={
   'banana+peanut':['🥪','바나나 땅콩 샌드'],'banana+melon':['🍧','바나나 수박 화채'],'banana+berry':['🍨','딸기 바나나 컵'],
   'banana+milk':['🥛','바나나 우유'],'banana+carrot':['🥤','당근 바나나 스무디'],'melon+berry':['🍹','딸기 수박 펀치'],
@@ -856,7 +868,7 @@ var MIXNAMED={
 var MIXDRINK={'banana+milk':1,'banana+carrot':1,'melon+berry':1,'melon+carrot':1,'peanut+milk':1,'berry+milk':1,'melon+milk':1};
 function mixKey(a,b){ return ING.map(function(i){return i.id;}).indexOf(a)<=ING.map(function(i){return i.id;}).indexOf(b)?a+'+'+b:b+'+'+a; }
 (function(){ for(var i=0;i<ING.length;i++) for(var j=i+1;j<ING.length;j++){ var a=ING[i], b=ING[j], k=a.id+'+'+b.id, nd=MIXNAMED[k], bonus=nd?3:0;
-  DISHES.push({id:'mix_'+a.id+'_'+b.id, combo:true, ia:a.id, ib:b.id, e:nd?nd[0]:'🍽️', n:nd?nd[1]:a.n+' '+b.n+' 믹스', c:a.c+b.c+3,
+  DISHES.push({id:'mix_'+a.id+'_'+b.id, combo:true, ia:a.id, ib:b.id, e:nd?nd[0]:'🍽️', n:nd?nd[1]:a.n+' '+b.n+' 믹스', c:0,
     hunger:Math.round((a.h+b.h)*.7+4+bonus), thirst:(a.t+b.t)>0?Math.round((a.t+b.t)*.8):((a.t+b.t)<0?(a.t+b.t):0), happy:Math.max(6,Math.round(a.p+b.p+8+bonus)), xp:9,
     drink:!!MIXDRINK[k], line:nd?nd[1]+'(이)라니, 정말 맛있어요!':a.n+'와 '+b.n+'을 합쳤더니 의외로 맛있어요!', full:'이제 충분해요!'}); } })();
 var FRIDGE_MAX=20;
@@ -900,7 +912,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1395,25 +1407,31 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
     }
   }
   var mixSel=[], mixQty=1;
+  function ingOf(id){ return (S.ing&&S.ing[id])|0; }
   function drawMix(){
     var g=document.createElement('div'); g.className='ckgrid';
-    ING.forEach(function(ig){ var b=document.createElement('button'); b.className='ingb'+(mixSel.indexOf(ig.id)>=0?' sel':''); b.innerHTML='<span>'+ig.e+'</span><b>'+ig.n+'</b><small>'+ig.c+'🪙</small>';
+    ING.forEach(function(ig){ var b=document.createElement('button'); b.className='ingb'+(mixSel.indexOf(ig.id)>=0?' sel':''); b.innerHTML='<span>'+ig.e+'</span><b>'+ig.n+'</b><small>×'+ingOf(ig.id)+'</small>';
       b.onclick=function(){ var i=mixSel.indexOf(ig.id); if(i>=0) mixSel.splice(i,1); else { mixSel.push(ig.id); if(mixSel.length>2) mixSel.shift(); } mixQty=1; draw(); };
       g.appendChild(b); });
     list.appendChild(g);
     var box=document.createElement('div'); box.className='ckmixbox';
-    if(mixSel.length<2){ box.innerHTML='<div class="ckhint">재료 2개를 골라 합쳐 보세요 ('+mixSel.length+'/2)</div>'; list.appendChild(box); return; }
+    if(mixSel.length<2){ box.innerHTML='<div class="ckhint">재료 2개를 골라 합쳐 보세요 ('+mixSel.length+'/2)<br><small>재료는 마당의 🛒 슈퍼에서 살 수 있어요</small></div>'; list.appendChild(box); return; }
     var d=DISHES.filter(function(x){ return x.combo && x.id==='mix_'+mixKey(mixSel[0],mixSel[1]).replace('+','_'); })[0];
     var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(mixQty,Math.max(room,1))); mixQty=q;
-    box.className='ckrow'; box.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
-    box.querySelector('[data-a=c]').disabled=busy||room<=0||S.coins<d.c*q;
+    box.className='ckrow'; box.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">요리</button></div>';
+    var have=Math.min(ingOf(d.ia),ingOf(d.ib)); mixQty=q=Math.max(1,Math.min(q,Math.max(have,1)));
+    box.querySelector('.q').textContent=q;
+    box.querySelector('[data-a=c]').disabled=busy||room<=0||have<q;
+    if(have<1){ var w=document.createElement('div'); w.className='ckhint'; w.textContent='재료가 부족해요. 마당의 🛒 슈퍼에서 사 와요'; box.querySelector('.ef').after(w); }
     box.addEventListener('click',function(e){ if(e.target.closest('.em,.nm')){ info(d,0); return; } var a=e.target.getAttribute('data-a'); if(!a) return;
-      if(a==='m') mixQty=Math.max(1,q-1); else if(a==='p') mixQty=Math.min(room,q+1); else { play(d,q); return; } draw(); });
+      if(a==='m') mixQty=Math.max(1,q-1); else if(a==='p') mixQty=Math.min(room,have,q+1); else { play(d,q); return; } draw(); });
     list.appendChild(box);
   }
   /* 타이밍 게임: 움직이는 막대가 색깔 구간에 있을 때 누르면 성공 */
   function play(d,q){
-    if(busy||S.coins<d.c*q) return; busy=true; S.coins-=d.c*q; commit();
+    if(busy||S.coins<d.c*q) return;
+    if(d.combo){ if(ingOf(d.ia)<q||ingOf(d.ib)<q) return; S.ing[d.ia]-=q; S.ing[d.ib]-=q; }
+    busy=true; S.coins-=d.c*q; commit();
     var gw=25, sw=15, c=gw/2+Math.random()*(100-gw), g0=c-gw/2, g1=c+gw/2, s0=Math.max(0,g0-sw), s1=Math.min(100,g1+sw);
     list.innerHTML='<div class="ckplay"><div class="em">'+d.e+'</div><div class="ckt">'+d.n+' '+q+'개</div><div class="ckhint">막대가 색깔 구간에 왔을 때 눌러요!</div>'
      +'<div class="ckmeter" id="ckMeter"><i class="z1" style="left:'+s0+'%;width:'+(s1-s0)+'%"></i><i class="z2" style="left:'+g0+'%;width:'+gw+'%"></i><b id="ckMark"></b></div>'
@@ -1434,6 +1452,29 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
     raf=requestAnimationFrame(tick);
     $('ckHit').onclick=res; $('ckMeter').onclick=res;
   }
+  /* 슈퍼: 재료 사기 */
+  var spQty={}, spWrap=$('superWrap'), spList=$('spList');
+  function spDraw(){
+    $('spCoin').textContent=S.coins; spList.innerHTML='';
+    ING.forEach(function(ig){ var have=ingOf(ig.id), room=Math.max(0,20-have), q=Math.max(1,Math.min(spQty[ig.id]||1,Math.max(room,1))); spQty[ig.id]=q;
+      var r=document.createElement('div'); r.className='ckrow';
+      r.innerHTML='<div class="em">'+ig.e+'</div><div><div class="nm">'+ig.n+' <span class="have">보유 '+have+'</span></div><div class="ef">개당 '+ig.c+'🪙</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="b">'+(ig.c*q)+'🪙 사기</button></div>';
+      r.querySelector('[data-a=b]').disabled=room<=0||S.coins<ig.c*q;
+      r.addEventListener('click',function(e){ var a=e.target.getAttribute('data-a'); if(!a) return;
+        if(a==='m') spQty[ig.id]=Math.max(1,q-1); else if(a==='p') spQty[ig.id]=Math.min(room,q+1);
+        else { if(S.coins<ig.c*q||room<=0) return; S.coins-=ig.c*q; S.ing=S.ing||{}; S.ing[ig.id]=have+q; spQty[ig.id]=1; commit(); sfx.coin&&sfx.coin(); $('spNote').textContent=ig.n+' '+q+'개를 샀어요!'; spDraw(); return; }
+        spDraw(); });
+      spList.appendChild(r); });
+  }
+  $('superBtn').addEventListener('click',function(){
+    if(locked||S.sleeping){ if(S.sleeping) say('쉿, 자고 있어요. 깨워 주세요.'); return; }
+    endPet(); tray.hidden=true; locked=true; say('슈퍼에 가요! 맛있는 재료를 사 올게요',1800);
+    var f=document.createElement('div'); f.style.cssText='position:absolute;inset:0;background:#fff;border-radius:28px;pointer-events:none;z-index:5;opacity:0;transition:opacity .35s'; scene.appendChild(f);
+    requestAnimationFrame(function(){ f.style.opacity='1'; });
+    setTimeout(function(){ $('spNote').textContent=''; spDraw(); spWrap.hidden=false; locked=false; f.style.opacity='0'; setTimeout(function(){ f.remove(); },400); },700);
+  });
+  $('spClose').onclick=function(){ spWrap.hidden=true; say('다녀왔어요! 요리해 봐요',2200); };
+  spWrap.addEventListener('pointerdown',function(e){ if(e.target===spWrap) spWrap.hidden=true; });
   function open(t){ tab=t||'cook'; endPet(); tray.hidden=true; note.textContent=''; draw(); wrap.hidden=false; }
   $('cookBtn').addEventListener('click',function(){ if(locked) return; open('cook'); });
   $('fridgeOpen').addEventListener('click',function(){ open('fridge'); });
@@ -1444,7 +1485,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04c', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04d', date:'2026.10.04', title:'업데이트 안내', items:[
+  '마당에 🛒 슈퍼 버튼이 생겼어요! 재료를 사 와서 요리에 쓸 수 있어요',
   '요리에서 재료 2개를 합쳐 새 메뉴를 만들 수 있어요 (재료 합치기)',
   '도감에 쓰다듬기 횟수가 표시돼요',
   '방 꾸미기 뽑기는 30코인, 겹치면 코인을 돌려주지 않아요',
@@ -1986,7 +2028,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
