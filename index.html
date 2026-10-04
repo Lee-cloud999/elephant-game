@@ -1502,7 +1502,7 @@ $('roomItems').addEventListener('pointerdown',function(e){
 });
 window.addEventListener('pointermove',function(e){
   if(!rdDrag||e.pointerId!==rdDrag.id) return;
-  var p=svgPt(e), o=rdDrag.o; o.x=Math.max(0,Math.min(400,Math.round(p.x+rdDrag.dx))); o.y=Math.max(60,Math.min(358,Math.round(p.y+rdDrag.dy))); rdDrag.moved=true;
+  var p=svgPt(e), o=rdDrag.o; o.x=Math.max(0,Math.min(400,Math.round(p.x+rdDrag.dx))); o.y=Math.max(RI[o.id].h*o.s+svgPt({clientX:0,clientY:scene.getBoundingClientRect().top}).y,Math.min(358,Math.round(p.y+rdDrag.dy))); rdDrag.moved=true;
   var g=$('roomItems').querySelector('.ritem[data-id="'+o.id+'"]'); if(g) g.setAttribute('transform','translate('+o.x+' '+o.y+') scale('+o.s+')');
 });
 function rdUp(e){ if(rdDrag&&e.pointerId===rdDrag.id){ var mv=rdDrag.moved; rdDrag=null; if(mv){ rdRender(); save(); } } }
