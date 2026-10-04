@@ -375,6 +375,16 @@ button.prow{cursor:pointer}
 #decoPop[hidden]{display:none}
 #decoPop .dp{flex:1; border:0; border-radius:14px; padding:12px 2px; font:inherit; font-family:var(--font-display); font-size:13.5px; line-height:1.2; white-space:nowrap; cursor:pointer}
 #decoPop::before{content:""; position:absolute; top:-7px; left:50%; margin-left:-8px; border:8px solid transparent; border-top:0; border-bottom-color:#fff}
+/* 출석 보상 */
+.attcard{display:flex; flex-direction:column; gap:10px; text-align:center; max-width:360px; width:calc(100% - 24px)}
+.attsub{font-size:14px; color:var(--ink-soft)}
+.attgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
+.attday{border-radius:14px; background:#F5F8FF; padding:6px 2px 7px; font-size:12px; line-height:1.35; border:2px solid transparent; position:relative}
+.attday b{display:block; font-family:var(--font-display); font-size:13px; margin-bottom:2px}
+.attday.done{background:#E6F6EA; opacity:.75} .attday.done::after{content:"✔"; position:absolute; top:2px; right:5px; color:#2F9E5B; font-size:12px}
+.attday.today{background:#FFF3C4; border-color:#FFB300}
+.attday.big{grid-column:span 2; background:#FFE9F1}
+.attday.big.today{background:#FFF3C4}
 /* 입고 있는 아이템 창 */
 .wgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
 .wtile{border:2px solid transparent; background:#F5F8FF; border-radius:16px; padding:8px 4px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; font:inherit; color:var(--ink); cursor:pointer}
@@ -720,6 +730,15 @@ body{margin:0}
   </div>
 </div>
 
+<div class="wrap center" id="attWrap" hidden>
+  <div class="card attcard" role="dialog" aria-labelledby="attTitle">
+    <h2 id="attTitle">📅 출석 보상</h2>
+    <div class="attsub" id="attSub"></div>
+    <div class="attgrid" id="attGrid"></div>
+    <button class="go" id="attGo">오늘 보상 받기</button>
+  </div>
+</div>
+
 <div class="wrap center" id="ckInfoWrap" hidden>
   <div class="card ckinfo" role="dialog" aria-labelledby="ckiName">
     <div class="ckiem" id="ckiEm"></div><h2 id="ckiName"></h2><div class="rstar lg" id="ckiStar"></div>
@@ -950,7 +969,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},gems:0,ev:0,gskin:'pink',gskins:['pink'],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},gems:0,ev:0,att:{last:'',n:0},gskin:'pink',gskins:['pink'],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1541,7 +1560,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04r', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04s', date:'2026.10.04', title:'업데이트 안내', items:[
+  '매일 접속하면 출석 보상을 받아요! 코인, 이벤트재화, 코끼리재화가 들어와요',
   '만렙이 Lv.100으로 바뀌었어요',
   '마당에 🎪 이벤트 상점이 생겼어요! 이벤트재화으로 뽑기를 할 수 있어요',
   '꾸미기 버튼을 누르면 코끼리 아래에 입고 있는 것, 위치·크기 바꾸기 메뉴가 떠요',
@@ -1579,6 +1599,37 @@ var NOTICE={id:'2026-10-04r', date:'2026.10.04', title:'업데이트 안내', it
   ch.addEventListener('click',function(){ n++; clearTimeout(t); t=setTimeout(function(){ n=0; },2500);
     if(n>=5){ n=0; S.coins+=300; commit(); say('테스트 코인 +300!'); } });
 })();
+
+/* ---------- 출석 보상 ---------- */
+var ATT=[
+  {c:10,e:5,g:1},{c:15,e:5,g:1},{c:20,e:10,g:1},{c:20,e:10,g:1},{c:30,e:10,g:1},{c:30,e:15,g:1},{c:60,e:30,g:3}
+];
+function dayKey(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function attState(){ S.att=S.att||{last:'',n:0}; return S.att; }
+function attClaimed(){ return attState().last===dayKey(); }
+function attDraw(){
+  var a=attState(), done=attClaimed(), idx=(done?a.n-1:a.n)%7, g=$('attGrid'); g.innerHTML='';
+  ATT.forEach(function(r,i){
+    var d=document.createElement('div'); d.className='attday'+(i===6?' big':'')+(i<idx||(i===idx&&done)?' done':'')+(i===idx&&!done?' today':'');
+    d.innerHTML='<b>'+(i+1)+'일차</b>🪙'+r.c+'<br>🎟️'+r.e+'<br>🐘'+r.g; g.appendChild(d);
+  });
+  $('attSub').textContent=done?'오늘 보상은 받았어요! 내일 또 만나요':'매일 접속하면 코인, 이벤트재화, 코끼리재화를 받아요 (총 '+a.n+'일 출석)';
+  $('attGo').textContent=done?'닫기':'오늘 보상 받기';
+}
+function attClaim(){
+  if(attClaimed()){ $('attWrap').hidden=true; return; }
+  var a=attState(), r=ATT[a.n%7];
+  S.coins+=r.c; S.ev=(S.ev|0)+r.e; S.gems=(S.gems|0)+r.g; a.n++; a.last=dayKey(); commit(); sfx.up&&sfx.up();
+  say('출석 보상! 🪙'+r.c+' 🎟️'+r.e+' 🐘'+r.g, 3200); attDraw();
+  setTimeout(function(){ $('attWrap').hidden=true; },1100);
+}
+$('attGo').addEventListener('click',attClaim);
+$('attWrap').addEventListener('pointerdown',function(e){ if(e.target===$('attWrap')) $('attWrap').hidden=true; });
+(function(){ var shown=false, tm=setInterval(function(){
+  if(shown||attClaimed()){ clearInterval(tm); return; }
+  if(!$('nameWrap').hidden||!$('noticeWrap').hidden) return;
+  shown=true; clearInterval(tm); attDraw(); $('attWrap').hidden=false;
+},1200); })();
 /* ---------- 방 꾸미기 (뽑기로 모아요) ---------- */
 var RI={}; ROOM_ITEMS.forEach(function(i){ RI[i.id]=i; });
 var RKIND={wallpaper:'벽지',floor:'바닥',furn:'가구',wall:'벽 장식',rug:'러그',prop:'소품'};
@@ -2151,7 +2202,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={att:S.att,gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
