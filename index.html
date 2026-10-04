@@ -877,7 +877,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1831,7 +1831,7 @@ function thumbSvg(rec){
 function fmtDate(t){ var d=new Date(t); return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate(); }
 function daysBetween(a,b){ return Math.max(1,Math.ceil((b-a)/86400000)); }
 function curRec(){ return {name:nm(), color:S.color, worn:S.worn, adj:S.adj}; }
-var ELE_KEYS=['id','name','xp','hunger','thirst','clean','happy','energy','worn','adj','color','sleeping','sleepFrom','sick','sickT','born','grad'];
+var ELE_KEYS=['id','name','pets','xp','hunger','thirst','clean','happy','energy','worn','adj','color','sleeping','sleepFrom','sick','sickT','born','grad'];
 function cp(v){ return (v&&typeof v==='object')?JSON.parse(JSON.stringify(v)):v; }
 function packEle(){ var o={}; ELE_KEYS.forEach(function(k){ o[k]=cp(S[k]); }); o.onScreen=false; return o; }
 function unpackEle(rec){ ELE_KEYS.forEach(function(k){ S[k]=cp(rec[k]); }); }
@@ -1852,7 +1852,7 @@ function renderHerd(){
     box.appendChild(d);
   }
   var L=level();
-  row(curRec(),' now', nm()+' · 키우는 중', 'Lv.'+(L>=MAXLV?'MAX':L)+' · '+stageName(L)+' · '+daysBetween(S.born,Date.now())+'일째');
+  row(curRec(),' now', nm()+' · 키우는 중', 'Lv.'+(L>=MAXLV?'MAX':L)+' · '+stageName(L)+' · '+daysBetween(S.born,Date.now())+'일째 · 쓰다듬기 '+(S.pets|0)+'회');
   var cnt=screenCount();
   var hs=S.herd.slice().reverse();
   if(hs.some(isMax)){
@@ -1867,8 +1867,8 @@ function renderHerd(){
       : {text:'화면에 부르기', off:cnt>=2, fn:function(){ toggleScreen(r.id); }});
     btns.push({text:'이어 키우기', cls:'go', fn:function(){ continueWith(r.id); }});
     var sub = mx
-      ? 'Lv.MAX · '+daysBetween(r.born||r.grad,r.grad||Date.now())+'일 키움'+(r.grad?' · '+fmtDate(r.grad)+' 졸업':'')+(r.onScreen?' · 화면에 있어요':'')
-      : 'Lv.'+levelOfXp(r.xp)+' · '+stageName(levelOfXp(r.xp))+' · 잠시 쉬는 중';
+      ? 'Lv.MAX · '+daysBetween(r.born||r.grad,r.grad||Date.now())+'일 키움'+(r.grad?' · '+fmtDate(r.grad)+' 졸업':'')+' · 쓰다듬기 '+(r.pets|0)+'회'+(r.onScreen?' · 화면에 있어요':'')
+      : 'Lv.'+levelOfXp(r.xp)+' · '+stageName(levelOfXp(r.xp))+' · 쓰다듬기 '+(r.pets|0)+'회 · 잠시 쉬는 중';
     row(r,'', r.name+(mx?' · 졸업':''), sub, btns);
   });
   if(!hs.length){ var e=document.createElement('div'); e.className='hempty'; e.textContent='아직 졸업한 코끼리가 없어요. 만렙(Lv.'+MAXLV+')까지 키우면 여기에 기록돼요.'; box.appendChild(e); }
@@ -2410,8 +2410,8 @@ function svgPt(e){
   var m=w.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : {x:OX,y:OY-150};
 }
 function setHand(x,y){ if(petHand) petHand.setAttribute('transform','translate('+x+' '+y+')'); }
-function petOne(p){
-  petCount++;
+function petOne(p,demo){
+  petCount++; if(!demo) S.pets=(S.pets|0)+1;
   S.happy=cl(S.happy+1.6);
   if(petCount%4===0) addXp(1);
   if(petCount%6===0 && petCoins<3){ petCoins++; S.coins+=1; sfx.coin(); popCoin(); }
@@ -2434,7 +2434,7 @@ function startPet(){
   petHint=setTimeout(function(){
     if(!petting || petCount>0) return;
     petInner.animate([{transform:'translateX(-34px)'},{transform:'translateX(34px)'}],{duration:340,iterations:6,direction:'alternate',easing:'ease-in-out'});
-    for(var i=0;i<3;i++) (function(i){ setTimeout(function(){ if(petting) petOne({x:OX+rand(-20,20)*s,y:OY-230*s}); },300+i*500); })(i);
+    for(var i=0;i<3;i++) (function(i){ setTimeout(function(){ if(petting) petOne({x:OX+rand(-20,20)*s,y:OY-230*s},true); },300+i*500); })(i);
   },2600);
   petTimer=setTimeout(function(){ endPet(); },14000);
 }

@@ -1,5 +1,5 @@
 /* 코순이 키우기 서비스 워커 — VERSION은 빌드할 때 바뀝니다 */
-const VERSION='4f7a139d2a';
+const VERSION='486b98ab4c';
 const CACHE='kosuni-'+VERSION;
 const CORE=['./','index.html','manifest.webmanifest','pwa/icon-192.png','pwa/icon-512.png','pwa/apple-touch-icon.png',
   'assets/idle.webp','assets/sad.webp','assets/sleep.webp','assets/eat.webp','assets/angry.webp','assets/joy.webp','assets/surprise.webp'];
