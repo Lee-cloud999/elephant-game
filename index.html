@@ -265,7 +265,12 @@ button.prow{cursor:pointer}
 .ckrow{display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:8px; padding:8px 10px; border-radius:16px; background:#FFF8EC}
 .ckrow .em{font-size:30px; text-align:center}
 .ckrow .nm{font-size:15px; font-weight:700}
-.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px} .ckgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:8px}
+.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px} .cktabs button{padding:10px 4px; font-size:13px}
+.dexh{font-weight:700; font-size:14px; margin:8px 2px 4px} .dexgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
+.dexc{border:2px solid #E5D9BE; background:#FFF8EC; border-radius:14px; padding:8px 4px; display:flex; flex-direction:column; align-items:center; gap:2px; font:inherit; color:var(--ink); cursor:pointer; min-height:92px}
+.dexc span{font-size:30px; line-height:1.15} .dexc b{font-size:12px; text-align:center; line-height:1.2} .dexc small{font-size:11px}
+.dexc.no{background:#F0F1FA; border-color:#E0E3F2; cursor:default} .dexc.no span{filter:grayscale(1); opacity:.55} .dexc.no b{opacity:.5}
+.ckgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:8px}
 .ingb{border:2px solid #E5D9BE; background:#FFF8EC; border-radius:14px; padding:6px 2px; display:flex; flex-direction:column; align-items:center; gap:1px; cursor:pointer; font:inherit; color:var(--ink)}
 .ingb span{font-size:26px; line-height:1.1} .ingb b{font-size:12px} .ingb small{font-size:11px; opacity:.65}
 .ingb.sel{border-color:var(--coral); background:#FFE9E0}
@@ -674,7 +679,7 @@ body{margin:0}
 <div class="wrap bottom" id="cookWrap" hidden>
   <div class="sheet cooksheet" role="dialog" aria-labelledby="cookTitle">
     <div class="sheet-head"><h2 id="cookTitle">요리</h2><span class="ckcoin">🪙 <b id="ckCoin">0</b></span></div>
-    <div class="cktabs"><button id="ckTabCook" class="on">요리하기</button><button id="ckTabMix">재료 합치기</button><button id="ckTabFridge">냉장고 <span id="ckFridgeN"></span></button></div>
+    <div class="cktabs"><button id="ckTabCook" class="on">요리하기</button><button id="ckTabMix">재료 합치기</button><button id="ckTabFridge">냉장고 <span id="ckFridgeN"></span></button><button id="ckTabDex">도감</button></div>
     <div class="cklist" id="ckList"></div>
     <div class="cknote" id="ckNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="ckClose">닫기</button>
@@ -917,7 +922,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1386,9 +1391,10 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   function haveOf(id){ return (S.fridge[id+':1']||0)+(S.fridge[id+':2']||0)+(S.fridge[id+':3']||0); }
   function draw(){
     $('ckCoin').textContent=S.coins; var n=fN(); $('ckFridgeN').textContent=n?'('+n+')':'';
-    $('ckTabCook').className=tab==='cook'?'on':''; $('ckTabMix').className=tab==='mix'?'on':''; $('ckTabFridge').className=tab==='fridge'?'on':'';
+    $('ckTabCook').className=tab==='cook'?'on':''; $('ckTabMix').className=tab==='mix'?'on':''; $('ckTabFridge').className=tab==='fridge'?'on':''; $('ckTabDex').className=tab==='dex'?'on':'';
     list.innerHTML='';
-    if(tab==='mix'){ drawMix(); }
+    if(tab==='dex'){ drawDex(); }
+    else if(tab==='mix'){ drawMix(); }
     else if(tab==='cook'){
       DISHES.forEach(function(d){
         if(d.combo) return;
@@ -1410,6 +1416,21 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
         list.appendChild(r); }); });
       if(!any){ var e=document.createElement('div'); e.className='ckempty'; e.textContent='냉장고가 비었어요. 요리하기에서 만들어 넣어 보세요.'; list.appendChild(e); }
     }
+  }
+  function bestStar(id){ var b=(S.made&&S.made[id])|0; for(var st=3;st>b;st--) if(S.fridge[id+':'+st]) { b=st; break; } return b; }
+  function dexList(){ var offIds={}; ING.forEach(function(i){ if(i.off) offIds[i.id]=1; });
+    return DISHES.filter(function(d){ return bestStar(d.id)>0 || !d.combo || (!offIds[d.ia]&&!offIds[d.ib]); }); }
+  function drawDex(){
+    var all=dexList(), got=all.filter(function(d){ return bestStar(d.id)>0; }).length;
+    var h=document.createElement('div'); h.className='ckhint'; h.innerHTML='모은 요리 <b>'+got+' / '+all.length+'</b><br><small>요리를 만들어 보면 도감이 채워져요</small>'; list.appendChild(h);
+    [['요리',false],['재료 합치기 요리',true]].forEach(function(sec){
+      var items=all.filter(function(d){ return !!d.combo===sec[1]; }); if(!items.length) return;
+      var t=document.createElement('div'); t.className='dexh'; t.textContent=sec[0]; list.appendChild(t);
+      var g=document.createElement('div'); g.className='dexgrid';
+      items.forEach(function(d){ var b=bestStar(d.id), el=document.createElement('button'); el.className='dexc'+(b?'':' no');
+        el.innerHTML=b?'<span>'+d.e+'</span><b>'+d.n+'</b><small class="rstar s'+b+'">'+STAR_TXT[b]+'</small>':'<span>❓</span><b>???</b><small>&nbsp;</small>';
+        if(b) el.onclick=function(){ info(d,0); }; g.appendChild(el); });
+      list.appendChild(g); });
   }
   var mixSel=[], mixQty=1;
   function ingOf(id){ return (S.ing&&S.ing[id])|0; }
@@ -1446,6 +1467,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
     var mark=$('ckMark'), pos=0, dir=1, last=performance.now(), done=false, laps=0, speed=75;
     function res(){ if(done) return; done=true; cancelAnimationFrame(raf);
       var st=(pos>=g0&&pos<=g1)?3:((pos>=s0&&pos<=s1)?2:1);
+      S.made=S.made||{}; S.made[d.id]=Math.max(S.made[d.id]|0,st);
       S.fridge[d.id+':'+st]=Math.min(FRIDGE_MAX,(S.fridge[d.id+':'+st]||0)+q); busy=false; commit();
       var t=['','아쉬워요','성공!','대성공!'][st];
       list.innerHTML='<div class="ckplay"><div class="em big">'+d.e+'</div><div class="ckres s'+st+'">'+t+'</div><div class="rstar s'+st+' lg">'+STAR_TXT[st]+'</div><div class="ckhint">'+d.n+' '+q+'개를 냉장고에 넣었어요</div><button class="go" id="ckAgain">확인</button></div>';
@@ -1485,12 +1507,14 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
   $('fridgeOpen').addEventListener('click',function(){ open('fridge'); });
   $('ckTabCook').onclick=function(){ if(!busy){ tab='cook'; draw(); } };
   $('ckTabMix').onclick=function(){ if(!busy){ tab='mix'; draw(); } };
+  $('ckTabDex').onclick=function(){ if(!busy){ tab='dex'; draw(); } };
   $('ckTabFridge').onclick=function(){ if(!busy){ tab='fridge'; draw(); } };
   $('ckClose').onclick=function(){ if(!busy) wrap.hidden=true; };
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04f', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04g', date:'2026.10.04', title:'업데이트 안내', items:[
+  '요리창에 도감이 생겼어요! 아직 못 만든 요리는 ❓로 나와요',
   '마당에 🛒 슈퍼 버튼이 생겼어요! 밀가루, 치즈, 양배추를 사 와서 합쳐 요리해요',
   '요리에서 재료 2개를 합쳐 새 메뉴를 만들 수 있어요 (재료 합치기)',
   '도감에 쓰다듬기 횟수가 표시돼요',
@@ -2033,7 +2057,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
