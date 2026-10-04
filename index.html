@@ -257,7 +257,7 @@ button.prow{cursor:pointer}
 .ckrow{display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:8px; padding:8px 10px; border-radius:16px; background:#FFF8EC}
 .ckrow .em{font-size:30px; text-align:center}
 .ckrow .nm{font-size:15px; font-weight:700}
-.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px}
+.ckrow .ef{font-size:12px; opacity:.7; margin-top:2px} .ckrow .em{cursor:pointer} .ckrow .st{display:none} .ckrow.open .st{display:block} .ckrow .have{font-size:11px; font-weight:600; opacity:.6; margin-left:4px}
 .ckrow .ctl{display:flex; align-items:center; gap:6px}
 .ckrow .ctl .q{min-width:22px; text-align:center; font-variant-numeric:tabular-nums; font-weight:700}
 .ckrow .ctl button{border:0; border-radius:10px; min-width:32px; height:32px; background:#fff; box-shadow:0 2px 0 #E5D9BE; cursor:pointer; font-size:16px}
@@ -1312,7 +1312,7 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 
 /* ---------- 요리 / 냉장고 ---------- */
 (function(){
-  var tab='cook', qty={}, busy=false, wrap=$('cookWrap'), list=$('ckList'), note=$('ckNote');
+  var tab='cook', qty={}, openFx={}, busy=false, wrap=$('cookWrap'), list=$('ckList'), note=$('ckNote');
   function fN(){ var n=0; for(var k in S.fridge) n+=S.fridge[k]; return n; }
   function eff(d,x){ var a=[]; if(d.hunger) a.push('배고픔 +'+sc2(d.hunger,x)); if(d.thirst) a.push('목마름 '+(d.thirst>0?'+':'')+(d.thirst>0?sc2(d.thirst,x):d.thirst)); if(d.happy) a.push('기분 +'+sc2(d.happy,x)); return a.join(' · '); }
   function haveOf(id){ return (S.fridge[id+':1']||0)+(S.fridge[id+':2']||0)+(S.fridge[id+':3']||0); }
@@ -1324,9 +1324,10 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
       DISHES.forEach(function(d){
         var room=FRIDGE_MAX-Math.max(S.fridge[d.id+':1']||0,S.fridge[d.id+':2']||0,S.fridge[d.id+':3']||0), q=Math.max(1,Math.min(qty[d.id]||1,Math.max(room,1))); qty[d.id]=q;
         var r=document.createElement('div'); r.className='ckrow';
-        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+'</div><div class="ef">'+eff(d,1)+'</div><div class="ef">냉장고 '+haveOf(d.id)+'개</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
+        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="have">🧊'+haveOf(d.id)+'</span></div><div class="ef st">'+eff(d,1)+'</div></div><div class="ctl"><button data-a="m" aria-label="줄이기">−</button><span class="q">'+q+'</span><button data-a="p" aria-label="늘리기">+</button><button class="go2" data-a="c">'+(d.c*q)+'🪙 요리</button></div>';
         r.querySelector('[data-a=c]').disabled=busy||room<=0||S.coins<d.c*q;
-        r.addEventListener('click',function(e){ var a=e.target.getAttribute('data-a'); if(!a) return;
+        if(openFx[d.id]) r.classList.add('open');
+        r.addEventListener('click',function(e){ if(e.target.closest('.em')){ openFx[d.id]=!openFx[d.id]; r.classList.toggle('open',!!openFx[d.id]); return; } var a=e.target.getAttribute('data-a'); if(!a) return;
           if(a==='m') qty[d.id]=Math.max(1,q-1); else if(a==='p') qty[d.id]=Math.min(room,q+1); else { play(d,q); return; } draw(); });
         list.appendChild(r);
       });
@@ -1334,7 +1335,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
       var any=false;
       DISHES.forEach(function(d){ [3,2,1].forEach(function(st){ var c=S.fridge[d.id+':'+st]||0; if(!c) return; any=true;
         var r=document.createElement('div'); r.className='ckrow';
-        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="rstar s'+st+'">'+STAR_TXT[st]+'</span></div><div class="ef">'+eff(d,STAR_X[st])+'</div></div><div class="ctl"><span class="q">×'+c+'</span><button class="go2" data-a="f">먹이기</button></div>';
+        r.innerHTML='<div class="em">'+d.e+'</div><div><div class="nm">'+d.n+' <span class="rstar s'+st+'">'+STAR_TXT[st]+'</span></div><div class="ef st">'+eff(d,STAR_X[st])+'</div></div><div class="ctl"><span class="q">×'+c+'</span><button class="go2" data-a="f">먹이기</button></div>';
+        var fk=d.id+':'+st; if(openFx[fk]) r.classList.add('open'); r.querySelector('.em').onclick=function(){ openFx[fk]=!openFx[fk]; r.classList.toggle('open',!!openFx[fk]); };
         r.querySelector('[data-a=f]').onclick=function(){ wrap.hidden=true; feed('dish_'+d.id+':'+st); };
         list.appendChild(r); }); });
       if(!any){ var e=document.createElement('div'); e.className='ckempty'; e.textContent='냉장고가 비었어요. 요리하기에서 만들어 넣어 보세요.'; list.appendChild(e); }
