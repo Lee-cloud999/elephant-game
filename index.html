@@ -1541,9 +1541,9 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04p', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04q', date:'2026.10.04', title:'업데이트 안내', items:[
   '만렙이 Lv.100으로 바뀌었어요',
-  '마당에 🎪 이벤트 상점이 생겼어요! 이벤트 코인으로 뽑기와 뽑기 캡슐 스킨을 살 수 있어요',
+  '마당에 🎪 이벤트 상점이 생겼어요! 이벤트 코인으로 뽑기를 할 수 있어요',
   '꾸미기 버튼을 누르면 코끼리 아래에 입고 있는 것, 위치·크기 바꾸기 메뉴가 떠요',
   '새 머리 장식 8종과 의상 10종이 추가됐어요! 뽑기와 옷장에서 만나요',
   '요리창에 도감이 생겼어요! 아직 못 만든 요리는 ❓로 나와요',
@@ -1707,11 +1707,7 @@ $('rdPull').addEventListener('click',rdPull);
 
 /* ---------- 이벤트 상점 ---------- */
 var GSKINS=[
-  {id:'pink',name:'기본 분홍',fill:'#FF8FB1',edge:'#E4678F',cost:0},
-  {id:'mint',name:'민트 캡슐',fill:'#6FD6B0',edge:'#3FAE86',cost:40},
-  {id:'gold',name:'황금 캡슐',fill:'#FFC845',edge:'#D99A00',cost:60},
-  {id:'sky',name:'하늘 캡슐',fill:'#7DBBFF',edge:'#4A8FE0',cost:40},
-  {id:'purple',name:'보라 캡슐',fill:'#B994F2',edge:'#8A5FD0',cost:40}
+  {id:'pink',name:'기본 분홍',fill:'#FF8FB1',edge:'#E4678F',cost:0}
 ];
 var EV_COST_ITEM=30, EV_COST_ROOM=30;
 function gSkin(){ return GSKINS.filter(function(g){ return g.id===S.gskin; })[0]||GSKINS[0]; }
@@ -1746,13 +1742,6 @@ function evDraw(){
     S.ev-=EV_COST_ROOM; var it=weightedPick(pool); S.rd.own.push(it.id);
     if(it.kind==='wallpaper') S.rd.wall=it.id; else if(it.kind==='floor') S.rd.floor=it.id; else rdPlace(it);
     commit(); rdRender(); sfx.up(); evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 방에 놓았어요'; evDraw(); });
-  head('뽑기 캡슐 스킨');
-  GSKINS.forEach(function(g){
-    var own=S.gskins.indexOf(g.id)>=0, on=S.gskin===g.id;
-    row('<div class="sk" style="background:'+g.fill+'"></div>',g.name,on?'지금 쓰는 중':(own?'가지고 있어요':'뽑기 기계 캡슐 색이 바뀌어요'), on?'사용 중':(own?'사용하기':g.cost+'🎟️'), on||(!own&&bal<g.cost), function(){
-      if(!own){ if((S.ev|0)<g.cost) return; S.ev-=g.cost; S.gskins.push(g.id); }
-      S.gskin=g.id; applyGskin(); commit(); sfx.up(); evNote.textContent=g.name+'을(를) '+(own?'쓰고 있어요!':'샀어요! 바로 적용했어요'); evDraw(); });
-  });
 }
 $('evBtn').addEventListener('click',function(){
   if(S.sleeping){ say('쉿, 자고 있어요. 깨워 주세요.'); return; }
