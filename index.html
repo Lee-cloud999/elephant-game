@@ -44,6 +44,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 #nameText{font-size:26px; line-height:1.1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 #stageText{font-size:13px; color:var(--ink-soft); white-space:nowrap; font-family:var(--font-body)}
 .cur{display:flex; align-items:center; gap:5px; margin-left:auto}
+.chip.evc{background:#FFE3D6; color:#8A3A12; font-size:17px; padding:5px 10px 5px 7px; gap:3px} .chip.evc .gemi{font-size:17px; line-height:1}
 .chip.gem{background:#EBE2FF; color:#4A2F99; font-size:17px; padding:5px 11px 5px 7px; gap:4px} .chip.gem .gemi{font-size:17px; line-height:1}
 .chip{display:flex; align-items:center; gap:6px; padding:5px 13px 5px 8px; border-radius:999px; background:#FFF0BF; color:#6E5200; font-size:19px; font-variant-numeric:tabular-nums}
 .ico{width:22px; height:22px; flex:none}
@@ -205,6 +206,11 @@ button.prow{cursor:pointer}
 .roomBtn.wxBtn{left:56px}
 .roomBtn.rdBtn{left:102px}
 .roomBtn.superBtn{left:102px; font-size:20px}
+.roomBtn.evBtn{left:148px; font-size:20px}
+.scene.inroom .evBtn{display:none}
+.scene.editing .evBtn{display:none}
+.evrow .sk{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #D5DBF2 inset,0 1px 4px rgba(0,0,0,.2);margin:0 auto}
+.evh{font-family:var(--font-display); font-size:16px; margin:6px 2px 0}
 .scene.inroom .superBtn{display:none}
 .scene:not(.inroom) .rdBtn{display:none}
 .scene.rdedit .roomBtn{display:none}
@@ -497,7 +503,7 @@ body{margin:0}
 <main class="app">
   <header class="top">
     <button class="namebtn" id="nameBtn" aria-label="이름 바꾸기"><span id="nameText">코순이</span><span id="stageText">아기 코끼리</span></button>
-    <div class="cur"><div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div><div class="chip gem" id="gemChip" aria-label="코끼리재화"><span class="gemi">🐘</span><b id="gemText">0</b></div></div>
+    <div class="cur"><div class="chip" id="coinChip" aria-label="코인"><svg class="ico"><use href="#i-coin"/></svg><b id="coinText">0</b></div><div class="chip gem" id="gemChip" aria-label="코끼리재화"><span class="gemi">🐘</span><b id="gemText">0</b></div><div class="chip evc" id="evChip" aria-label="이벤트 코인"><span class="gemi">🎟️</span><b id="evText">0</b></div></div>
     <button class="iconbtn" id="soundBtn" aria-label="소리 설정"><svg class="ico"><use id="soundUse" href="#i-sound"/></svg></button>
   </header>
 
@@ -635,6 +641,7 @@ body{margin:0}
     <button class="roomBtn rdBtn" id="rdBtn" aria-label="방 꾸미기">🛋️</button>
     <button class="roomBtn" id="roomBtn" aria-label="배경 바꾸기">🏠</button>
     <button class="roomBtn superBtn" id="superBtn" aria-label="슈퍼 가기">🛒</button>
+    <button class="roomBtn evBtn" id="evBtn" aria-label="이벤트 상점">🎪</button>
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
   </section>
 
@@ -701,6 +708,15 @@ body{margin:0}
     <div class="cklist" id="spList"></div>
     <div class="cknote" id="spNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="spClose">닫기</button>
+  </div>
+</div>
+
+<div class="wrap bottom" id="evWrap" hidden>
+  <div class="sheet cooksheet" role="dialog" aria-labelledby="evTitle">
+    <div class="sheet-head"><h2 id="evTitle">🎪 이벤트 상점</h2><span class="ckcoin">🎟️ <b id="evBal">0</b></span></div>
+    <div class="cklist" id="evList"></div>
+    <div class="cknote" id="evNote" role="status" aria-live="polite"></div>
+    <button class="ghost" id="evClose">닫기</button>
   </div>
 </div>
 
@@ -846,7 +862,7 @@ var NS = 'http://www.w3.org/2000/svg';
 var KEY = 'elephant-game-v1';
 var OX = 200, OY = 306;
 var KEYS = ['hunger','thirst','clean','happy','energy'];
-var MAXLV = 150;
+var MAXLV = 100;
 /* Lv.20까지는 예전과 같은 곡선, 그 뒤로는 레벨당 경험치 70씩 */
 function lvAt(L){ var k=Math.min(L,20)-1, v=Math.round(8*k+1.5*k*k); return L>20 ? v+(L-20)*70 : v; }
 function stageName(L){ return L>=45?'전설의 코끼리':(L>=35?'슈퍼 코끼리':(L>=25?'대장 코끼리':(L>=15?'멋쟁이 코끼리':(L>=10?'개구쟁이 코끼리':(L>=5?'꼬마 코끼리':'아기 코끼리'))))); }
@@ -934,7 +950,7 @@ function rdFix(r){
 }
 function newId(){ return 'e'+Date.now().toString(36)+Math.floor(Math.random()*1679616).toString(36); }
 function fresh(){
-  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},gems:0,worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
+  return {v:1,name:'',pets:0,xp:0,coins:20,hunger:70,thirst:75,clean:80,happy:70,energy:90,owned:[],fridge:{},ing:{},made:{},gems:0,ev:0,gskin:'pink',gskins:['pink'],worn:{},sleeping:false,sleepFrom:0,sick:false,sickT:0,sfxOn:true,sfxVol:.7,bgmOn:true,bgmVol:.5,bgmTrack:0,color:'blue',adj:{},herd:[],phone:{photos:[],callDay:'',calls:0,sms:[]},rd:rdFresh(),born:Date.now(),schoolDay:'',id:newId(),grad:0,t:Date.now()};
 }
 function load(){
   try{ var r=JSON.parse(localStorage.getItem(KEY)); if(r && r.v===1){ if(typeof r.thirst!=='number') r.thirst=75; if(typeof r.sick!=='boolean') r.sick=false; if(typeof r.sickT!=='number') r.sickT=0;
@@ -1335,7 +1351,7 @@ function render(){
     el.querySelector('i').style.width=v+'%';
     el.classList.toggle('low', v<30);
   });
-  $('coinText').textContent=S.coins; $('gemText').textContent=S.gems|0;
+  $('coinText').textContent=S.coins; $('gemText').textContent=S.gems|0; $('evText').textContent=S.ev|0;
   SHOP.forEach(function(it){ show($('acc-'+it.id), S.worn[it.slot]===it.id); });
   var m=pose();
   ele.setAttribute('data-pose', m);
@@ -1525,7 +1541,9 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-04o', date:'2026.10.04', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-04p', date:'2026.10.04', title:'업데이트 안내', items:[
+  '만렙이 Lv.100으로 바뀌었어요',
+  '마당에 🎪 이벤트 상점이 생겼어요! 이벤트 코인으로 뽑기와 뽑기 캡슐 스킨을 살 수 있어요',
   '꾸미기 버튼을 누르면 코끼리 아래에 입고 있는 것, 위치·크기 바꾸기 메뉴가 떠요',
   '새 머리 장식 8종과 의상 10종이 추가됐어요! 뽑기와 옷장에서 만나요',
   '요리창에 도감이 생겼어요! 아직 못 만든 요리는 ❓로 나와요',
@@ -1686,6 +1704,68 @@ function rdPull(){
   });
 }
 $('rdPull').addEventListener('click',rdPull);
+
+/* ---------- 이벤트 상점 ---------- */
+var GSKINS=[
+  {id:'pink',name:'기본 분홍',fill:'#FF8FB1',edge:'#E4678F',cost:0},
+  {id:'mint',name:'민트 캡슐',fill:'#6FD6B0',edge:'#3FAE86',cost:40},
+  {id:'gold',name:'황금 캡슐',fill:'#FFC845',edge:'#D99A00',cost:60},
+  {id:'sky',name:'하늘 캡슐',fill:'#7DBBFF',edge:'#4A8FE0',cost:40},
+  {id:'purple',name:'보라 캡슐',fill:'#B994F2',edge:'#8A5FD0',cost:40}
+];
+var EV_COST_ITEM=30, EV_COST_ROOM=30;
+function gSkin(){ return GSKINS.filter(function(g){ return g.id===S.gskin; })[0]||GSKINS[0]; }
+function gFill(){ return gSkin().fill; }
+function applyGskin(){ var p=$('gTop').querySelector('path'); p.setAttribute('fill',gSkin().fill); p.setAttribute('stroke',gSkin().edge); $('gachaBtn').style.background=gSkin().fill; }
+function weightedPick(items){
+  var tot=0; items.forEach(function(it){ tot+=TIERS[it.tier].w/ items.filter(function(x){ return x.tier===it.tier; }).length; });
+  var r=Math.random()*tot, last=items[items.length-1];
+  for(var i=0;i<items.length;i++){ r-=TIERS[items[i].tier].w/items.filter(function(x){ return x.tier===items[i].tier; }).length; if(r<0) return items[i]; }
+  return last;
+}
+var evNote=$('evNote');
+function evDraw(){
+  S.gskins=S.gskins||['pink']; S.gskin=S.gskin||'pink';
+  var bal=S.ev|0; $('evBal').textContent=bal;
+  var box=$('evList'); box.innerHTML='';
+  function row(em,nm,ef,btn,dis,fn){
+    var r=document.createElement('div'); r.className='ckrow evrow';
+    r.innerHTML='<div class="em">'+em+'</div><div><div class="nm">'+nm+'</div><div class="ef">'+ef+'</div></div><div class="ctl"><button class="go2">'+btn+'</button></div>';
+    var b=r.querySelector('button'); b.disabled=!!dis; b.addEventListener('click',fn); box.appendChild(r);
+  }
+  function head(t){ var h=document.createElement('div'); h.className='evh'; h.textContent=t; box.appendChild(h); }
+  head('뽑기');
+  var itemLeft=SHOP.filter(function(it){ return S.owned.indexOf(it.id)<0; });
+  row('🎁','꾸미기 아이템 뽑기','아직 없는 꾸미기 아이템 1개 (겹치지 않아요)', itemLeft.length?EV_COST_ITEM+'🎟️':'다 모음', !itemLeft.length||bal<EV_COST_ITEM, function(){
+    var pool=SHOP.filter(function(it){ return S.owned.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_ITEM) return;
+    S.ev-=EV_COST_ITEM; var it=weightedPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
+    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
+  var roomLeft=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; });
+  row('🛋️','방 꾸미기 뽑기','아직 없는 방 아이템 1개 (겹치지 않아요)', roomLeft.length?EV_COST_ROOM+'🎟️':'다 모음', !roomLeft.length||bal<EV_COST_ROOM, function(){
+    var pool=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_ROOM) return;
+    S.ev-=EV_COST_ROOM; var it=weightedPick(pool); S.rd.own.push(it.id);
+    if(it.kind==='wallpaper') S.rd.wall=it.id; else if(it.kind==='floor') S.rd.floor=it.id; else rdPlace(it);
+    commit(); rdRender(); sfx.up(); evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 방에 놓았어요'; evDraw(); });
+  head('뽑기 캡슐 스킨');
+  GSKINS.forEach(function(g){
+    var own=S.gskins.indexOf(g.id)>=0, on=S.gskin===g.id;
+    row('<div class="sk" style="background:'+g.fill+'"></div>',g.name,on?'지금 쓰는 중':(own?'가지고 있어요':'뽑기 기계 캡슐 색이 바뀌어요'), on?'사용 중':(own?'사용하기':g.cost+'🎟️'), on||(!own&&bal<g.cost), function(){
+      if(!own){ if((S.ev|0)<g.cost) return; S.ev-=g.cost; S.gskins.push(g.id); }
+      S.gskin=g.id; applyGskin(); commit(); sfx.up(); evNote.textContent=g.name+'을(를) '+(own?'쓰고 있어요!':'샀어요! 바로 적용했어요'); evDraw(); });
+  });
+}
+$('evBtn').addEventListener('click',function(){
+  if(S.sleeping){ say('쉿, 자고 있어요. 깨워 주세요.'); return; }
+  endPet(); tray.hidden=true; evNote.textContent=''; evDraw(); $('evWrap').hidden=false;
+});
+$('evClose').addEventListener('click',function(){ $('evWrap').hidden=true; });
+$('evWrap').addEventListener('pointerdown',function(e){ if(e.target===$('evWrap')) $('evWrap').hidden=true; });
+/* 테스트용: 이벤트 코인 표시를 5번 누르면 300개 */
+(function(){ var n=0, t=null, ch=$('evChip'); ch.style.cursor='pointer';
+  ch.addEventListener('click',function(){ n++; clearTimeout(t); t=setTimeout(function(){ n=0; },2500);
+    if(n>=5){ n=0; S.ev=(S.ev|0)+300; commit(); say('테스트 이벤트 코인 +300!'); } });
+})();
+applyGskin();
 
 $('roomBtn').addEventListener('click',function(){ S.room=!S.room; sfx.up&&sfx.up(); commit(); say(S.room?'방 안이 포근해요!':'마당이 시원해요!',2200); });
 function popCoin(){
@@ -2082,7 +2162,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={gems:S.gems,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
@@ -2450,7 +2530,7 @@ function gachaPull(){
   var it=rollItem(), dup=S.owned.indexOf(it.id)>=0, tr=it.tier;
   var cap=$('gCap'), top=$('gTop'), bot=$('gBot'), res=$('gRes'), stage=$('gStage');
   stage.classList.remove('t2','t3'); $('gFx').innerHTML='';
-  top.querySelector('path').setAttribute('fill','#FF8FB1');
+  top.querySelector('path').setAttribute('fill',gFill());
   res.style.opacity=0; res.innerHTML='<use href="#g-'+it.id+'"/>'; res.setAttribute('viewBox',it.vb);
   renderGacha('데구르르... 뭐가 나올까요?');
   $('gachaBtn').disabled=true;
@@ -2802,7 +2882,7 @@ $('walkBtn').addEventListener('click',function(){ if(S.room){ say('방 안에서
 $('hospBtn').addEventListener('click',function(){ endPet(); hospital(); });
 $('schoolBtn').addEventListener('click',function(){ endPet(); school(); });
 $('sleepBtn').addEventListener('click',function(){ endPet(); if(S.sleeping) wake(); else startSleep(); });
-function openShop(){ endPet(); tray.hidden=true; gBusy=false; $('gStage').classList.remove('t2','t3'); $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').querySelector('path').setAttribute('fill','#FF8FB1'); $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; }
+function openShop(){ endPet(); tray.hidden=true; gBusy=false; $('gStage').classList.remove('t2','t3'); $('gRes').style.opacity=0; $('gCap').style.opacity=1; $('gTop').querySelector('path').setAttribute('fill',gFill()); $('gTop').getAnimations().concat($('gBot').getAnimations()).forEach(function(x){x.cancel();}); renderShop(); renderColors(); renderGacha(); $('shopWrap').hidden=false; }
 function decoPos(){ var r=scene.getBoundingClientRect(); var pop=$('decoPop'); pop.style.top=Math.min(window.innerHeight-90, Math.round(r.bottom+10))+'px'; }
 function decoHide(){ $('decoPop').hidden=true; }
 $('decorBtn').addEventListener('click',function(e){ e.stopPropagation(); if(!$('decoPop').hidden){ decoHide(); return; } endPet(); tray.hidden=true; decoPos(); $('decoPop').hidden=false; });
