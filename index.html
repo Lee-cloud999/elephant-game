@@ -407,6 +407,7 @@ button.prow{cursor:pointer}
 .stile .prev{width:100%; height:64px; background:none; border-radius:0}
 .stile b{font-weight:400; font-family:var(--font-display); font-size:14px; line-height:1.2; text-align:center}
 .stile .rar{margin:0; font-size:11px; padding:0 7px}
+.evb{display:inline-block; margin-top:1px; padding:1px 8px; border-radius:10px; font-size:11px; background:#FFE9F1; color:#C2336B; border:1.5px solid #FFB3CE; line-height:1.4; white-space:nowrap}
 .stile .st{font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:3px; font-variant-numeric:tabular-nums; text-align:center; line-height:1.2; margin-top:2px}
 .stile .st .ico{width:14px; height:14px}
 .stile .st.cost{color:#8A6A00; font-size:14px}
@@ -1799,7 +1800,7 @@ function evDraw(){
   row('🎃','이벤트 한정 의상 뽑기','한정 의상 '+(EVO_N-evoLeft.length)+'/'+EVO_N+' · 시크릿 각 3% · 10번째 뽑기는 시크릿 확정'+(evoLeft.some(function(x){return x.tier===3;})?' ('+Math.min(EVO_PITY,(S.evPity|0))+'/'+EVO_PITY+')':''), evoLeft.length?EV_COST_EVO+'🎟️':'다 모음', !evoLeft.length||bal<EV_COST_EVO, function(){
     var pool=SHOP.filter(function(it){ return it.evo && S.owned.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_EVO) return;
     S.ev-=EV_COST_EVO; var it=evoPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
-    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
+    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> <span class="evb">🎪 이벤트 한정</span> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
   var roomLeft=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; });
   row('🛋️','방 꾸미기 뽑기','아직 없는 방 아이템 1개 (겹치지 않아요)', roomLeft.length?EV_COST_ROOM+'🎟️':'다 모음', !roomLeft.length||bal<EV_COST_ROOM, function(){
     var pool=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_ROOM) return;
@@ -2087,7 +2088,7 @@ function renderShop(){
     if(!owned && !buyable) status='<small class="st lk">뽑기 전용</small>';
     else if(!owned) status='<small class="st cost"><svg class="ico"><use href="#i-coin"/></svg>'+it.cost+'</small>';
     else status='<small class="st '+(worn?'on':'')+'">'+(worn?'입는 중 · 눌러서 벗기':'눌러서 입기')+'</small>';
-    tile.innerHTML='<svg class="prev" viewBox="'+it.vb+'" aria-hidden="true"><use href="#g-'+it.id+'"/></svg><b>'+it.name+'</b><span class="rar r'+it.tier+'">'+TIERS[it.tier].name+'</span>'+status;
+    tile.innerHTML='<svg class="prev" viewBox="'+it.vb+'" aria-hidden="true"><use href="#g-'+it.id+'"/></svg><b>'+it.name+'</b><span class="rar r'+it.tier+'">'+TIERS[it.tier].name+'</span>'+(it.evo?'<span class="evb">🎪 이벤트 한정</span>':'')+status;
     if(!owned && !buyable) tile.disabled=true;
     tile.addEventListener('click',function(){
       if(owned){ buySel=null; wear(it); return; }
