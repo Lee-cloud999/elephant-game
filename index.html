@@ -2477,9 +2477,9 @@ function startEdit(){
 function endEdit(){
   editing=false; edDrag=null; edPts={}; edPinch=null; scene.classList.remove('editing'); $('editWrap').hidden=true; applyAcc();
 }
-function zoomBy(f){
+function zoomBy(d){
   if(!edSel) return;
-  var a=adjOf(draft,edSel); a.s=Math.min(ZMAX,Math.max(ZMIN,Math.round(a.s*f*100)/100)); draft[edSel]=a;
+  var a=adjOf(draft,edSel); a.s=Math.min(ZMAX,Math.max(ZMIN,Math.round((a.s+d)*100)/100)); draft[edSel]=a;
   sfx.pop(); applyAcc(); renderEdit();
 }
 function rotBy(d){
@@ -2539,8 +2539,8 @@ function holdRepeat(btn,fn){
 }
 holdRepeat($('rLeft'),function(){ rotBy(-5); });
 holdRepeat($('rRight'),function(){ rotBy(5); });
-$('zMinus').addEventListener('click',function(){ zoomBy(1/1.12); });
-$('zPlus').addEventListener('click',function(){ zoomBy(1.12); });
+holdRepeat($('zMinus'),function(){ zoomBy(-.01); });
+holdRepeat($('zPlus'),function(){ zoomBy(.01); });
 $('zReset').addEventListener('click',function(){ if(!edSel) return; delete draft[edSel]; sfx.pop(); applyAcc(); renderEdit(); });
 $('edCancel').addEventListener('click',function(){ endEdit(); });
 $('edSave').addEventListener('click',function(){
