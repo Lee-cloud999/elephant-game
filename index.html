@@ -136,7 +136,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #5B7CFA; outline-offs
 .act:active{transform:translateY(4px); box-shadow:0 0 0 var(--edge)}
 .act svg{width:28px; height:28px}
 .act{position:relative}
-#hospBtn.alert::after,#phoneBtn.alert::after{content:''; position:absolute; top:6px; right:10px; width:12px; height:12px; border-radius:50%; background:#E5484D; box-shadow:0 0 0 3px #FFE0E0; animation:pulse 1s ease-in-out infinite}
+#hospBtn.alert::after,#phoneBtn.alert::after,#msnBtn.alert::after{content:''; position:absolute; top:6px; right:10px; width:12px; height:12px; border-radius:50%; background:#E5484D; box-shadow:0 0 0 3px #FFE0E0; animation:pulse 1s ease-in-out infinite}
 
 /* 핸드폰 */
 .sheet.phsheet{background:#2A3566; padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px)); gap:6px; color:#fff; min-height:0; max-height:50%}
@@ -498,6 +498,23 @@ img,image,svg,canvas{-webkit-touch-callout:none; -webkit-user-drag:none; user-se
 .rvok{margin-top:6px; border:0; border-radius:18px; padding:13px 40px; font-size:19px; background:#FFE08A; color:#5E4600; box-shadow:0 4px 0 #D9B24A; cursor:pointer; animation:rvup .5s ease-out 1s both}
 @keyframes rvup{from{transform:translateY(14px); opacity:0}to{transform:none; opacity:1}}
 #evRv.sec .rvimg{filter:drop-shadow(0 0 22px #FFD54F) drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+
+.msncard{display:flex; flex-direction:column; gap:10px; text-align:center; max-width:360px; width:calc(100% - 24px)}
+.msnlist{display:flex; flex-direction:column; gap:7px}
+.msnrow{display:flex; align-items:center; gap:10px; text-align:left; padding:10px 12px; border-radius:16px; background:#F5F8FF; border:2px solid transparent; font-size:16px}
+.msnrow .ck{flex:none; width:28px; height:28px; border-radius:50%; border:3px solid #C9D2EE; background:#fff; display:grid; place-items:center; color:#fff; font-size:17px; line-height:1}
+.msnrow .tx{flex:1; min-width:0} .msnrow .tx small{display:block; font-size:12px; color:var(--ink-soft)}
+.msnrow.done{background:#E6F6EA; border-color:#BFE5CB} .msnrow.done .ck{background:#3DB36B; border-color:#3DB36B} .msnrow.done .tx b{text-decoration:line-through; text-decoration-color:#7BC596; font-weight:400; color:var(--ink-soft)}
+.msnrew{display:flex; align-items:center; justify-content:center; gap:14px; padding:10px 0 2px}
+.msnstars{display:flex; gap:6px}
+.msnstars span{font-size:38px; line-height:1; filter:grayscale(1) opacity(.35); transition:filter .3s, transform .3s}
+.msnstars span.on{filter:none; transform:scale(1.08); animation:starpop .5s ease-out}
+@keyframes starpop{0%{transform:scale(.4)}60%{transform:scale(1.4)}100%{transform:scale(1.08)}}
+.msngift{border:0; background:#EEF0F8; border-radius:20px; width:68px; height:68px; font-size:38px; line-height:1; filter:grayscale(1) opacity(.45); cursor:default; transition:filter .3s}
+.msngift.ready{filter:none; background:linear-gradient(135deg,#FFE08A,#FFB8D1); cursor:pointer; box-shadow:0 0 0 4px #FFF3C4,0 4px 0 #E0A93C; animation:giftbob 1s ease-in-out infinite}
+.msngift.got{filter:none; opacity:.5; background:#E6F6EA}
+@keyframes giftbob{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.1)}}
+.msnhint{font-size:14px; color:var(--ink-soft); min-height:20px}
 </style>
 <style>
 :root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -710,6 +727,7 @@ body{margin:0}
     <button class="act" id="schoolBtn" style="--bg:#C9F0EA;--edge:#8ED3C8;--fg:#1B5F57"><svg><use href="#i-school"/></svg>학교</button>
     <button class="act" id="hospBtn" style="--bg:#FFE3E3;--edge:#F2A9A9;--fg:#8A2A2A"><svg><use href="#i-cross"/></svg>병원</button>
     <button class="act" id="decorBtn" style="--bg:#FFD6E6;--edge:#F0A1C0;--fg:#8A2C55"><svg><use href="#i-bow"/></svg>꾸미기</button>
+    <button class="act" id="msnBtn" style="--bg:#FFF0C2;--edge:#EBCB6B;--fg:#6B4E00"><span style="font-size:26px;line-height:26px">📋</span>일일과제</button>
     <button class="act" id="phoneBtn" style="--bg:#D9E4FF;--edge:#9DB5EE;--fg:#27428A"><svg viewBox="0 0 48 48"><rect x="13" y="4" width="22" height="40" rx="5" fill="#5B7BD5" stroke="#27428A" stroke-width="2.5"/><rect x="16.5" y="9" width="15" height="25" rx="2" fill="#E8F0FF"/><circle cx="24" cy="39" r="2.3" fill="#E8F0FF"/></svg>핸드폰</button>
   </nav>
 </main>
@@ -757,6 +775,17 @@ body{margin:0}
     <div class="cklist" id="evList"></div>
     <div class="cknote" id="evNote" role="status" aria-live="polite"></div>
     <button class="ghost" id="evClose">닫기</button>
+  </div>
+</div>
+
+<div class="wrap center" id="msnWrap" hidden>
+  <div class="card msncard" role="dialog" aria-labelledby="msnTitle">
+    <h2 id="msnTitle">📋 일일과제</h2>
+    <div class="attsub">오늘 할 일을 하면 별이 채워져요. 별 3개를 모으면 선물을 받아요!</div>
+    <div class="msnlist" id="msnList"></div>
+    <div class="msnrew"><div class="msnstars" id="msnStars"></div><button class="msngift" id="msnGift" aria-label="선물 받기">🎁</button></div>
+    <div class="msnhint" id="msnHint"></div>
+    <button class="ghost" id="msnClose">닫기</button>
   </div>
 </div>
 
@@ -1384,7 +1413,7 @@ function render(){
   $('stageText').textContent=stageName(L)+(S.sick?' · 아파요':'');
   $('stageText').classList.toggle('sick', !!S.sick);
   $('hospBtn').classList.toggle('alert', !!S.sick);
-  ensureSms(); $('phoneBtn').classList.toggle('alert', unread()>0);
+  ensureSms(); $('phoneBtn').classList.toggle('alert', unread()>0); (function(){ var m=msnGet(); $('msnBtn').classList.toggle('alert', msnCnt()>=3&&!m.claimed); })();
   eleWrap.style.setProperty('--s', lvScale(L));
   $('lvText').textContent=maxed?'Lv.MAX':'Lv.'+L; $('lvText').classList.toggle('max', maxed);
   if(!maxed){
@@ -1590,8 +1619,9 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-05e', date:'2026.10.05', title:'업데이트 안내', items:[
-  '이벤트재화를 얻는 방법이 늘었어요! 오늘의 미션(밥 먹이기·씻기·쓰다듬기 10번) +5, 레벨업 +1 (5레벨마다 +3, 10레벨마다 +10), 학교 +2, 산책 +1 (하루 3번까지)',
+var NOTICE={id:'2026-10-05f', date:'2026.10.05', title:'업데이트 안내', items:[
+  '메인 메뉴에 📋 일일과제가 생겼어요! 밥 먹이기·씻기·쓰다듬기를 하면 별이 채워지고, 별 3개를 모으면 🎁 선물로 이벤트재화 5개를 받아요',
+  '이벤트재화는 레벨업(+1, 5레벨마다 +3, 10레벨마다 +10), 학교 +2, 산책 +1(하루 3번)로도 얻어요',
   '🎪 이벤트 상점에 이벤트 한정 의상 8종이 생겼어요! 이벤트재화로 뽑아요 (시크릿 3종은 각 3%, 10번째 뽑기는 시크릿 확정)',
   '새 의상 4종이 나왔어요! 분홍 꽃 한복, 호박 별, 파란 꽃 리본, 네이비 진주 원피스',
   '꾸미기에서 위치·크기를 바꿀 때 두 손가락으로 벌리면 커지고 오므리면 작아져요',
@@ -1815,9 +1845,6 @@ function evDraw(){
     var b=r.querySelector('button'); b.disabled=!!dis; b.addEventListener('click',fn); box.appendChild(r);
   }
   function head(t){ var h=document.createElement('div'); h.className='evh'; h.textContent=t; box.appendChild(h); }
-  head('오늘의 미션');
-  var mg=msnGet();
-  row('✅','밥 먹이기 · 씻기 · 쓰다듬기','밥 '+(mg.eat?'✔':'✘')+' · 씻기 '+(mg.wash?'✔':'✘')+' · 쓰다듬기 '+Math.min(mg.petN,MSN_PET)+'/'+MSN_PET+' → 이벤트재화 +'+MSN_EV, mg.done?'받음 ✔':'진행 중', true, function(){});
   head('뽑기');
   var itemLeft=SHOP.filter(function(it){ return !it.evo && S.owned.indexOf(it.id)<0; });
   row('🎁','꾸미기 아이템 뽑기','아직 없는 꾸미기 아이템 1개 (겹치지 않아요)', itemLeft.length?EV_COST_ITEM+'🎟️':'다 모음', !itemLeft.length||bal<EV_COST_ITEM, function(){
@@ -1854,6 +1881,25 @@ function evReveal(it,sub,isEvo){
 }
 function evRvClose(){ $('evRv').hidden=true; }
 $('evRv').addEventListener('click',function(e){ if(e.target.closest('.rvok')||e.target===$('evRv')||e.target.classList.contains('rvbox')) evRvClose(); });
+
+/* ---------- 일일과제 ---------- */
+function msnDraw(){
+  var m=msnGet(), n=msnCnt(), L=$('msnList'); L.innerHTML='';
+  [['🍌','밥 먹이기',m.eat,'먹이를 한 번 주면 돼요'],['🛁','씻기',m.wash,'샤워를 한 번 시켜 줘요'],['🤚','쓰다듬기 '+MSN_PET+'번',m.petN>=MSN_PET,'지금 '+Math.min(m.petN,MSN_PET)+'/'+MSN_PET+'번']].forEach(function(t){
+    var r=document.createElement('div'); r.className='msnrow'+(t[2]?' done':'');
+    r.innerHTML='<div class="ck">'+(t[2]?'✔':'')+'</div><div class="tx"><b>'+t[0]+' '+t[1]+'</b><small>'+t[3]+'</small></div>'; L.appendChild(r); });
+  var st=$('msnStars'); st.innerHTML=''; for(var i=0;i<3;i++){ var sp=document.createElement('span'); sp.textContent='⭐'; if(i<n) sp.className='on'; st.appendChild(sp); }
+  var g=$('msnGift'); g.className='msngift'+(m.claimed?' got':(n>=3?' ready':''));
+  $('msnHint').textContent=m.claimed?'오늘 선물을 받았어요! 내일 또 만나요':(n>=3?'🎁를 눌러서 이벤트재화 '+MSN_EV+'개를 받아요':'별 3개를 모으면 🎁가 열려요');
+}
+$('msnBtn').addEventListener('click',function(){ if(S.sleeping){ say('쉿, 자고 있어요. 깨워 주세요.'); return; } endPet(); tray.hidden=true; msnDraw(); $('msnWrap').hidden=false; });
+$('msnClose').addEventListener('click',function(){ $('msnWrap').hidden=true; });
+$('msnWrap').addEventListener('pointerdown',function(e){ if(e.target===$('msnWrap')) $('msnWrap').hidden=true; });
+$('msnGift').addEventListener('click',function(){
+  var m=msnGet(); if(m.claimed||msnCnt()<3) return;
+  m.claimed=true; S.ev=(S.ev|0)+MSN_EV; commit(); sfx.up&&sfx.up(); confetti(); msnDraw();
+  $('msnHint').textContent='이벤트재화 +'+MSN_EV+' 받았어요! 🎟️';
+});
 $('evBtn').addEventListener('click',function(){
   if(S.sleeping){ say('쉿, 자고 있어요. 깨워 주세요.'); return; }
   endPet(); tray.hidden=true; evNote.textContent=''; evDraw(); $('evWrap').hidden=false;
@@ -1883,14 +1929,13 @@ function addXp(n){
 }
 /* 오늘의 미션: 밥 먹이기 + 씻기 + 쓰다듬기 10번 → 이벤트재화 5 */
 var MSN_EV=5, MSN_PET=10, WALK_EV=1, WALK_EV_MAX=3, SCHOOL_EV=2;
-function msnGet(){ var d=dayKey(); if(!S.msn||S.msn.d!==d) S.msn={d:d,eat:false,wash:false,petN:0,done:false}; return S.msn; }
+function msnGet(){ var d=dayKey(); if(!S.msn||S.msn.d!==d) S.msn={d:d,eat:false,wash:false,petN:0,done:false,claimed:false}; if(S.msn.done&&S.msn.claimed===undefined) S.msn.claimed=true; return S.msn; }
+function msnCnt(){ var m=msnGet(); return (m.eat?1:0)+(m.wash?1:0)+(m.petN>=MSN_PET?1:0); }
 function msnMark(k){
-  var m=msnGet();
+  var m=msnGet(), before=msnCnt();
   if(k==='pet'){ if(m.petN>=MSN_PET) return; m.petN++; } else { if(m[k]) return; m[k]=true; }
-  if(!m.done && m.eat && m.wash && m.petN>=MSN_PET){
-    m.done=true; S.ev=(S.ev|0)+MSN_EV;
-    setTimeout(function(){ say('오늘의 미션 완료! 이벤트재화 +'+MSN_EV, 3600); sfx.up&&sfx.up(); commit(); },k==='pet'?200:900);
-  }
+  var after=msnCnt();
+  if(after>before){ setTimeout(function(){ say(after>=3?'일일과제를 모두 했어요! 🎁 선물을 받아 가요':'일일과제 '+after+'/3 완료! ⭐', 3200); sfx.pop&&sfx.pop(); commit(); },k==='pet'?200:900); }
 }
 function walkEvGive(){ var d=dayKey(); if(!S.evDay||S.evDay.d!==d) S.evDay={d:d,walk:0}; if(S.evDay.walk>=WALK_EV_MAX) return 0; S.evDay.walk++; S.ev=(S.ev|0)+WALK_EV; return WALK_EV; }
 function confetti(){
