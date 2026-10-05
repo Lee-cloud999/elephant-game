@@ -471,6 +471,33 @@ button.prow{cursor:pointer}
   .breathe,.cloud,.stars circle,#docArm,#doc,.walking #strip{animation:none}
 }
 img,image,svg,canvas{-webkit-touch-callout:none; -webkit-user-drag:none; user-select:none}
+
+/* 뽑기 결과 크게 보기 */
+#evRv{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(14,18,48,.82); overflow:hidden; animation:rvfade .25s ease-out}
+#evRv[hidden]{display:none}
+@keyframes rvfade{from{opacity:0}to{opacity:1}}
+.rvbox{position:relative; width:min(88vw,420px); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; color:#fff}
+.rvrays{position:absolute; left:50%; top:42%; width:150vmax; height:150vmax; margin:-75vmax 0 0 -75vmax; border-radius:50%; opacity:.55; animation:rvspin 14s linear infinite; pointer-events:none;
+  background:repeating-conic-gradient(from 0deg, var(--c) 0 7deg, transparent 7deg 20deg); -webkit-mask:radial-gradient(circle,#000 0,#000 8%,transparent 38%); mask:radial-gradient(circle,#000 0,#000 8%,transparent 38%)}
+#evRv.sec .rvrays{background:repeating-conic-gradient(from 0deg,#FF6F91 0 5deg,#FFD54F 5deg 10deg,#7FCB6F 10deg 15deg,#5EBBF0 15deg 20deg,#B455FF 20deg 25deg,transparent 25deg 30deg)}
+@keyframes rvspin{to{transform:rotate(360deg)}}
+.rvglow{position:absolute; left:50%; top:42%; width:min(80vw,380px); height:min(80vw,380px); margin:calc(min(80vw,380px)/-2) 0 0 calc(min(80vw,380px)/-2); border-radius:50%; background:radial-gradient(circle,var(--c) 0,transparent 68%); opacity:.85; animation:rvpulse 1.6s ease-in-out infinite; pointer-events:none}
+@keyframes rvpulse{50%{transform:scale(1.15); opacity:.55}}
+.rvimgw{position:relative; width:min(78vw,360px); height:min(62vw,290px); display:flex; align-items:center; justify-content:center}
+.rvimg{max-width:100%; max-height:100%; object-fit:contain; filter:drop-shadow(0 8px 18px rgba(0,0,0,.45)); animation:rvpop .9s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes rvpop{0%{transform:scale(.1) rotate(-25deg); opacity:0}55%{transform:scale(1.22) rotate(6deg); opacity:1}100%{transform:scale(1) rotate(0)}}
+.rvimg.float{animation:rvpop .9s cubic-bezier(.2,1.5,.4,1) both, rvfloat 2.4s ease-in-out .9s infinite}
+@keyframes rvfloat{50%{transform:translateY(-10px) scale(1.03)}}
+.rvspk{position:absolute; left:50%; top:42%; width:var(--sz); height:var(--sz); margin:calc(var(--sz)/-2) 0 0 calc(var(--sz)/-2); background:var(--k); clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%); opacity:0; animation:rvspk var(--d) ease-out var(--dl) infinite; pointer-events:none}
+@keyframes rvspk{0%{transform:translate(0,0) scale(0) rotate(0); opacity:1}70%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1) rotate(180deg); opacity:0}}
+.rvtag{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; animation:rvup .5s ease-out .5s both}
+.rvtag .rar{font-size:15px; padding:3px 14px}
+.rvtag .evb{font-size:14px; padding:2px 12px; margin:0}
+.rvname{font-family:var(--font-display); font-size:26px; line-height:1.25; text-shadow:0 2px 10px rgba(0,0,0,.5); animation:rvup .5s ease-out .65s both}
+.rvsub{font-size:15px; opacity:.9; animation:rvup .5s ease-out .8s both}
+.rvok{margin-top:6px; border:0; border-radius:18px; padding:13px 40px; font-size:19px; background:#FFE08A; color:#5E4600; box-shadow:0 4px 0 #D9B24A; cursor:pointer; animation:rvup .5s ease-out 1s both}
+@keyframes rvup{from{transform:translateY(14px); opacity:0}to{transform:none; opacity:1}}
+#evRv.sec .rvimg{filter:drop-shadow(0 0 22px #FFD54F) drop-shadow(0 8px 18px rgba(0,0,0,.45))}
 </style>
 <style>
 :root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -723,6 +750,7 @@ body{margin:0}
   </div>
 </div>
 
+<div id="evRv" hidden><div class="rvrays"></div><div class="rvglow"></div><div class="rvbox" id="evRvBox"></div></div>
 <div class="wrap bottom" id="evWrap" hidden>
   <div class="sheet cooksheet" role="dialog" aria-labelledby="evTitle">
     <div class="sheet-head"><h2 id="evTitle">🎪 이벤트 상점</h2><span class="ckcoin">🎟️ <b id="evBal">0</b></span></div>
@@ -1795,19 +1823,37 @@ function evDraw(){
   row('🎁','꾸미기 아이템 뽑기','아직 없는 꾸미기 아이템 1개 (겹치지 않아요)', itemLeft.length?EV_COST_ITEM+'🎟️':'다 모음', !itemLeft.length||bal<EV_COST_ITEM, function(){
     var pool=SHOP.filter(function(it){ return !it.evo && S.owned.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_ITEM) return;
     S.ev-=EV_COST_ITEM; var it=weightedPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
-    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
+    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); evReveal(it,'새로 얻어서 바로 입혀 줬어요',false); });
   var evoLeft=SHOP.filter(function(it){ return it.evo && S.owned.indexOf(it.id)<0; });
   row('🎃','이벤트 한정 의상 뽑기','한정 의상 '+(EVO_N-evoLeft.length)+'/'+EVO_N+' · 시크릿 각 3% · 10번째 뽑기는 시크릿 확정'+(evoLeft.some(function(x){return x.tier===3;})?' ('+Math.min(EVO_PITY,(S.evPity|0))+'/'+EVO_PITY+')':''), evoLeft.length?EV_COST_EVO+'🎟️':'다 모음', !evoLeft.length||bal<EV_COST_EVO, function(){
     var pool=SHOP.filter(function(it){ return it.evo && S.owned.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_EVO) return;
     S.ev-=EV_COST_EVO; var it=evoPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
-    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> <span class="evb">🎪 이벤트 한정</span> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
+    evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> <span class="evb">🎪 이벤트 한정</span> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); evReveal(it,'새로 얻어서 바로 입혀 줬어요',true); });
   var roomLeft=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; });
   row('🛋️','방 꾸미기 뽑기','아직 없는 방 아이템 1개 (겹치지 않아요)', roomLeft.length?EV_COST_ROOM+'🎟️':'다 모음', !roomLeft.length||bal<EV_COST_ROOM, function(){
     var pool=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_ROOM) return;
     S.ev-=EV_COST_ROOM; var it=weightedPick(pool); S.rd.own.push(it.id);
     if(it.kind==='wallpaper') S.rd.wall=it.id; else if(it.kind==='floor') S.rd.floor=it.id; else rdPlace(it);
-    commit(); rdRender(); sfx.up(); evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 방에 놓았어요'; evDraw(); });
+    commit(); rdRender(); sfx.up(); evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 방에 놓았어요'; evDraw(); evReveal(it,'새로 얻어서 방에 놓았어요',false); });
 }
+
+function evReveal(it,sub,isEvo){
+  var rv=$('evRv'), box=$('evRvBox'), tr=it.tier, col=TIER_COL[tr]||'#FFB300';
+  rv.style.setProperty('--c',col); rv.className=tr>=3?'sec':'';
+  box.innerHTML='<div class="rvimgw"><img class="rvimg" alt="" src="'+it.file+'"></div><div class="rvtag"><span class="rar r'+tr+'">'+TIERS[tr].name+'</span>'+(isEvo?'<span class="evb">🎪 이벤트 한정</span>':'')+'</div><div class="rvname"></div><div class="rvsub"></div><button class="rvok">확인</button>';
+  box.querySelector('.rvname').textContent=it.name; box.querySelector('.rvsub').textContent=sub;
+  var im=box.querySelector('.rvimg'); setTimeout(function(){ im.classList.add('float'); },950);
+  rv.querySelectorAll('.rvspk').forEach(function(n){ n.remove(); });
+  var n=tr>=3?26:(tr>=2?20:14), cols=tr>=3?['#FF6F91','#FFD54F','#7FCB6F','#5EBBF0','#B455FF']:['#FFD54F','#FFF3B0',col];
+  for(var i=0;i<n;i++){ var a=Math.random()*6.283, d=110+Math.random()*190, sp=document.createElement('i'); sp.className='rvspk';
+    sp.style.cssText='--sz:'+(10+Math.random()*16)+'px;--k:'+cols[i%cols.length]+';--x:'+Math.round(Math.cos(a)*d)+'px;--y:'+Math.round(Math.sin(a)*d)+'px;--d:'+(1.1+Math.random()*1.1)+'s;--dl:'+(Math.random()*1.4)+'s';
+    rv.appendChild(sp); }
+  rv.hidden=false;
+  try{ sfx.up(); if(tr>=2) [1047,1319,1568].forEach(function(f,i){ tone(f,f,.25,'triangle',.07,.4+i*.12); }); if(tr>=3) [1568,1760,2093,2349].forEach(function(f,i){ tone(f,f,.3,'sine',.05,.8+i*.12); }); }catch(e){}
+  if(tr>=2) confetti();
+}
+function evRvClose(){ $('evRv').hidden=true; }
+$('evRv').addEventListener('click',function(e){ if(e.target.closest('.rvok')||e.target===$('evRv')||e.target.classList.contains('rvbox')) evRvClose(); });
 $('evBtn').addEventListener('click',function(){
   if(S.sleeping){ say('쉿, 자고 있어요. 깨워 주세요.'); return; }
   endPet(); tray.hidden=true; evNote.textContent=''; evDraw(); $('evWrap').hidden=false;
