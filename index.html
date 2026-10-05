@@ -1561,7 +1561,8 @@ setTimeout(wxAuto,1500); setInterval(wxAuto,10*60000);
 })();
 
 /* 업데이트 공지: 항상 최신 공지 하나만 보여요. 새 공지를 올릴 때는 NOTICE의 id를 바꾸면 다시 떠요 */
-var NOTICE={id:'2026-10-05d', date:'2026.10.05', title:'업데이트 안내', items:[
+var NOTICE={id:'2026-10-05e', date:'2026.10.05', title:'업데이트 안내', items:[
+  '이벤트재화를 얻는 방법이 늘었어요! 오늘의 미션(밥 먹이기·씻기·쓰다듬기 10번) +5, 레벨업 +1 (5레벨마다 +3, 10레벨마다 +10), 학교 +2, 산책 +1 (하루 3번까지)',
   '🎪 이벤트 상점에 이벤트 한정 의상 8종이 생겼어요! 이벤트재화로 뽑아요 (시크릿 3종은 각 3%, 10번째 뽑기는 시크릿 확정)',
   '새 의상 4종이 나왔어요! 분홍 꽃 한복, 호박 별, 파란 꽃 리본, 네이비 진주 원피스',
   '꾸미기에서 위치·크기를 바꿀 때 두 손가락으로 벌리면 커지고 오므리면 작아져요',
@@ -1785,6 +1786,9 @@ function evDraw(){
     var b=r.querySelector('button'); b.disabled=!!dis; b.addEventListener('click',fn); box.appendChild(r);
   }
   function head(t){ var h=document.createElement('div'); h.className='evh'; h.textContent=t; box.appendChild(h); }
+  head('오늘의 미션');
+  var mg=msnGet();
+  row('✅','밥 먹이기 · 씻기 · 쓰다듬기','밥 '+(mg.eat?'✔':'✘')+' · 씻기 '+(mg.wash?'✔':'✘')+' · 쓰다듬기 '+Math.min(mg.petN,MSN_PET)+'/'+MSN_PET+' → 이벤트재화 +'+MSN_EV, mg.done?'받음 ✔':'진행 중', true, function(){});
   head('뽑기');
   var itemLeft=SHOP.filter(function(it){ return !it.evo && S.owned.indexOf(it.id)<0; });
   row('🎁','꾸미기 아이템 뽑기','아직 없는 꾸미기 아이템 1개 (겹치지 않아요)', itemLeft.length?EV_COST_ITEM+'🎟️':'다 모음', !itemLeft.length||bal<EV_COST_ITEM, function(){
@@ -1822,12 +1826,26 @@ function popCoin(){
 }
 
 /* ---------- 성장 ---------- */
+var lvGain=0;
+function lvEv(l){ return l%10===0?10:(l%5===0?3:1); }
 function addXp(n){
   var before=level(); if(before>=MAXLV) return;
   S.xp=Math.min(S.xp+n, lvAt(MAXLV));
   var after=level();
-  if(after>before) celebrate(before,after);
+  if(after>before){ lvGain=0; for(var l=before+1;l<=after;l++) lvGain+=lvEv(l); S.ev=(S.ev|0)+lvGain; celebrate(before,after); }
 }
+/* 오늘의 미션: 밥 먹이기 + 씻기 + 쓰다듬기 10번 → 이벤트재화 5 */
+var MSN_EV=5, MSN_PET=10, WALK_EV=1, WALK_EV_MAX=3, SCHOOL_EV=2;
+function msnGet(){ var d=dayKey(); if(!S.msn||S.msn.d!==d) S.msn={d:d,eat:false,wash:false,petN:0,done:false}; return S.msn; }
+function msnMark(k){
+  var m=msnGet();
+  if(k==='pet'){ if(m.petN>=MSN_PET) return; m.petN++; } else { if(m[k]) return; m[k]=true; }
+  if(!m.done && m.eat && m.wash && m.petN>=MSN_PET){
+    m.done=true; S.ev=(S.ev|0)+MSN_EV;
+    setTimeout(function(){ say('오늘의 미션 완료! 이벤트재화 +'+MSN_EV, 3600); sfx.up&&sfx.up(); commit(); },k==='pet'?200:900);
+  }
+}
+function walkEvGive(){ var d=dayKey(); if(!S.evDay||S.evDay.d!==d) S.evDay={d:d,walk:0}; if(S.evDay.walk>=WALK_EV_MAX) return 0; S.evDay.walk++; S.ev=(S.ev|0)+WALK_EV; return WALK_EV; }
 function confetti(){
   var cols=['#FF6F91','#FFD166','#5EBBF0','#7FCB6F','#B38CFF','#FF8A65'];
   for(var i=0;i<40;i++){
@@ -1843,9 +1861,9 @@ function confetti(){
 function celebrate(before,after){
   var stageUp=stageName(after)!==stageName(before), maxed=after>=MAXLV;
   sfx.up(); if(stageUp||maxed) confetti(); setFlash('joy',stageUp||maxed?3500:1800);
-  if(maxed) say('만렙이에요! '+eun(nm())+' 다 자랐어요!', 4200);
-  else if(stageUp) say('와! '+eun(nm())+' 이제 '+stageName(after)+'예요!', 4200);
-  else say('레벨 '+after+'(으)로 올랐어요!', 3200);
+  if(maxed) say('만렙이에요! '+eun(nm())+' 다 자랐어요!'+(lvGain?' 이벤트재화 +'+lvGain:''), 4200);
+  else if(stageUp) say('와! '+eun(nm())+' 이제 '+stageName(after)+'예요!'+(lvGain?' 이벤트재화 +'+lvGain:''), 4200);
+  else say('레벨 '+after+'(으)로 올랐어요!'+(lvGain?' 이벤트재화 +'+lvGain:''), 3200);
   if(maxed) setTimeout(function(){ if(level()>=MAXLV && $('nameWrap').hidden) openGrad(); },2600);
   hop.animate([{transform:'translateY(0)'},{transform:'translateY(-26px)'},{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:800,easing:'ease-out'});
 }
@@ -1947,7 +1965,7 @@ async function feed(key){
     setFlash('eat',1500);
     hop.animate([{transform:'scale(1,1)'},{transform:'scale(1.04,.95)'},{transform:'scale(1,1)'},{transform:'scale(1.04,.95)'},{transform:'scale(1,1)'},{transform:'scale(1.04,.95)'},{transform:'scale(1,1)'}],{duration:1300,easing:'ease-in-out'});
     await wait(1400);
-    S.hunger=cl(S.hunger+(f.hunger||0)); S.thirst=cl(S.thirst+(f.thirst||0)); S.happy=cl(S.happy+(f.happy||0)); addXp(f.xp); commit();
+    S.hunger=cl(S.hunger+(f.hunger||0)); S.thirst=cl(S.thirst+(f.thirst||0)); S.happy=cl(S.happy+(f.happy||0)); msnMark('eat'); addXp(f.xp); commit();
   }finally{ locked=false; }
 }
 async function wash(){
@@ -1971,7 +1989,7 @@ async function wash(){
       if(Date.now()>end) clearInterval(iv);
     },80);
     await wait(2700);
-    S.clean=cl(S.clean+38); S.happy=cl(S.happy+4); addXp(6); commit();
+    S.clean=cl(S.clean+38); S.happy=cl(S.happy+4); msnMark('wash'); addXp(6); commit();
     for(var i=0;i<6;i++){
       var st=mk('path',{d:'M0 -9L2.6 -2.6L9 0L2.6 2.6L0 9L-2.6 2.6L-9 0L-2.6 -2.6Z',fill:'#FFE27A'});
       var sx=OX+rand(-120,120)*s, sy=OY-rand(40,240)*s;
@@ -2211,7 +2229,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={evPity:S.evPity,att:S.att,gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={msn:S.msn,evDay:S.evDay,evPity:S.evPity,att:S.att,gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
@@ -2699,7 +2717,7 @@ function svgPt(e){
 }
 function setHand(x,y){ if(petHand) petHand.setAttribute('transform','translate('+x+' '+y+')'); }
 function petOne(p,demo){
-  petCount++; if(!demo) S.pets=(S.pets|0)+1;
+  petCount++; if(!demo){ S.pets=(S.pets|0)+1; msnMark('pet'); }
   S.happy=cl(S.happy+1.6);
   if(petCount%4===0) addXp(1);
   if(petCount%6===0 && petCoins<3){ petCoins++; S.coins+=1; sfx.coin(); popCoin(); }
@@ -2797,9 +2815,9 @@ async function walk(){
     scene.classList.remove('walking');
     locked=false;
   }
-  S.happy=cl(S.happy+18); S.energy=cl(S.energy-16); S.hunger=cl(S.hunger-8); S.thirst=cl(S.thirst-12); S.clean=cl(S.clean-14); addXp(10);
+  S.happy=cl(S.happy+18); S.energy=cl(S.energy-16); S.hunger=cl(S.hunger-8); S.thirst=cl(S.thirst-12); S.clean=cl(S.clean-14); addXp(10); var wev=walkEvGive();
   setFlash('joy',2600); sfx.up();
-  say(walkGot>0 ? '산책 끝! 코인 '+walkGot+'개를 주웠어요' : '산책 끝! 신나게 걸었어요', 3600);
+  say((walkGot>0 ? '산책 끝! 코인 '+walkGot+'개를 주웠어요' : '산책 끝! 신나게 걸었어요')+(wev?' · 이벤트재화 +'+wev:''), 3600);
   commit();
 }
 
@@ -2847,10 +2865,10 @@ async function school(){
     locked=false;
   }
   S.schoolDay=dayKey();
-  S.happy=cl(S.happy+14); S.energy=cl(S.energy-12); S.hunger=cl(S.hunger-8); S.thirst=cl(S.thirst-8); S.clean=cl(S.clean-4); S.coins+=3; popCoin();
+  S.happy=cl(S.happy+14); S.energy=cl(S.energy-12); S.hunger=cl(S.hunger-8); S.thirst=cl(S.thirst-8); S.clean=cl(S.clean-4); S.coins+=3; S.ev=(S.ev|0)+SCHOOL_EV; popCoin();
   addXp(12); sfx.coin();
   setFlash('joy',2400);
-  say('학교 끝! 코인 3개를 받았어요', 3600);
+  say('학교 끝! 코인 3개, 이벤트재화 '+SCHOOL_EV+'개를 받았어요', 3600);
   commit();
 }
 
