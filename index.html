@@ -206,7 +206,9 @@ button.prow{cursor:pointer}
 .roomBtn.wxBtn{left:56px}
 .roomBtn.rdBtn{left:102px}
 .roomBtn.superBtn{left:102px; font-size:20px}
-.roomBtn.evBtn{left:148px; font-size:20px}
+.roomBtn.msnSide{left:10px; top:58px; font-size:20px}
+.roomBtn.evBtn{left:10px; top:106px; font-size:20px}
+#msnBtn.alert::after{top:-2px; right:-2px}
 .scene.inroom .evBtn{display:none}
 .scene.editing .evBtn{display:none}
 .evrow .sk{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #D5DBF2 inset,0 1px 4px rgba(0,0,0,.2);margin:0 auto}
@@ -706,6 +708,7 @@ body{margin:0}
     <button class="roomBtn rdBtn" id="rdBtn" aria-label="방 꾸미기">🛋️</button>
     <button class="roomBtn" id="roomBtn" aria-label="배경 바꾸기">🏠</button>
     <button class="roomBtn superBtn" id="superBtn" aria-label="슈퍼 가기">🛒</button>
+    <button class="roomBtn msnSide" id="msnBtn" aria-label="일일과제">📋</button>
     <button class="roomBtn evBtn" id="evBtn" aria-label="이벤트 상점">🎪</button>
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
   </section>
@@ -736,7 +739,6 @@ body{margin:0}
     <button class="act" id="schoolBtn" style="--bg:#C9F0EA;--edge:#8ED3C8;--fg:#1B5F57"><svg><use href="#i-school"/></svg>학교</button>
     <button class="act" id="hospBtn" style="--bg:#FFE3E3;--edge:#F2A9A9;--fg:#8A2A2A"><svg><use href="#i-cross"/></svg>병원</button>
     <button class="act" id="decorBtn" style="--bg:#FFD6E6;--edge:#F0A1C0;--fg:#8A2C55"><svg><use href="#i-bow"/></svg>꾸미기</button>
-    <button class="act" id="msnBtn" style="--bg:#FFF0C2;--edge:#EBCB6B;--fg:#6B4E00"><span style="font-size:26px;line-height:26px">📋</span>일일과제</button>
     <button class="act" id="phoneBtn" style="--bg:#D9E4FF;--edge:#9DB5EE;--fg:#27428A"><svg viewBox="0 0 48 48"><rect x="13" y="4" width="22" height="40" rx="5" fill="#5B7BD5" stroke="#27428A" stroke-width="2.5"/><rect x="16.5" y="9" width="15" height="25" rx="2" fill="#E8F0FF"/><circle cx="24" cy="39" r="2.3" fill="#E8F0FF"/></svg>핸드폰</button>
   </nav>
 </main>
