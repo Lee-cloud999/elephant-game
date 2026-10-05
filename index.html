@@ -2179,9 +2179,10 @@ function renderShop(){
   var list=$('shopList'); list.innerHTML='';
   $('shopCoins').textContent=S.coins;
   if(!gBusy) renderGacha();
+  if(!SHOP.some(function(it){ return S.owned.indexOf(it.id)>=0; })){ var em=document.createElement('div'); em.className='attsub'; em.style.gridColumn='1/-1'; em.style.padding='14px 0'; em.textContent='아직 가진 아이템이 없어요. 위에서 뽑기로 모아 보세요!'; list.appendChild(em); }
   SHOP.map(function(it,i){ return {it:it,i:i}; }).sort(function(a,b){ return (a.it.tier-b.it.tier)||(a.i-b.i); }).forEach(function(o){
     var it=o.it, owned=S.owned.indexOf(it.id)>=0, worn=S.worn[it.slot]===it.id, buyable=TIERS[it.tier].buy;
-    if(!owned && (it.tier===3||it.evo)) return;
+    if(!owned) return;
     var tile=document.createElement('button'); tile.className='stile'+(worn?' worn':'')+((!owned&&!buyable)?' lockd':'')+(buySel===it.id?' sel':'');
     var status;
     if(!owned && !buyable) status='<small class="st lk">뽑기 전용</small>';
