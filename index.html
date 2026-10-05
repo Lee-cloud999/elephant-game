@@ -2467,15 +2467,15 @@ function renderEdit(){
   $('zPct').textContent=Math.round(a.s*100)+'%';
   $('rPct').textContent=(a.r||0)+'°'; $('rLeft').disabled=$('rRight').disabled=!edSel;
   $('zMinus').disabled=!edSel||a.s<=ZMIN+.001; $('zPlus').disabled=!edSel||a.s>=ZMAX-.001; $('zReset').disabled=!edSel;
-  $('edHint').textContent=edSel?'화면을 끌어서 아이템을 옮겨요':'먼저 꾸미기에서 아이템을 입혀 주세요';
+  $('edHint').textContent=edSel?'끌어서 옮기고, 두 손가락으로 벌리면 커져요':'먼저 꾸미기에서 아이템을 입혀 주세요';
 }
 function startEdit(){
   endPet(); tray.hidden=true; $('shopWrap').hidden=true;
-  draft=JSON.parse(JSON.stringify(S.adj||{})); editing=true; edSel=null; edDrag=null;
+  draft=JSON.parse(JSON.stringify(S.adj||{})); editing=true; edSel=null; edDrag=null; edPts={}; edPinch=null;
   scene.classList.add('editing'); bubble.classList.remove('show'); $('editWrap').hidden=false; renderEdit(); applyAcc();
 }
 function endEdit(){
-  editing=false; edDrag=null; scene.classList.remove('editing'); $('editWrap').hidden=true; applyAcc();
+  editing=false; edDrag=null; edPts={}; edPinch=null; scene.classList.remove('editing'); $('editWrap').hidden=true; applyAcc();
 }
 function zoomBy(f){
   if(!edSel) return;
@@ -2493,16 +2493,27 @@ function accPt(e){
   var pt=$('world').createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
   return pt.matrixTransform(m.inverse());
 }
+var edPts={}, edPinch=null;
+function edDist(){ var k=Object.keys(edPts); if(k.length<2) return 0; var p=edPts[k[0]], q=edPts[k[1]]; return Math.hypot(p.x-q.x,p.y-q.y); }
 scene.addEventListener('pointerdown',function(e){
   if(!editing) return;
   e.stopPropagation(); e.preventDefault();
   if(!edSel) return;
+  edPts[e.pointerId]={x:e.clientX,y:e.clientY};
+  try{ scene.setPointerCapture(e.pointerId); }catch(_){}
+  if(Object.keys(edPts).length>=2){ edDrag=null; var d=edDist(); if(d>10) edPinch={d0:d,s0:adjOf(draft,edSel).s}; return; }
   var p=accPt(e); if(!p) return;
   var a=adjOf(draft,edSel); edDrag={id:e.pointerId,px:p.x,py:p.y,ax:a.x,ay:a.y};
-  try{ scene.setPointerCapture(e.pointerId); }catch(_){}
 },true);
 scene.addEventListener('pointermove',function(e){
-  if(!editing||!edDrag||e.pointerId!==edDrag.id) return;
+  if(!editing) return;
+  if(edPts[e.pointerId]){ edPts[e.pointerId]={x:e.clientX,y:e.clientY}; }
+  if(edPinch){
+    e.stopPropagation(); var d=edDist(); if(d<=0||!edSel) return;
+    var a=adjOf(draft,edSel); a.s=Math.min(ZMAX,Math.max(ZMIN,Math.round(edPinch.s0*d/edPinch.d0*100)/100)); draft[edSel]=a;
+    applyAcc(); renderEdit(); return;
+  }
+  if(!edDrag||e.pointerId!==edDrag.id) return;
   e.stopPropagation();
   var p=accPt(e); if(!p) return;
   var a=adjOf(draft,edSel);
@@ -2510,7 +2521,12 @@ scene.addEventListener('pointermove',function(e){
   a.y=Math.max(-300,Math.min(300,Math.round(edDrag.ay+p.y-edDrag.py)));
   draft[edSel]=a; applyAcc();
 },true);
-function upEdit(e){ if(editing&&edDrag){ e.stopPropagation(); edDrag=null; } }
+function upEdit(e){
+  if(!editing) return;
+  delete edPts[e.pointerId];
+  if(edPinch){ e.stopPropagation(); if(Object.keys(edPts).length<2) edPinch=null; edDrag=null; return; }
+  if(edDrag){ e.stopPropagation(); edDrag=null; }
+}
 scene.addEventListener('pointerup',upEdit,true);
 scene.addEventListener('pointercancel',upEdit,true);
 ['click','dblclick'].forEach(function(t){ scene.addEventListener(t,function(e){ if(editing){ e.stopPropagation(); e.preventDefault(); } },true); });
