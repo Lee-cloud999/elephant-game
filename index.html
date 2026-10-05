@@ -1773,6 +1773,19 @@ function weightedPick(items){
   for(var i=0;i<items.length;i++){ r-=TIERS[items[i].tier].w/items.filter(function(x){ return x.tier===items[i].tier; }).length; if(r<0) return items[i]; }
   return last;
 }
+var EVO_SEC=.03, EVO_PITY=10;
+function evoPick(pool){
+  var sec=pool.filter(function(x){ return x.tier===3; }), norm=pool.filter(function(x){ return x.tier!==3; });
+  S.evPity=(S.evPity|0)+1; var it;
+  if(sec.length && S.evPity>=EVO_PITY) it=sec[Math.floor(Math.random()*sec.length)];
+  else{
+    var r=Math.random(), p=sec.length?EVO_SEC:0;
+    if(!norm.length){ it=sec[Math.floor(Math.random()*sec.length)]; }
+    else{ for(var i=0;i<sec.length;i++){ r-=p; if(r<0){ it=sec[i]; break; } } if(!it) it=norm[Math.floor(Math.random()*norm.length)]; }
+  }
+  if(it.tier===3) S.evPity=0;
+  return it;
+}
 var evNote=$('evNote');
 function evDraw(){
   S.gskins=S.gskins||['pink']; S.gskin=S.gskin||'pink';
@@ -1791,9 +1804,9 @@ function evDraw(){
     S.ev-=EV_COST_ITEM; var it=weightedPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
     evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
   var evoLeft=SHOP.filter(function(it){ return it.evo && S.owned.indexOf(it.id)<0; });
-  row('🎃','이벤트 한정 의상 뽑기','이벤트 상점에서만 얻는 의상 '+(EVO_N-evoLeft.length)+'/'+EVO_N+' (겹치지 않아요)', evoLeft.length?EV_COST_EVO+'🎟️':'다 모음', !evoLeft.length||bal<EV_COST_EVO, function(){
+  row('🎃','이벤트 한정 의상 뽑기','한정 의상 '+(EVO_N-evoLeft.length)+'/'+EVO_N+' · 시크릿 각 3% · 10번째 뽑기는 시크릿 확정'+(evoLeft.some(function(x){return x.tier===3;})?' ('+Math.min(EVO_PITY,(S.evPity|0))+'/'+EVO_PITY+')':''), evoLeft.length?EV_COST_EVO+'🎟️':'다 모음', !evoLeft.length||bal<EV_COST_EVO, function(){
     var pool=SHOP.filter(function(it){ return it.evo && S.owned.indexOf(it.id)<0; }); if(!pool.length||(S.ev|0)<EV_COST_EVO) return;
-    S.ev-=EV_COST_EVO; var it=pool[Math.floor(Math.random()*pool.length)]; S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
+    S.ev-=EV_COST_EVO; var it=evoPick(pool); S.owned.push(it.id); S.worn[it.slot]=it.id; commit(); sfx.up();
     evNote.innerHTML='<b>'+TIERS[it.tier].name+'</b> '+it.name+' 을(를) 얻었어요! 바로 입혀 줬어요'; evDraw(); });
   var roomLeft=ROOM_ITEMS.filter(function(it){ return S.rd.own.indexOf(it.id)<0; });
   row('🛋️','방 꾸미기 뽑기','아직 없는 방 아이템 1개 (겹치지 않아요)', roomLeft.length?EV_COST_ROOM+'🎟️':'다 모음', !roomLeft.length||bal<EV_COST_ROOM, function(){
@@ -2210,7 +2223,7 @@ function graduate(){
   if(level()<MAXLV) return;
   S.grad=S.grad||Date.now(); S.sleeping=false; S.sick=false;
   S.herd.push(packEle());
-  var keep={att:S.att,gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
+  var keep={evPity:S.evPity,att:S.att,gems:S.gems,ev:S.ev,gskin:S.gskin,gskins:S.gskins,made:S.made,ing:S.ing,fridge:S.fridge,rd:S.rd,wx:S.wx,room:S.room,coins:S.coins,owned:S.owned,sfxOn:S.sfxOn,sfxVol:S.sfxVol,bgmOn:S.bgmOn,bgmVol:S.bgmVol,bgmTrack:S.bgmTrack,herd:S.herd,phone:S.phone};
   var f=fresh(); Object.keys(f).forEach(function(k){ S[k]=f[k]; });
   Object.keys(keep).forEach(function(k){ S[k]=keep[k]; });
   S.name=''; S.t=Date.now();
